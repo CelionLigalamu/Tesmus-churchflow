@@ -1,5 +1,6 @@
 from django.db import models
 from tenants.managers import TenantManager
+import uuid
 
 
 class Service(models.Model):
@@ -22,6 +23,7 @@ class Service(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = TenantManager()
+    qr_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     def __str__(self):
         return f"{self.name} - {self.date}"
