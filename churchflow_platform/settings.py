@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'tenants',
     'members',
     'visitors',
+    'services',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
