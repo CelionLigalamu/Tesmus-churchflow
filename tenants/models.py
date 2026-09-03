@@ -10,6 +10,7 @@ class Church(models.Model):
     accent_color = models.CharField(max_length=7, default='#198754')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_member_sequence = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
