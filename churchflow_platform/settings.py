@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'members',
     'visitors',
     'services',
+    'attendance',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
