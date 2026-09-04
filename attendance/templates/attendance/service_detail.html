@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }} Attendance | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Attendance Detail{% endblock %}
+{% block nav_attendance %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">{{ service.date|date:"M j, Y" }}</div>
+        <h1>{{ service.name }}</h1>
+        <p class="page-subtitle">Full attendance list for this service.</p>
+    </div>
+    <a class="btn btn-brand" href="{% url 'attendance_service_list' %}">Back to Attendance</a>
+</div>
+
+<div class="metric-row">
+    <div class="metric-card">
+        <div class="metric-label">Registered</div>
+        <div class="metric-value">{{ registered }}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Present</div>
+        <div class="metric-value">{{ present }}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Absent</div>
+        <div class="metric-value">{{ absent }}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Rate</div>
+        <div class="metric-value">{{ attendance_rate }}%</div>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <section class="detail-card">
+        <h2>Service Info</h2>
+        <div class="info-list">
+            <div>
+                <div class="info-label">Status</div>
+                <span class="status-pill {% if service.status == 'finalized' %}status-pill-success{% elif service.status == 'closed' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
+                    {{ service.get_status_display }}
+                </span>
+            </div>
+            <div>
+                <div class="info-label">Type</div>
+                <div class="info-value">{{ service.service_type|default:"Service" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Region</div>
+                <div class="info-value">{{ service.region.name|default:"No region" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Branch</div>
+                <div class="info-value">{{ service.branch.name|default:"No branch" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Unmarked</div>
+                <div class="info-value">{{ unmarked }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-card">
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Method</th>
+                        <th>Result</th>
+                        <th>Checked In</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendances %}
+                        <tr>
+                            <td>
+                                {% if attendance.member %}
+                                    <a class="table-link" href="{% url 'member_detail' attendance.member.pk %}">{{ attendance.member.full_name }}</a>
+                                {% elif attendance.visitor %}
+                                    {{ attendance.visitor.full_name }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </td>
+                            <td>{% if attendance.member %}Member{% elif attendance.visitor %}Visitor{% else %}Unknown{% endif %}</td>
+                            <td>{{ attendance.get_method_display }}</td>
+                            <td>
+                                {% if attendance.result == 'present' %}
+                                    <span class="status-pill status-pill-success">Present</span>
+                                {% elif attendance.result == 'absent' %}
+                                    <span class="status-pill status-pill-warning">Absent</span>
+                                {% else %}
+                                    <span class="status-pill status-pill-neutral">Unmarked</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ attendance.checked_in_at|date:"M j, Y H:i" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-state">No attendance has been recorded for this service.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

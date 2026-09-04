@@ -163,6 +163,226 @@ h1, h2, h3, h4, h5 {
     color: var(--text-secondary);
 }
 
+/* --- Data pages --- */
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.page-kicker {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.page-heading h1 {
+    font-size: 1.55rem;
+    margin: 0;
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    margin: 7px 0 0;
+    max-width: 680px;
+}
+
+.toolbar-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.form-control-custom,
+.form-select-custom {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.92rem;
+    min-height: 40px;
+}
+
+.form-control-custom:focus,
+.form-select-custom:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-accent) 20%, transparent);
+}
+
+.table-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-custom {
+    margin: 0;
+}
+
+.table-custom thead th {
+    background-color: color-mix(in srgb, var(--bg-body) 58%, var(--bg-surface));
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 12px 16px;
+    text-transform: uppercase;
+}
+
+.table-custom tbody td {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 14px 16px;
+    vertical-align: middle;
+}
+
+.table-custom tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table-custom tbody tr:hover {
+    background-color: color-mix(in srgb, var(--brand-accent) 8%, transparent);
+}
+
+.table-link {
+    color: var(--text-primary);
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.table-link:hover {
+    color: var(--brand-primary);
+}
+
+.meta-stack {
+    display: grid;
+    gap: 2px;
+}
+
+.meta-muted {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.status-pill {
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.78rem;
+    font-weight: 650;
+    line-height: 1;
+    padding: 6px 10px;
+    text-transform: capitalize;
+}
+
+.status-pill-success {
+    background-color: color-mix(in srgb, var(--color-success) 10%, var(--bg-surface));
+    border-color: color-mix(in srgb, var(--color-success) 28%, var(--border-color));
+    color: var(--color-success);
+}
+
+.status-pill-warning {
+    background-color: color-mix(in srgb, var(--color-warning) 10%, var(--bg-surface));
+    border-color: color-mix(in srgb, var(--color-warning) 28%, var(--border-color));
+    color: var(--color-warning);
+}
+
+.status-pill-neutral {
+    background-color: color-mix(in srgb, var(--text-secondary) 10%, var(--bg-surface));
+    color: var(--text-secondary);
+}
+
+.detail-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(250px, 0.34fr) 1fr;
+}
+
+.detail-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.detail-card h2 {
+    font-size: 1rem;
+    margin: 0 0 16px;
+}
+
+.info-list {
+    display: grid;
+    gap: 14px;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.empty-state {
+    color: var(--text-secondary);
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.metric-row {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 16px;
+}
+
+.metric-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    font-size: 1.35rem;
+    font-weight: 750;
+}
+
+@media (max-width: 920px) {
+    .page-heading {
+        display: block;
+    }
+
+    .detail-grid,
+    .metric-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* --- Buttons --- */
 .btn-brand {
     background-color: var(--brand-accent);

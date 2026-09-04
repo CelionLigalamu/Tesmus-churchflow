@@ -1,16 +1,24 @@
 {% extends "base_plain.html" %}
+{% block title %}Tesmus Platform | Tesmus ChurchFlow{% endblock %}
 {% block content %}
-<nav class="navbar navbar-dark navbar-brand-custom mb-4">
-    <div class="container">
-        <span class="navbar-brand">Tesmus ChurchFlow</span>
-        <form method="post" action="{% url 'logout' %}" class="d-inline">
+<nav class="topbar" style="background-color: var(--brand-primary); border-bottom: none;">
+    <span class="topbar-title" style="color: #fff;">Tesmus ChurchFlow — Platform</span>
+    <div class="d-flex align-items-center gap-3">
+        <span class="topbar-user" style="color: rgba(255,255,255,0.7);">{{ request.user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" class="m-0">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
         </form>
     </div>
 </nav>
-<div class="container">
-    <h2>Tesmus Platform Dashboard</h2>
-    <p>Manage churches via the <a href="/admin/">admin panel</a> for now.</p>
+<div class="page-body">
+    <div class="page-heading">
+        <div>
+            <div class="page-kicker">Platform</div>
+            <h1>Tesmus Super Admin</h1>
+            <p class="page-subtitle">Manage churches and onboarding via the admin panel for now.</p>
+        </div>
+        <a class="btn btn-brand" href="/admin/">Open Admin Panel</a>
+    </div>
 </div>
 {% endblock %}

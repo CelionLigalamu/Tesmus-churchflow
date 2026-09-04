@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Attendance | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Attendance{% endblock %}
+{% block nav_attendance %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Services</div>
+        <h1>Attendance</h1>
+        <p class="page-subtitle">Service-by-service attendance status and live counts from the current tenant database.</p>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Region / Branch</th>
+                    <th>Status</th>
+                    <th>Registered</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in service_rows %}
+                    <tr>
+                        <td>
+                            <div class="meta-stack">
+                                <a class="table-link" href="{% url 'attendance_service_detail' row.service.pk %}">{{ row.service.name }}</a>
+                                <span class="meta-muted">{{ row.service.service_type|default:"Service" }}</span>
+                            </div>
+                        </td>
+                        <td>{{ row.service.date|date:"M j, Y" }}</td>
+                        <td>
+                            <div class="meta-stack">
+                                <span>{{ row.service.region.name|default:"No region" }}</span>
+                                <span class="meta-muted">{{ row.service.branch.name|default:"No branch" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-pill {% if row.service.status == 'finalized' %}status-pill-success{% elif row.service.status == 'closed' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
+                                {{ row.service.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ row.registered }}</td>
+                        <td>{{ row.present }}</td>
+                        <td>{{ row.absent }}</td>
+                        <td>{{ row.attendance_rate }}%</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="empty-state">No services are available for this church.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

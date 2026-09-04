@@ -17,10 +17,10 @@
         </div>
         <div class="sidebar-nav">
             <a href="{% url 'home' %}" class="sidebar-link {% block nav_home %}{% endblock %}">Dashboard</a>
-            <a href="/admin/members/member/" class="sidebar-link">Members</a>
+            <a href="{% url 'member_list' %}" class="sidebar-link {% block nav_members %}{% endblock %}">Members</a>
             <a href="/admin/visitors/visitor/" class="sidebar-link">Visitors</a>
             <a href="/admin/services/service/" class="sidebar-link">Services</a>
-            <a href="/admin/attendance/attendance/" class="sidebar-link">Attendance</a>
+            <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}">Attendance</a>
             <a href="/admin/messaging/smsmessage/" class="sidebar-link">Messages</a>
             <a href="/admin/pastoral/pastoralfollowup/" class="sidebar-link">Pastoral Care</a>
         </div>

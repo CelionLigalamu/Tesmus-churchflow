@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ member.full_name }} | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Member Detail{% endblock %}
+{% block nav_members %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">{{ member.reference_number }}</div>
+        <h1>{{ member.full_name }}</h1>
+        <p class="page-subtitle">Member profile and attendance history from live church records.</p>
+    </div>
+    <a class="btn btn-brand" href="{% url 'member_list' %}">Back to Members</a>
+</div>
+
+<div class="detail-grid">
+    <section class="detail-card">
+        <h2>Member Info</h2>
+        <div class="info-list">
+            <div>
+                <div class="info-label">Reference Number</div>
+                <div class="info-value">{{ member.reference_number }}</div>
+            </div>
+            <div>
+                <div class="info-label">Phone</div>
+                <div class="info-value">{{ member.phone_number }}</div>
+            </div>
+            <div>
+                <div class="info-label">Region</div>
+                <div class="info-value">{{ member.region.name|default:"No region" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Branch</div>
+                <div class="info-value">{{ member.branch.name|default:"No branch" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Status</div>
+                <span class="status-pill {% if member.status == 'active' %}status-pill-success{% else %}status-pill-neutral{% endif %}">
+                    {{ member.get_status_display }}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <section class="table-card">
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Result</th>
+                        <th>Checked In</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendance_history %}
+                        <tr>
+                            <td><a class="table-link" href="{% url 'attendance_service_detail' attendance.service.pk %}">{{ attendance.service.name }}</a></td>
+                            <td>{{ attendance.service.date|date:"M j, Y" }}</td>
+                            <td>{{ attendance.get_method_display }}</td>
+                            <td>
+                                {% if attendance.result == 'present' %}
+                                    <span class="status-pill status-pill-success">Present</span>
+                                {% elif attendance.result == 'absent' %}
+                                    <span class="status-pill status-pill-warning">Absent</span>
+                                {% else %}
+                                    <span class="status-pill status-pill-neutral">Unmarked</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ attendance.checked_in_at|date:"M j, Y H:i" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-state">No attendance history recorded for this member.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

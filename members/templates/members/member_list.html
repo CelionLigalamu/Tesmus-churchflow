@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Members | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Members{% endblock %}
+{% block nav_members %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Directory</div>
+        <h1>Members</h1>
+        <p class="page-subtitle">A tenant-scoped view of registered members and their current profile status.</p>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Showing</div>
+        <div class="metric-value">{{ total_members }}</div>
+    </div>
+</div>
+
+<form method="get" class="toolbar-card">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-7">
+            <input class="form-control form-control-custom" type="search" name="q" value="{{ search_query }}" placeholder="Search by name or reference number">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select form-select-custom" name="status">
+                <option value="">All statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-brand" type="submit">Filter</button>
+        </div>
+    </div>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Full Name</th>
+                    <th>Phone</th>
+                    <th>Region / Branch</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+                    <tr>
+                        <td><a class="table-link" href="{% url 'member_detail' member.pk %}">{{ member.reference_number }}</a></td>
+                        <td>{{ member.full_name }}</td>
+                        <td>{{ member.phone_number }}</td>
+                        <td>
+                            <div class="meta-stack">
+                                <span>{{ member.region.name|default:"No region" }}</span>
+                                <span class="meta-muted">{{ member.branch.name|default:"No branch" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-pill {% if member.status == 'active' %}status-pill-success{% else %}status-pill-neutral{% endif %}">
+                                {{ member.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No members match this view.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
