@@ -1,11 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}" rel="stylesheet">
+    {% block extra_style %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-dark navbar-brand-custom mb-4">
         <div class="container">
             <span class="navbar-brand">
                 {% if request.user.church %}{{ request.user.church.name }}{% else %}Tesmus ChurchFlow{% endif %}
