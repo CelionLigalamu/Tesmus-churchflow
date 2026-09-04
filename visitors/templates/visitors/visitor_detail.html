@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ visitor.full_name }} | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Visitor Detail{% endblock %}
+{% block nav_visitors %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Visitor</div>
+        <h1>{{ visitor.full_name }}</h1>
+        <p class="page-subtitle">Visitor profile from live church records.</p>
+    </div>
+    <a class="btn btn-brand" href="{% url 'visitor_list' %}">Back to Visitors</a>
+</div>
+
+<div class="detail-grid">
+    <section class="detail-card">
+        <h2>Visitor Info</h2>
+        <div class="info-list">
+            <div>
+                <div class="info-label">Full Name</div>
+                <div class="info-value">{{ visitor.full_name }}</div>
+            </div>
+            <div>
+                <div class="info-label">Phone</div>
+                <div class="info-value">{{ visitor.phone_number }}</div>
+            </div>
+            <div>
+                <div class="info-label">First Visit</div>
+                <div class="info-value">{{ visitor.first_visit_date|date:"M j, Y H:i" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Region</div>
+                <div class="info-value">{{ visitor.region.name|default:"No region" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Branch</div>
+                <div class="info-value">{{ visitor.branch.name|default:"No branch" }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="detail-card">
+        <h2>Conversion</h2>
+        {% if visitor.converted_to_member %}
+            <div class="info-list">
+                <div>
+                    <div class="info-label">Member Record</div>
+                    <a class="table-link" href="{% url 'member_detail' visitor.converted_to_member.pk %}">
+                        {{ visitor.converted_to_member.reference_number }} - {{ visitor.converted_to_member.full_name }}
+                    </a>
+                </div>
+                <div>
+                    <div class="info-label">Status</div>
+                    <span class="status-pill status-pill-success">Converted</span>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">This visitor has not been converted to a member.</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Visitors | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Visitors{% endblock %}
+{% block nav_visitors %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Guest Care</div>
+        <h1>Visitors</h1>
+        <p class="page-subtitle">A tenant-scoped view of first-time guests and conversion status.</p>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Showing</div>
+        <div class="metric-value">{{ total_visitors }}</div>
+    </div>
+</div>
+
+<form method="get" class="toolbar-card">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-10">
+            <input class="form-control form-control-custom" type="search" name="q" value="{{ search_query }}" placeholder="Search by name or phone number">
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-brand" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Phone</th>
+                    <th>Region / Branch</th>
+                    <th>First Visit</th>
+                    <th>Converted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visitor in visitors %}
+                    <tr>
+                        <td><a class="table-link" href="{% url 'visitor_detail' visitor.pk %}">{{ visitor.full_name }}</a></td>
+                        <td>{{ visitor.phone_number }}</td>
+                        <td>
+                            <div class="meta-stack">
+                                <span>{{ visitor.region.name|default:"No region" }}</span>
+                                <span class="meta-muted">{{ visitor.branch.name|default:"No branch" }}</span>
+                            </div>
+                        </td>
+                        <td>{{ visitor.first_visit_date|date:"M j, Y" }}</td>
+                        <td>
+                            {% if visitor.converted_to_member %}
+                                <a class="table-link" href="{% url 'member_detail' visitor.converted_to_member.pk %}">
+                                    {{ visitor.converted_to_member.reference_number }}
+                                </a>
+                            {% else %}
+                                <span class="status-pill status-pill-neutral">Not converted</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">No visitors match this view.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

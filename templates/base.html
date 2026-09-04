@@ -18,8 +18,8 @@
         <div class="sidebar-nav">
             <a href="{% url 'home' %}" class="sidebar-link {% block nav_home %}{% endblock %}">Dashboard</a>
             <a href="{% url 'member_list' %}" class="sidebar-link {% block nav_members %}{% endblock %}">Members</a>
-            <a href="/admin/visitors/visitor/" class="sidebar-link">Visitors</a>
-            <a href="/admin/services/service/" class="sidebar-link">Services</a>
+            <a href="{% url 'visitor_list' %}" class="sidebar-link {% block nav_visitors %}{% endblock %}">Visitors</a>
+            <a href="{% url 'service_list' %}" class="sidebar-link {% block nav_services %}{% endblock %}">Services</a>
             <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}">Attendance</a>
             <a href="/admin/messaging/smsmessage/" class="sidebar-link">Messages</a>
             <a href="/admin/pastoral/pastoralfollowup/" class="sidebar-link">Pastoral Care</a>

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }} | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Service Detail{% endblock %}
+{% block nav_services %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">{{ service.date|date:"M j, Y" }}</div>
+        <h1>{{ service.name }}</h1>
+        <p class="page-subtitle">Service setup and attendance access for this tenant-scoped record.</p>
+    </div>
+    <a class="btn btn-brand" href="{% url 'service_list' %}">Back to Services</a>
+</div>
+
+<div class="detail-grid">
+    <section class="detail-card">
+        <h2>Service Info</h2>
+        <div class="info-list">
+            <div>
+                <div class="info-label">Status</div>
+                <span class="status-pill {% if service.status == 'finalized' %}status-pill-success{% elif service.status == 'closed' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
+                    {{ service.get_status_display }}
+                </span>
+            </div>
+            <div>
+                <div class="info-label">Type</div>
+                <div class="info-value">{{ service.service_type|default:"Service" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Date</div>
+                <div class="info-value">{{ service.date|date:"M j, Y" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Start Time</div>
+                <div class="info-value">{{ service.start_time|time:"H:i"|default:"Not set" }}</div>
+            </div>
+            <div>
+                <div class="info-label">End Time</div>
+                <div class="info-value">{{ service.end_time|time:"H:i"|default:"Not set" }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="detail-card">
+        <h2>Scope & Attendance</h2>
+        <div class="info-list">
+            <div>
+                <div class="info-label">Region</div>
+                <div class="info-value">{{ service.region.name|default:"No region" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Branch</div>
+                <div class="info-value">{{ service.branch.name|default:"No branch" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Created By</div>
+                <div class="info-value">{{ service.created_by.username|default:"Not recorded" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Attendance</div>
+                <a class="table-link" href="{% url 'attendance_service_detail' service.pk %}">View attendance detail</a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
