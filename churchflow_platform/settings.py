@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'services',
     'attendance',
     'messaging',
+    'pastoral',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
