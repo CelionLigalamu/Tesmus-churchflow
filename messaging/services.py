@@ -27,3 +27,11 @@ def send_message(church, recipient_phone, body, template=None):
         sms_message.save(update_fields=['status', 'failure_reason'])
 
     return sms_message
+
+
+def send_bulk(church, recipients, body, template=None):
+    results = []
+    for member in recipients:
+        msg = send_message(church, member.phone_number, body, template=template)
+        results.append(msg)
+    return results
