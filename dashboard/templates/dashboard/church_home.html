@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Dashboard</h2>
+<div class="row mt-4">
+    <div class="col-md-3"><div class="card p-3"><h6>Members</h6><h3>{{ summary.total_members }}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3"><h6>Visitors</h6><h3>{{ summary.total_visitors }}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3"><h6>Present</h6><h3>{{ summary.present }}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3"><h6>Attendance Rate</h6><h3>{{ summary.attendance_rate }}%</h3></div></div>
+</div>
+{% endblock %}
