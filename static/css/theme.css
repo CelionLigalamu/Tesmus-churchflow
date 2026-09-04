@@ -4,88 +4,238 @@
     --brand-accent: #C6A16A;
     --bg-body: #F5EEE4;
     --bg-surface: #FFFFFF;
-    --text-primary: #2C2C2C;
-    --text-secondary: #6B7280;
-    --border-color: #E5E7EB;
+    --text-primary: #1F1F1F;
+    --text-secondary: #7A7570;
+    --border-color: #E8E1D6;
     --color-success: #15803D;
     --color-warning: #D97706;
     --color-error: #DC2626;
     --color-info: #2563EB;
 }
 
+* { box-sizing: border-box; }
+
 body {
     background-color: var(--bg-body);
     color: var(--text-primary);
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14.5px;
 }
 
-.navbar-brand-custom {
-    background-color: var(--brand-primary) !important;
+h1, h2, h3, h4, h5 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
 }
 
-.btn-brand {
-    background-color: var(--brand-accent);
-    border-color: var(--brand-accent);
-    color: #2C2C2C;
+/* --- Top header --- */
+.topbar {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 14px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topbar-title {
+    font-size: 1.05rem;
     font-weight: 600;
-    padding: 10px 20px;
-    letter-spacing: 0.3px;
-    transition: all 0.15s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: var(--text-primary);
 }
 
-.btn-brand:hover {
-    background-color: #b8905a;
-    border-color: #b8905a;
-    color: #2C2C2C;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    transform: translateY(-1px);
+.topbar-user {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
-.btn-brand:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+/* --- Sidebar --- */
+.sidebar-custom {
+    width: 250px;
+    min-height: 100vh;
+    background-color: var(--brand-primary);
+    color: #fff;
+    padding: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-brand {
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 22px 22px 20px 22px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-brand-badge {
+    width: 32px;
+    height: 32px;
+    background-color: var(--brand-accent);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #1F1F1F;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.sidebar-nav {
+    padding: 16px 12px;
+    flex: 1;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    margin-bottom: 2px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.12s ease;
+}
+
+.sidebar-link:hover {
+    background-color: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+.sidebar-link.active {
+    background-color: var(--brand-accent);
+    color: #1F1F1F;
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.main-content {
+    flex: 1;
+    background-color: var(--bg-body);
+    min-height: 100vh;
+}
+
+.page-body {
+    padding: 28px 32px;
+}
+
+/* --- Stat cards --- */
+.stat-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px 22px;
+    height: 100%;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .card-custom {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 10px;
 }
 
 .text-secondary-custom {
     color: var(--text-secondary);
 }
 
+/* --- Buttons --- */
+.btn-brand {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #1F1F1F;
+    font-weight: 600;
+    padding: 10px 20px;
+    letter-spacing: 0.2px;
+    transition: all 0.15s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    border-radius: 6px;
+}
+
+.btn-brand:hover {
+    background-color: #b8905a;
+    color: #1F1F1F;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+}
+
+.btn-brand:active {
+    transform: translateY(0);
+}
+
+/* --- Login page --- */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-body);
+}
+
 .login-card {
     background-color: var(--bg-surface);
-    border-radius: 8px;
-    padding: 40px;
+    border-radius: 10px;
+    padding: 44px 40px;
     max-width: 400px;
-    margin: 80px auto;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    width: 100%;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    border: 1px solid var(--border-color);
 }
 
 .login-card h2 {
     color: var(--brand-primary);
     font-weight: 700;
+    font-size: 1.5rem;
 }
 
-.login-card .form-control {
-    border-radius: 4px;
-}
-
-.footer-brand {
-    text-align: center;
-    color: var(--text-secondary);
+.login-card label {
     font-size: 0.85rem;
-    margin-top: 20px;
+    font-weight: 600;
+    color: var(--text-secondary);
 }
 
 .login-card input[type="text"],
 .login-card input[type="password"] {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.login-card input:focus {
+    outline: none;
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px rgba(198,161,106,0.15);
+}
+
+.footer-brand {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    margin-top: 20px;
 }

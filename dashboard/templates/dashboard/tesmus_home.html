@@ -1,5 +1,16 @@
-{% extends "base.html" %}
+{% extends "base_plain.html" %}
 {% block content %}
-<h2>Tesmus Platform Dashboard</h2>
-<p>Manage churches via the <a href="/admin/">admin panel</a> for now.</p>
+<nav class="navbar navbar-dark navbar-brand-custom mb-4">
+    <div class="container">
+        <span class="navbar-brand">Tesmus ChurchFlow</span>
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+        </form>
+    </div>
+</nav>
+<div class="container">
+    <h2>Tesmus Platform Dashboard</h2>
+    <p>Manage churches via the <a href="/admin/">admin panel</a> for now.</p>
+</div>
 {% endblock %}

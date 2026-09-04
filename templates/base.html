@@ -4,25 +4,42 @@
 <head>
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="{% static 'css/theme.css' %}" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-dark navbar-brand-custom mb-4">
-        <div class="container">
-            <span class="navbar-brand">
-                {% if request.user.church %}{{ request.user.church.name }}{% else %}Tesmus ChurchFlow{% endif %}
-            </span>
-            {% if request.user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-            </form>
-            {% endif %}
+<div class="d-flex">
+    <div class="sidebar-custom">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-badge">{{ request.user.church.code|slice:":2" }}</div>
+            {{ request.user.church.name }}
         </div>
-    </nav>
-    <div class="container">
-        {% block content %}{% endblock %}
+        <div class="sidebar-nav">
+            <a href="{% url 'home' %}" class="sidebar-link {% block nav_home %}{% endblock %}">Dashboard</a>
+            <a href="/admin/members/member/" class="sidebar-link">Members</a>
+            <a href="/admin/visitors/visitor/" class="sidebar-link">Visitors</a>
+            <a href="/admin/services/service/" class="sidebar-link">Services</a>
+            <a href="/admin/attendance/attendance/" class="sidebar-link">Attendance</a>
+            <a href="/admin/messaging/smsmessage/" class="sidebar-link">Messages</a>
+            <a href="/admin/pastoral/pastoralfollowup/" class="sidebar-link">Pastoral Care</a>
+        </div>
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light btn-sm w-100">Logout</button>
+            </form>
+        </div>
     </div>
+    <div class="main-content">
+        <div class="topbar">
+            <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+            <span class="topbar-user">{{ request.user.username }}</span>
+        </div>
+        <div class="page-body">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
 </body>
 </html>

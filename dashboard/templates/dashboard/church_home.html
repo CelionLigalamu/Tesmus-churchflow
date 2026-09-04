@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% block page_title %}Dashboard{% endblock %}
+{% block nav_home %}active{% endblock %}
 {% block extra_style %}
 <style>
     :root {
@@ -9,11 +11,10 @@
 </style>
 {% endblock %}
 {% block content %}
-<h2>Dashboard</h2>
-<div class="row mt-4">
-    <div class="col-md-3"><div class="card-custom p-3"><h6 class="text-secondary-custom">Members</h6><h3>{{ summary.total_members }}</h3></div></div>
-    <div class="col-md-3"><div class="card-custom p-3"><h6 class="text-secondary-custom">Visitors</h6><h3>{{ summary.total_visitors }}</h3></div></div>
-    <div class="col-md-3"><div class="card-custom p-3"><h6 class="text-secondary-custom">Present</h6><h3>{{ summary.present }}</h3></div></div>
-    <div class="col-md-3"><div class="card-custom p-3"><h6 class="text-secondary-custom">Attendance Rate</h6><h3>{{ summary.attendance_rate }}%</h3></div></div>
+<div class="row g-3">
+    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Members</div><div class="stat-value">{{ summary.total_members }}</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Visitors</div><div class="stat-value">{{ summary.total_visitors }}</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Present</div><div class="stat-value">{{ summary.present }}</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Attendance Rate</div><div class="stat-value">{{ summary.attendance_rate }}%</div></div></div>
 </div>
 {% endblock %}
