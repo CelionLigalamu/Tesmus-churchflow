@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import Member
 from .services import generate_reference_number
 from messaging.services import send_message
+from audit.services import log_action
 
 
 @admin.register(Member)
@@ -14,6 +15,8 @@ class MemberAdmin(admin.ModelAdmin):
         if not obj.reference_number:
             obj.reference_number = generate_reference_number(obj.church_id)
         super().save_model(request, obj, form, change)
+        action = 'member_updated' if change else 'member_created'
+        log_action(request.user, action, church=obj.church, details=f"{obj.reference_number} - {obj.full_name}")
 
     def send_reference_sms(self, request, queryset):
         count = 0
