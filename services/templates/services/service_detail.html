@@ -16,7 +16,7 @@
     <div>
         <div class="page-kicker">{{ service.date|date:"M j, Y" }}</div>
         <h1>{{ service.name }}</h1>
-        <p class="page-subtitle">Service setup and attendance access for this tenant-scoped record.</p>
+        <p class="page-subtitle">See this service's details and who attended.</p>
     </div>
     <a class="btn btn-brand" href="{% url 'service_list' %}">Back to Services</a>
 </div>
@@ -51,7 +51,7 @@
     </section>
 
     <section class="detail-card">
-        <h2>Scope & Attendance</h2>
+        <h2>Place & Attendance</h2>
         <div class="info-list">
             <div>
                 <div class="info-label">Region</div>

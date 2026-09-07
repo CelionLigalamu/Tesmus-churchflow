@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Pastoral Follow-Up | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Pastoral Care Detail{% endblock %}
+{% block nav_pastoral %}active{% endblock %}
+{% block extra_style %}
+<style>
+    :root {
+        --brand-primary: {{ request.user.church.primary_color }};
+        --brand-secondary: {{ request.user.church.secondary_color }};
+        --brand-accent: {{ request.user.church.accent_color }};
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">{{ followup.get_status_display }}</div>
+        <h1>{{ followup.member.full_name }}</h1>
+        <p class="page-subtitle">See this follow-up and its notes.</p>
+    </div>
+    <a class="btn btn-brand" href="{% url 'pastoral_followup_list' %}">Back to Pastoral Care</a>
+</div>
+
+<div class="detail-grid">
+    <section class="detail-card">
+        <h2>Follow-Up Info</h2>
+        <div class="info-list">
+            <div>
+                <div class="info-label">Member</div>
+                <a class="table-link" href="{% url 'member_detail' followup.member.pk %}">{{ followup.member.full_name }}</a>
+            </div>
+            <div>
+                <div class="info-label">Status</div>
+                <span class="status-pill {% if followup.status == 'completed' %}status-pill-success{% elif followup.status == 'in_progress' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
+                    {{ followup.get_status_display }}
+                </span>
+            </div>
+            <div>
+                <div class="info-label">Assigned Pastor</div>
+                <div class="info-value">{{ followup.assigned_to.username|default:"Unassigned" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Follow-Up Date</div>
+                <div class="info-value">{{ followup.follow_up_date|date:"M j, Y"|default:"Not scheduled" }}</div>
+            </div>
+            <div>
+                <div class="info-label">Created</div>
+                <div class="info-value">{{ followup.created_at|date:"M j, Y H:i" }}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="detail-card">
+        <h2>Notes</h2>
+        {% if followup.notes %}
+            <p class="mb-0">{{ followup.notes|linebreaksbr }}</p>
+        {% else %}
+            <div class="empty-state">No notes recorded.</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

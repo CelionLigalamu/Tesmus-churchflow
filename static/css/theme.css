@@ -122,11 +122,20 @@ h1, h2, h3, h4, h5 {
 .main-content {
     flex: 1;
     background-color: var(--bg-body);
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
 }
 
 .page-body {
     padding: 28px 32px;
+}
+
+.main-footer {
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+    padding: 16px 32px;
+    text-align: center;
 }
 
 /* --- Stat cards --- */
@@ -458,4 +467,14 @@ h1, h2, h3, h4, h5 {
     color: var(--text-secondary);
     font-size: 0.82rem;
     margin-top: 20px;
+}
+
+.main-footer {
+    text-align: center;
+    padding: 20px 0 16px 0;
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    color: #8A857E;
+    font-size: 0.8rem;
+    line-height: 1.6;
 }

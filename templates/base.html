@@ -5,7 +5,7 @@
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=footer-bar-20260906" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
 <body>
@@ -21,8 +21,8 @@
             <a href="{% url 'visitor_list' %}" class="sidebar-link {% block nav_visitors %}{% endblock %}">Visitors</a>
             <a href="{% url 'service_list' %}" class="sidebar-link {% block nav_services %}{% endblock %}">Services</a>
             <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}">Attendance</a>
-            <a href="/admin/messaging/smsmessage/" class="sidebar-link">Messages</a>
-            <a href="/admin/pastoral/pastoralfollowup/" class="sidebar-link">Pastoral Care</a>
+            <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}">Messages</a>
+            <a href="{% url 'pastoral_followup_list' %}" class="sidebar-link {% block nav_pastoral %}{% endblock %}">Pastoral Care</a>
         </div>
         <div class="sidebar-footer">
             <form method="post" action="{% url 'logout' %}">
@@ -39,6 +39,10 @@
         <div class="page-body">
             {% block content %}{% endblock %}
         </div>
+        <footer class="main-footer">
+            <div>Powered by Tesmus Technologies</div>
+            <div>&copy; 2026 Tesmus Technologies Limited. All rights reserved.</div>
+        </footer>
     </div>
 </div>
 </body>

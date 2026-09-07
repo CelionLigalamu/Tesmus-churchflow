@@ -11,10 +11,74 @@
 </style>
 {% endblock %}
 {% block content %}
-<div class="row g-3">
+<h2 class="mb-1">Good {% now "H" as hr %}{% if hr|add:0 < 12 %}morning{% elif hr|add:0 < 17 %}afternoon{% else %}evening{% endif %}, {{ request.user.username }}</h2>
+<p class="text-secondary-custom mb-4">Here's what's happening at {{ request.user.church.name }} today.</p>
+
+<div class="row g-3 mb-4">
     <div class="col-md-3"><div class="stat-card"><div class="stat-label">Members</div><div class="stat-value">{{ summary.total_members }}</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Present (last service)</div><div class="stat-value">{{ summary.present }}</div></div></div>
     <div class="col-md-3"><div class="stat-card"><div class="stat-label">Visitors</div><div class="stat-value">{{ summary.total_visitors }}</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Present</div><div class="stat-value">{{ summary.present }}</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Attendance Rate</div><div class="stat-value">{{ summary.attendance_rate }}%</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Follow-ups Needed</div><div class="stat-value">{{ summary.pending_followups }}</div></div></div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-7">
+        <div class="card-custom p-3">
+            <h6 class="text-secondary-custom mb-3">Attendance Overview</h6>
+            {% if summary.present or summary.absent %}
+                <div class="mb-2 d-flex justify-content-between"><span>Present</span><span>{{ summary.present }}</span></div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar" style="--attendance-rate: {{ summary.attendance_rate }}%; width: var(--attendance-rate); background-color: var(--brand-accent);"></div>
+                </div>
+                <div class="d-flex justify-content-between text-secondary-custom" style="font-size: 0.85rem;">
+                    <span>Absent: {{ summary.absent }}</span>
+                    <span>Rate: {{ summary.attendance_rate }}%</span>
+                </div>
+            {% else %}
+                <p class="text-secondary-custom mb-0">Attendance data will appear here after your first service.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card-custom p-3">
+            <h6 class="text-secondary-custom mb-3">Upcoming Services</h6>
+            {% for service in summary.upcoming_services %}
+                <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div>
+                        <div>{{ service.name }}</div>
+                        <div class="text-secondary-custom" style="font-size: 0.8rem;">{{ service.date|date:"M j" }}{% if service.start_time %} · {{ service.start_time|time:"g:i A" }}{% endif %}</div>
+                    </div>
+                    <span class="status-pill {% if service.status == 'open' %}status-pill-success{% else %}status-pill-neutral{% endif %}">{{ service.get_status_display }}</span>
+                </div>
+            {% empty %}
+                <p class="text-secondary-custom mb-0">No services scheduled yet.</p>
+            {% endfor %}
+            <a href="{% url 'service_list' %}" class="d-block mt-2" style="font-size: 0.85rem;">View all services →</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="card-custom p-3">
+            <h6 class="text-secondary-custom mb-3">Recent Activity</h6>
+            {% for log in summary.recent_activity %}
+                <div class="py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div>{{ log.action|title }}</div>
+                    <div class="text-secondary-custom" style="font-size: 0.8rem;">{{ log.details }} · {{ log.created_at|timesince }} ago</div>
+                </div>
+            {% empty %}
+                <p class="text-secondary-custom mb-0">No activity to show yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card-custom p-3">
+            <h6 class="text-secondary-custom mb-3">Quick Actions</h6>
+            <a href="/admin/members/member/add/" class="btn btn-brand w-100 mb-2">+ Register Member</a>
+            <a href="/admin/visitors/visitor/add/" class="btn btn-outline-secondary w-100 mb-2">+ Record Visitor</a>
+            <a href="/admin/services/service/add/" class="btn btn-outline-secondary w-100">+ Create Service</a>
+        </div>
+    </div>
 </div>
 {% endblock %}

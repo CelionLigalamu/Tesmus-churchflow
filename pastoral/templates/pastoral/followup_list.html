@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Services | Tesmus ChurchFlow{% endblock %}
-{% block page_title %}Services{% endblock %}
-{% block nav_services %}active{% endblock %}
+{% block title %}Pastoral Care | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Pastoral Care{% endblock %}
+{% block nav_pastoral %}active{% endblock %}
 {% block extra_style %}
 <style>
     :root {
@@ -14,13 +14,13 @@
 {% block content %}
 <div class="page-heading">
     <div>
-        <div class="page-kicker">Schedule</div>
-        <h1>Services</h1>
-        <p class="page-subtitle">See your church services and how each one is going.</p>
+        <div class="page-kicker">Follow Ups</div>
+        <h1>Pastoral Care</h1>
+        <p class="page-subtitle">See people who need care and follow-up.</p>
     </div>
     <div class="metric-card">
         <div class="metric-label">Showing</div>
-        <div class="metric-value">{{ total_services }}</div>
+        <div class="metric-value">{{ total_followups }}</div>
     </div>
 </div>
 
@@ -45,34 +45,32 @@
         <table class="table table-custom">
             <thead>
                 <tr>
-                    <th>Service</th>
-                    <th>Type</th>
-                    <th>Date</th>
+                    <th>Member</th>
                     <th>Status</th>
-                    <th>Region / Branch</th>
+                    <th>Assigned Pastor</th>
+                    <th>Follow-Up Date</th>
                 </tr>
             </thead>
             <tbody>
-                {% for service in services %}
+                {% for followup in followups %}
                     <tr>
-                        <td><a class="table-link" href="{% url 'service_detail' service.pk %}">{{ service.name }}</a></td>
-                        <td>{{ service.service_type|default:"Service" }}</td>
-                        <td>{{ service.date|date:"M j, Y" }}</td>
-                        <td>
-                            <span class="status-pill {% if service.status == 'finalized' %}status-pill-success{% elif service.status == 'closed' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
-                                {{ service.get_status_display }}
-                            </span>
-                        </td>
                         <td>
                             <div class="meta-stack">
-                                <span>{{ service.region.name|default:"No region" }}</span>
-                                <span class="meta-muted">{{ service.branch.name|default:"No branch" }}</span>
+                                <a class="table-link" href="{% url 'member_detail' followup.member.pk %}">{{ followup.member.full_name }}</a>
+                                <a class="meta-muted" href="{% url 'pastoral_followup_detail' followup.pk %}">View follow-up</a>
                             </div>
                         </td>
+                        <td>
+                            <span class="status-pill {% if followup.status == 'completed' %}status-pill-success{% elif followup.status == 'in_progress' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
+                                {{ followup.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ followup.assigned_to.username|default:"Unassigned" }}</td>
+                        <td>{{ followup.follow_up_date|date:"M j, Y"|default:"Not scheduled" }}</td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="5" class="empty-state">No services match this view.</td>
+                        <td colspan="4" class="empty-state">No pastoral follow-ups match this view.</td>
                     </tr>
                 {% endfor %}
             </tbody>

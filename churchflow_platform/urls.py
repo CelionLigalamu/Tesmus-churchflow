@@ -22,6 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('attendance/', include('attendance.urls')),
     path('members/', include('members.urls')),
+    path('messages/', include('messaging.urls')),
+    path('pastoral-care/', include('pastoral.urls')),
     path('services/', include('services.urls')),
     path('visitors/', include('visitors.urls')),
     path('', include('dashboard.urls')),

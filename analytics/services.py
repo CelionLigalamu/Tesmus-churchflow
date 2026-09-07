@@ -1,3 +1,7 @@
+from django.utils import timezone
+from pastoral.models import PastoralFollowUp
+from services.models import Service
+from audit.models import AuditLog
 from django.db.models import Count, Q
 from members.models import Member
 from attendance.models import Attendance
@@ -56,3 +60,16 @@ def region_summary(region):
         'absent': absent,
         'attendance_rate': rate,
     }
+
+def dashboard_summary(church):
+    summary = church_summary(church)
+    summary['pending_followups'] = PastoralFollowUp.objects.filter(
+        church=church, status__in=['pending', 'in_progress']
+    ).count()
+    summary['upcoming_services'] = Service.objects.filter(
+        church=church, date__gte=timezone.now().date()
+    ).order_by('date')[:5]
+    summary['recent_activity'] = AuditLog.objects.filter(
+        church=church
+    ).order_by('-created_at')[:6]
+    return summary
