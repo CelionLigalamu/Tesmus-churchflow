@@ -1,9 +1,14 @@
 {% extends "base_plain.html" %}
+{% load static %}
 {% block content %}
 <div class="login-page">
     <div class="login-card">
+        <div class="login-brand-row">
+            <img class="login-tesmus-logo" src="{% static 'images/branding/tesmus-logo.png' %}" alt="Tesmus Technologies Limited">
+            <div class="login-kicker">ChurchFlow platform</div>
+        </div>
         <h2 class="mb-1">Tesmus ChurchFlow</h2>
-        <p class="text-secondary-custom mb-4">Church Management &amp; Engagement</p>
+        <p class="login-subtitle mb-4">Church Management &amp; Engagement</p>
         <form method="post">
             {% csrf_token %}
             <div class="mb-3">
@@ -21,5 +26,8 @@
         </form>
     </div>
 </div>
-<p class="footer-brand">Powered by Tesmus Technologies</p>
+<div class="footer-brand">
+    <div>Powered by Tesmus Technologies</div>
+    <div>&copy; 2026 Tesmus Technologies Limited. All rights reserved.</div>
+</div>
 {% endblock %}

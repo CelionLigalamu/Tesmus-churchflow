@@ -11,14 +11,14 @@
 <body style="--brand-primary: {{ request.user.church.primary_color|default:'#2C2C2C' }}; --brand-secondary: {{ request.user.church.secondary_color|default:'#F5EEE4' }}; --brand-accent: {{ request.user.church.accent_color|default:'#C6A16A' }};">
 <header class="mobile-header">
     <button type="button" class="mobile-menu-button" id="mobile-menu-button" aria-label="Open navigation" aria-controls="church-sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
-    <div class="mobile-brand"><span class="sidebar-brand-badge">{{ request.user.church.code|slice:":2" }}</span><span>PLCM</span></div>
+    <div class="mobile-brand"><img class="church-logo" src="{% static 'images/branding/plcm-logo.jpeg' %}" alt="{{ request.user.church.name }} logo"><span>{{ request.user.church.name }}</span></div>
     <span class="mobile-header-title">{{ request.user.church.name }}</span>
 </header>
 <div class="d-flex">
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
     <div class="sidebar-custom" id="church-sidebar" aria-label="Primary navigation">
         <div class="sidebar-brand">
-            <div class="sidebar-brand-badge">{{ request.user.church.code|slice:":2" }}</div>
+            <img class="church-logo" src="{% static 'images/branding/plcm-logo.jpeg' %}" alt="{{ request.user.church.name }} logo">
             <span class="sidebar-brand-name">{{ request.user.church.name }}</span>
             <button type="button" class="sidebar-close-button" id="sidebar-close-button" aria-label="Close navigation">×</button>
         </div>

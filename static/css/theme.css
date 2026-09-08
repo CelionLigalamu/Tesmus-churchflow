@@ -634,23 +634,107 @@ h1, h2, h3, h4, h5 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-body);
+    padding: 24px;
+    background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--brand-accent) 10%, transparent), transparent 42%), var(--bg-body);
 }
 
 .login-card {
     background-color: var(--bg-surface);
     border-radius: 10px;
     padding: 44px 40px;
-    max-width: 400px;
+    max-width: 520px;
     width: 100%;
     box-shadow: 0 4px 24px rgba(0,0,0,0.06);
     border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card::before {
+    background: var(--brand-accent);
+    content: '';
+    height: 4px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.login-brand-mark {
+    align-items: center;
+    background: var(--brand-primary);
+    border-radius: 10px;
+    color: var(--bg-surface);
+    display: flex;
+    border: 1px solid var(--brand-accent);
+    font-size: .86rem;
+    font-weight: 800;
+    height: 40px;
+    justify-content: center;
+    margin-bottom: 18px;
+    width: 40px;
+}
+
+.login-brand-row {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 18px;
+}
+
+.login-tesmus-logo {
+    height: 86px;
+    max-width: 220px;
+    object-fit: contain;
+}
+
+.login-card .btn-brand {
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: var(--brand-primary);
+    font-weight: 750;
+}
+
+.login-card .btn-brand:hover,
+.login-card .btn-brand:focus-visible {
+    background: color-mix(in srgb, var(--brand-accent) 86%, var(--brand-primary));
+    border-color: color-mix(in srgb, var(--brand-accent) 86%, var(--brand-primary));
+    color: var(--brand-primary);
+}
+
+.login-kicker {
+    color: var(--brand-accent);
+    font-size: .68rem;
+    font-weight: 750;
+    letter-spacing: .12em;
+    margin-bottom: 0;
+    text-transform: uppercase;
+}
+
+.church-logo {
+    background: #fff;
+    border-radius: 9px;
+    height: 42px;
+    object-fit: contain;
+    padding: 3px;
+    width: 42px;
+}
+
+.mobile-brand .church-logo {
+    border-radius: 7px;
+    height: 28px;
+    width: 28px;
 }
 
 .login-card h2 {
     color: var(--brand-primary);
     font-weight: 700;
     font-size: 1.5rem;
+}
+
+.login-subtitle {
+    color: var(--text-secondary);
 }
 
 .login-card label {
@@ -671,7 +755,7 @@ h1, h2, h3, h4, h5 {
 .login-card input:focus {
     outline: none;
     border-color: var(--brand-accent);
-    box-shadow: 0 0 0 3px rgba(198,161,106,0.15);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-accent) 18%, transparent);
 }
 
 .footer-brand {
