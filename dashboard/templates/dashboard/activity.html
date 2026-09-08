@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block page_title %}Activity{% endblock %}
+{% block nav_audit %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div><div class="page-kicker">Audit trail</div><h1>All activity</h1><p class="page-subtitle">A complete record of activity recorded for {{ request.user.church.name }}.</p></div>
+    <a href="{% url 'home' %}" class="btn btn-back-dashboard">← Back to dashboard</a>
+</div>
+<div class="table-card activity-table-card">
+    {% for log in activities %}
+        <div class="activity-full-row {% if not forloop.last %}border-bottom{% endif %}">
+            <span class="activity-icon {% if 'member' in log.action|lower %}activity-icon-green{% elif 'visitor' in log.action|lower %}activity-icon-blue{% elif 'attendance' in log.action|lower %}activity-icon-purple{% else %}activity-icon-gold{% endif %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-6 4 12 2-6h5"/></svg></span>
+            <div class="activity-name">{{ log.action|title }}</div>
+            <div class="activity-details">{{ log.details|default:"ChurchFlow activity" }}</div>
+            <div class="activity-user">{% if log.user %}Recorded by {{ log.user.username }}{% else %}System activity{% endif %}</div>
+            <time class="activity-time">{{ log.created_at|date:"j M Y, g:i A" }}</time>
+        </div>
+    {% empty %}
+        <div class="activity-empty">No activity has been recorded for this church yet.</div>
+    {% endfor %}
+</div>
+{% endblock %}

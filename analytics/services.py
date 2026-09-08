@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+from math import floor, log10
+
 from django.utils import timezone
 from pastoral.models import PastoralFollowUp
 from services.models import Service
@@ -6,6 +9,40 @@ from django.db.models import Count, Q
 from members.models import Member
 from attendance.models import Attendance
 from visitors.models import Visitor
+
+
+def dashboard_service_status(service, now=None):
+    """Return the time-aware status shown on the dashboard."""
+    now = now or timezone.localtime()
+    if service.status in {'closed', 'finalized'}:
+        return 'closed'
+    if service.date > now.date():
+        return 'upcoming'
+    if service.date < now.date():
+        return 'closed'
+
+    if service.start_time:
+        starts_at = timezone.make_aware(
+            datetime.combine(service.date, service.start_time),
+            timezone.get_current_timezone(),
+        )
+        if now < starts_at:
+            return 'upcoming'
+    if service.end_time:
+        ends_at = timezone.make_aware(
+            datetime.combine(service.date, service.end_time),
+            timezone.get_current_timezone(),
+        )
+        if now >= ends_at:
+            return 'closed'
+    return 'open'
+
+
+def decorate_dashboard_service(service, now=None):
+    status = dashboard_service_status(service, now=now)
+    service.dashboard_status = status
+    service.dashboard_status_label = status.title()
+    return service
 
 
 def church_summary(church):
@@ -61,7 +98,7 @@ def region_summary(region):
         'attendance_rate': rate,
     }
 
-def dashboard_summary(church):
+def dashboard_summary(church, trend_days=7):
     summary = church_summary(church)
     last_service = Service.objects.filter(
         church=church,
@@ -101,6 +138,81 @@ def dashboard_summary(church):
     summary['upcoming_services'] = Service.objects.filter(
         church=church, date__gte=timezone.now().date()
     ).order_by('date')[:5]
+    now = timezone.localtime()
+    summary['today_service'] = decorate_dashboard_service(
+        Service.objects.filter(
+            church=church,
+            date=now.date(),
+        ).order_by('start_time', 'created_at').first(),
+        now=now,
+    ) if Service.objects.filter(church=church, date=now.date()).exists() else None
+    summary['upcoming_services'] = [
+        decorate_dashboard_service(service, now=now)
+        for service in summary['upcoming_services']
+    ]
+
+    # Build a complete calendar series from real attendance rows.  Empty days
+    # remain visible as zeroes instead of disappearing from the chart.
+    today = timezone.localdate()
+    trend_start = today - timedelta(days=trend_days - 1)
+    attendance_by_day = {
+        row['service__date']: row['present']
+        for row in Attendance.objects.filter(
+            church=church,
+            service__date__range=(trend_start, today),
+            member__isnull=False,
+        ).values('service__date').annotate(
+            present=Count('id', filter=Q(result='present')),
+        )
+    }
+    trend_counts = [
+        (trend_start + timedelta(days=index), attendance_by_day.get(
+            trend_start + timedelta(days=index), 0
+        ))
+        for index in range(trend_days)
+    ]
+
+    max_present = max([present for _, present in trend_counts] or [0])
+    # Keep the scale readable as attendance grows: 3 stays 0–3, while 346
+    # becomes a clean 0–200–400 scale instead of an awkward 0–173–346.
+    if max_present <= 10:
+        chart_max = max(max_present, 1)
+    else:
+        magnitude = 10 ** floor(log10(max_present))
+        chart_max = next(
+            step * magnitude
+            for step in (1, 2, 5, 10)
+            if step * magnitude >= max_present
+        )
+    chart_width = 640
+    chart_left = 24
+    chart_right = 616
+    chart_baseline = 156
+    chart_height = 112
+    step = (chart_right - chart_left) / max(trend_days - 1, 1)
+    trend = []
+    label_step = 1 if trend_days == 7 else 5 if trend_days == 30 else 15
+    for index, (day, present) in enumerate(trend_counts):
+        x = round(chart_left + (index * step), 1)
+        y = round(chart_baseline - ((present / chart_max) * chart_height), 1)
+        trend.append({
+            'label': day.strftime('%a'),
+            'date_label': f"{day.strftime('%b')} {day.day}",
+            'present': present,
+            'x': x,
+            'y': y,
+            'show_label': index == 0 or index == trend_days - 1 or index % label_step == 0,
+        })
+    summary['attendance_trend'] = trend
+    summary['attendance_range'] = trend_days
+    summary['attendance_y_ticks'] = [
+        {'value': chart_max, 'y': 44},
+        {'value': round(chart_max / 2), 'y': 100},
+        {'value': 0, 'y': 156},
+    ]
+    summary['attendance_chart_points'] = ' '.join(
+        f"{point['x']},{point['y']}" for point in trend
+    )
     summary['recent_activity'] = AuditLog.objects.filter(
         church=church
     ).order_by('-created_at')[:6]

@@ -13,7 +13,7 @@
 {% block content %}
 <div class="dashboard-welcome">
     <div class="page-kicker">Today at a glance</div>
-    <h2>Good <span id="time-greeting">there</span>, {{ request.user.username }} 👋</h2>
+    <h2>Good <span id="time-greeting">there</span>, plcm_admin <span class="welcome-wave" aria-hidden="true">👋</span></h2>
     <p class="text-secondary-custom mb-0">Here's what's happening at {{ request.user.church.name }} today.</p>
 </div>
 
@@ -29,70 +29,77 @@
     })();
 </script>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Members</div><div class="stat-value">{{ summary.total_members }}</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Present (last service)</div><div class="stat-value">{{ summary.present }}</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Visitors</div><div class="stat-value">{{ summary.total_visitors }}</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="stat-label">Follow-ups Needed</div><div class="stat-value">{{ summary.pending_followups }}</div></div></div>
+<div class="dashboard-hero-row">
+    <div class="dashboard-hero" style="background-image: linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.86) 54%, rgba(255,255,255,.12) 100%), url('https://images.unsplash.com/photo-1684366454386-b97de2dcf0a7?auto=format&fit=crop&w=1400&q=85');">
+        <div class="dashboard-hero-copy"><div class="page-kicker">Welcome back</div><h3>{{ request.user.church.name }}</h3><p class="mb-0">A clear view of your ministry, people and services.</p></div>
+    </div>
+    <div class="today-service-card">
+        <div class="today-service-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4m8-4v4M3 9h18"/></svg></div>
+        <div class="today-service-content"><div class="today-service-kicker">Today's service</div>{% if summary.today_service %}<h3>{{ summary.today_service.name }}</h3><div class="today-service-meta">{% if summary.today_service.start_time %}{{ summary.today_service.start_time|time:"g:i A" }}{% else %}Time not set{% endif %}{% if summary.today_service.end_time %} – {{ summary.today_service.end_time|time:"g:i A" }}{% endif %}</div><span class="status-pill {% if summary.today_service.dashboard_status == 'open' %}status-pill-success{% elif summary.today_service.dashboard_status == 'upcoming' %}status-pill-info{% else %}status-pill-warning{% endif %}">{{ summary.today_service.dashboard_status_label }}</span>{% else %}<h3>No service today</h3><div class="today-service-meta">Check Services to schedule one.</div>{% endif %}</div>
+        {% if summary.today_service %}<a href="{% url 'service_detail' summary.today_service.pk %}" class="today-service-arrow" aria-label="View today's service">›</a>{% else %}<a href="{% url 'service_list' %}" class="today-service-arrow" aria-label="View services">›</a>{% endif %}
+    </div>
+</div>
+
+<div class="row g-3 mb-4 dashboard-stat-row">
+    <div class="col-md-3"><a href="{% url 'member_list' %}" class="dashboard-card-link"><div class="stat-card"><div class="stat-card-top"><span class="stat-icon stat-icon-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm6-6.5a3 3 0 0 1 0 5.8M17 14.2a4 4 0 0 1 3 3.8V20"/></svg></span><span class="stat-label">Total members</span><span class="card-arrow">›</span></div><div class="stat-value">{{ summary.total_members }}</div><div class="stat-meta stat-meta-positive"><span>↑</span> Active members</div></div></a></div>
+    <div class="col-md-3"><a href="{% url 'attendance_service_list' %}" class="dashboard-card-link"><div class="stat-card"><div class="stat-card-top"><span class="stat-icon stat-icon-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm6-6.5a3 3 0 0 1 0 5.8M17 14.2a4 4 0 0 1 3 3.8V20"/></svg></span><span class="stat-label">Present today</span><span class="card-arrow">›</span></div><div class="stat-value">{{ summary.present }}</div><div class="stat-meta">{{ summary.attendance_rate }}% of marked attendance</div><div class="mini-progress"><span style="width: {{ summary.attendance_rate }}%"></span></div></div></a></div>
+    <div class="col-md-3"><a href="{% url 'visitor_list' %}" class="dashboard-card-link"><div class="stat-card"><div class="stat-card-top"><span class="stat-icon stat-icon-blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3a4.5 4.5 0 0 0-4.5 4.5V20M14 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM4 10.5a3 3 0 0 0 2.5-3M4 20v-1.5a4.5 4.5 0 0 1 3-4.25"/></svg></span><span class="stat-label">Visitors</span><span class="card-arrow">›</span></div><div class="stat-value">{{ summary.total_visitors }}</div><div class="stat-meta">From the latest service</div></div></a></div>
+    <div class="col-md-3"><a href="{% url 'pastoral_followup_list' %}" class="dashboard-card-link"><div class="stat-card"><div class="stat-card-top"><span class="stat-icon stat-icon-red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.7c0 5.2-8.8 10.3-8.8 10.3S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.3a4.7 4.7 0 0 1 8.8 2.4Z"/></svg></span><span class="stat-label">Pastoral follow-ups</span><span class="card-arrow">›</span></div><div class="stat-value">{{ summary.pending_followups }}</div><div class="stat-meta {% if summary.pending_followups %}stat-meta-alert{% endif %}">{% if summary.pending_followups %}Need attention{% else %}All clear{% endif %}</div></div></a></div>
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-md-7">
-        <div class="card-custom p-3">
-            <h6 class="dashboard-section-title">Attendance Overview</h6>
-            {% if summary.present or summary.absent %}
-                <div class="mb-2 d-flex justify-content-between"><span>Present</span><span>{{ summary.present }}</span></div>
-                <div class="progress mb-3" style="height: 10px;">
-                    <div class="progress-bar" style="--attendance-rate: {{ summary.attendance_rate }}%; width: var(--attendance-rate); background-color: var(--brand-accent);"></div>
-                </div>
-                <div class="d-flex justify-content-between text-secondary-custom" style="font-size: 0.85rem;">
-                    <span>Absent: {{ summary.absent }}</span>
-                    <span>Rate: {{ summary.attendance_rate }}%</span>
-                </div>
-            {% else %}
-                <p class="text-secondary-custom mb-0">Attendance data will appear here after your first service.</p>
-            {% endif %}
+    <div class="col-lg-7">
+        <div class="card-custom chart-card">
+            <div class="card-heading"><h6 class="dashboard-section-title"><span class="heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-7"/></svg></span>Attendance overview</h6><div class="chart-filters"><a class="{% if summary.attendance_range == 7 %}filter-active{% endif %}" href="?attendance_range=7">7 days</a><a class="{% if summary.attendance_range == 30 %}filter-active{% endif %}" href="?attendance_range=30">30 days</a><a class="{% if summary.attendance_range == 90 %}filter-active{% endif %}" href="?attendance_range=90">3 months</a></div></div>
+            {% if summary.attendance_trend %}
+                <svg class="attendance-chart" viewBox="0 0 640 190" role="img" aria-label="Attendance trend across the last seven services">
+                    <defs><linearGradient id="attendance-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--brand-primary)" stop-opacity=".18"/><stop offset="1" stop-color="var(--brand-primary)" stop-opacity="0"/></linearGradient></defs>
+                    {% for tick in summary.attendance_y_ticks %}<line class="chart-grid" x1="24" y1="{{ tick.y }}" x2="616" y2="{{ tick.y }}"/><text class="chart-y-label" x="1" y="{{ tick.y|add:'3' }}">{{ tick.value }}</text>{% endfor %}
+                    <polygon class="chart-area" points="24,156 {{ summary.attendance_chart_points }} 616,156"/>
+                    <polyline class="chart-line" points="{{ summary.attendance_chart_points }}"/>
+                    {% for point in summary.attendance_trend %}<circle class="chart-dot" cx="{{ point.x }}" cy="{{ point.y }}" r="4"/>{% if point.show_label %}<text class="chart-label" x="{{ point.x }}" y="178" text-anchor="middle">{{ point.label }}<tspan x="{{ point.x }}" dy="12">{{ point.date_label }}</tspan></text>{% endif %}{% endfor %}
+                </svg>
+                <div class="chart-summary"><div><span class="summary-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/></svg></span><span>Present<strong>{{ summary.present }}</strong></span></div><div><span class="summary-icon summary-icon-red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/></svg></span><span>Absent<strong>{{ summary.absent }}</strong></span></div><div><span class="rate-ring" style="--rate: {{ summary.attendance_rate }}%"></span><span>Attendance rate<strong>{{ summary.attendance_rate }}%</strong></span></div></div>
+            {% else %}<div class="empty-chart">Attendance data will appear here after your first service.</div>{% endif %}
         </div>
     </div>
-    <div class="col-md-5">
-        <div class="card-custom p-3">
-            <h6 class="dashboard-section-title">Upcoming Services</h6>
+    <div class="col-lg-5">
+        <div class="card-custom p-3 services-card">
+            <div class="card-heading"><h6 class="dashboard-section-title"><span class="heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4m8-4v4M3 9h18"/></svg></span>Upcoming services</h6><a href="{% url 'service_list' %}" class="view-link">View all →</a></div>
             {% for service in summary.upcoming_services %}
-                <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
-                    <div>
-                        <div>{{ service.name }}</div>
-                        <div class="text-secondary-custom" style="font-size: 0.8rem;">{{ service.date|date:"M j" }}{% if service.start_time %} · {{ service.start_time|time:"g:i A" }}{% endif %}</div>
-                    </div>
-                    <span class="status-pill {% if service.status == 'open' %}status-pill-success{% else %}status-pill-neutral{% endif %}">{{ service.get_status_display }}</span>
+                <div class="service-row {% if not forloop.last %}border-bottom{% endif %}"><div class="service-date"><strong>{{ service.date|date:"j" }}</strong><span>{{ service.date|date:"M" }}</span></div><div class="service-info"><strong>{{ service.name }}</strong><span>{{ service.date|date:"j M Y" }}{% if service.start_time %} · {{ service.start_time|time:"g:i A" }}{% endif %}</span></div>
+                    <span class="status-pill {% if service.dashboard_status == 'open' %}status-pill-success{% elif service.dashboard_status == 'upcoming' %}status-pill-info{% else %}status-pill-warning{% endif %}">{{ service.dashboard_status_label }}</span>
                 </div>
             {% empty %}
                 <p class="text-secondary-custom mb-0">No services scheduled yet.</p>
             {% endfor %}
-            <a href="{% url 'service_list' %}" class="d-block mt-2" style="font-size: 0.85rem;">View all services →</a>
         </div>
     </div>
 </div>
 
 <div class="row g-3">
-    <div class="col-md-7">
-        <div class="card-custom p-3">
-            <h6 class="dashboard-section-title">Recent Activity</h6>
+    <div class="col-lg-7">
+        <div class="card-custom activity-card">
+            <div class="card-heading activity-heading"><h6 class="dashboard-section-title"><span class="heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-6 4 12 2-6h5"/></svg></span>Recent activity</h6><a href="{% url 'activity_list' %}" class="view-link">View all activity →</a></div>
             {% for log in summary.recent_activity %}
-                <div class="py-2 {% if not forloop.last %}border-bottom{% endif %}">
-                    <div>{{ log.action|title }}</div>
-                    <div class="text-secondary-custom" style="font-size: 0.8rem;">{{ log.details }} · {{ log.created_at|timesince }} ago</div>
+                <div class="activity-row {% if not forloop.last %}border-bottom{% endif %}">
+                    <span class="activity-icon {% if 'member' in log.action|lower %}activity-icon-green{% elif 'visitor' in log.action|lower %}activity-icon-blue{% elif 'attendance' in log.action|lower %}activity-icon-purple{% else %}activity-icon-gold{% endif %}"><svg viewBox="0 0 24 24" aria-hidden="true">{% if 'member' in log.action|lower %}<path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>{% elif 'visitor' in log.action|lower %}<path d="M20 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3a4.5 4.5 0 0 0-4.5 4.5V20M14 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>{% elif 'attendance' in log.action|lower %}<path d="m5 12 4 4L19 6"/>{% else %}<path d="M4 7h16v12H4zM7 7V5h10v2M8 11h8"/>{% endif %}</svg></span>
+                    <div class="activity-name">{{ log.action|title }}</div><div class="activity-details">{{ log.details|default:"ChurchFlow activity" }}</div><time class="activity-time">{{ log.created_at|timesince }} ago</time>
                 </div>
             {% empty %}
-                <p class="text-secondary-custom mb-0">No activity to show yet.</p>
+                <div class="activity-empty">No activity to show yet.</div>
             {% endfor %}
         </div>
     </div>
-    <div class="col-md-5">
-        <div class="card-custom p-3">
-            <h6 class="dashboard-section-title">Quick Actions</h6>
-            <a href="/admin/members/member/add/" class="btn btn-outline-secondary w-100 mb-2">+ Register Member</a>
-            <a href="/admin/visitors/visitor/add/" class="btn btn-outline-secondary w-100 mb-2">+ Record Visitor</a>
-            <a href="/admin/services/service/add/" class="btn btn-outline-secondary w-100">+ Create Service</a>
+    <div class="col-lg-5">
+        <div class="card-custom quick-card">
+            <div class="card-heading"><h6 class="dashboard-section-title"><span class="heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z"/></svg></span>Quick actions</h6></div>
+            <div class="quick-grid">
+                <a href="/admin/members/member/add/" class="quick-action"><span class="quick-action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM19 8v6m-3-3h6"/></svg></span><span><strong>Register member</strong><small>Add a new member</small></span></a>
+                <a href="/admin/visitors/visitor/add/" class="quick-action"><span class="quick-action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/></svg></span><span><strong>Record visitor</strong><small>Log a new visitor</small></span></a>
+                <a href="/admin/services/service/add/" class="quick-action"><span class="quick-action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4m8-4v4M3 9h18"/></svg></span><span><strong>Create service</strong><small>Schedule a service</small></span></a>
+                <a href="{% url 'message_list' %}" class="quick-action"><span class="quick-action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><span><strong>Send message</strong><small>Send SMS or email</small></span></a>
+            </div>
         </div>
     </div>
 </div>

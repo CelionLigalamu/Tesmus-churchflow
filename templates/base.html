@@ -5,7 +5,14 @@
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=footer-bar-20260906" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=plcm-navigation-20260908-3" rel="stylesheet">
+    {% if request.user.church %}<style>
+        :root {
+            --brand-primary: {{ request.user.church.primary_color }};
+            --brand-secondary: {{ request.user.church.secondary_color }};
+            --brand-accent: {{ request.user.church.accent_color }};
+        }
+    </style>{% endif %}
     {% block extra_style %}{% endblock %}
 </head>
 <body>
@@ -23,6 +30,7 @@
             <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}">Attendance</a>
             <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}">Messages</a>
             <a href="{% url 'pastoral_followup_list' %}" class="sidebar-link {% block nav_pastoral %}{% endblock %}">Pastoral Care</a>
+            <a href="{% url 'activity_list' %}" class="sidebar-link {% block nav_audit %}{% endblock %}">Audit</a>
         </div>
         <div class="sidebar-footer">
             <form method="post" action="{% url 'logout' %}">
