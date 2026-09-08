@@ -63,9 +63,41 @@ def region_summary(region):
 
 def dashboard_summary(church):
     summary = church_summary(church)
-    summary['pending_followups'] = PastoralFollowUp.objects.filter(
-        church=church, status__in=['pending', 'in_progress']
-    ).count()
+    last_service = Service.objects.filter(
+        church=church,
+        date__lte=timezone.localdate(),
+    ).order_by('-date', '-start_time', '-created_at').first()
+
+    if last_service:
+        service_attendances = Attendance.objects.filter(
+            church=church,
+            service=last_service,
+        )
+        member_attendances = service_attendances.filter(member__isnull=False)
+
+        # Keep members church-wide, but scope service metrics to the last service.
+        summary['present'] = member_attendances.filter(result='present').count()
+        summary['absent'] = member_attendances.filter(result='absent').count()
+        marked_total = summary['present'] + summary['absent']
+        summary['attendance_rate'] = round(
+            (summary['present'] / marked_total) * 100, 1
+        ) if marked_total else 0
+        summary['total_visitors'] = service_attendances.filter(
+            visitor__isnull=False,
+        ).values('visitor_id').distinct().count()
+        summary['pending_followups'] = PastoralFollowUp.objects.filter(
+            church=church,
+            status__in=['pending', 'in_progress'],
+            member__attendances__service=last_service,
+            member__attendances__result='absent',
+        ).distinct().count()
+    else:
+        summary['present'] = 0
+        summary['absent'] = 0
+        summary['attendance_rate'] = 0
+        summary['total_visitors'] = 0
+        summary['pending_followups'] = 0
+
     summary['upcoming_services'] = Service.objects.filter(
         church=church, date__gte=timezone.now().date()
     ).order_by('date')[:5]
