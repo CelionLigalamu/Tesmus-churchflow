@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Register Member | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Register Member{% endblock %}
+{% block nav_members %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div><div class="page-kicker">People</div><h1>Register member</h1><p class="page-subtitle">Add a member to {{ request.user.church.name }}.</p></div>
+    <a href="{% url 'member_list' %}" class="btn btn-back-dashboard">← Back to members</a>
+</div>
+<div class="detail-card form-page-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-grid-two">
+            {% for field in form %}
+                <div class="form-field {% if field.name == 'status' %}form-field-short{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="form-actions"><a href="{% url 'member_list' %}" class="btn btn-outline-secondary">Cancel</a><button type="submit" class="btn btn-brand">Register member</button></div>
+    </form>
+</div>
+{% endblock %}

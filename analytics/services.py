@@ -98,54 +98,68 @@ def region_summary(region):
         'attendance_rate': rate,
     }
 
-def dashboard_summary(church, trend_days=7):
-    summary = church_summary(church)
-    last_service = Service.objects.filter(
-        church=church,
-        date__lte=timezone.localdate(),
-    ).order_by('-date', '-start_time', '-created_at').first()
+def dashboard_summary(
+    church,
+    trend_days=7,
+    start_date=None,
+    end_date=None,
+    region=None,
+    branch=None,
+):
+    today = timezone.localdate()
+    if start_date is None or end_date is None:
+        end_date = today
+        start_date = today - timedelta(days=trend_days - 1)
 
-    if last_service:
-        service_attendances = Attendance.objects.filter(
-            church=church,
-            service=last_service,
-        )
-        member_attendances = service_attendances.filter(member__isnull=False)
+    member_filter = {'church': church, 'status': 'active'}
+    person_filter = Q(church=church)
+    service_filter = Q(church=church)
+    if region:
+        member_filter['region'] = region
+        person_filter &= Q(region=region)
+        service_filter &= Q(region=region) | Q(region__isnull=True)
+    if branch:
+        member_filter['branch'] = branch
+        person_filter &= Q(branch=branch)
+        service_filter &= Q(branch=branch) | Q(branch__isnull=True)
 
-        # Keep members church-wide, but scope service metrics to the last service.
-        summary['present'] = member_attendances.filter(result='present').count()
-        summary['absent'] = member_attendances.filter(result='absent').count()
-        marked_total = summary['present'] + summary['absent']
-        summary['attendance_rate'] = round(
-            (summary['present'] / marked_total) * 100, 1
-        ) if marked_total else 0
-        summary['total_visitors'] = service_attendances.filter(
-            visitor__isnull=False,
-        ).values('visitor_id').distinct().count()
-        summary['pending_followups'] = PastoralFollowUp.objects.filter(
+    summary = {
+        'total_members': Member.objects.filter(**member_filter).count(),
+        'present': 0,
+        'absent': 0,
+        'attendance_rate': 0,
+        'total_visitors': Visitor.objects.filter(person_filter).filter(
+            first_visit_date__date__range=(start_date, end_date)
+        ).count(),
+        'pending_followups': PastoralFollowUp.objects.filter(
             church=church,
             status__in=['pending', 'in_progress'],
-            member__attendances__service=last_service,
-            member__attendances__result='absent',
-        ).distinct().count()
-    else:
-        summary['present'] = 0
-        summary['absent'] = 0
-        summary['attendance_rate'] = 0
-        summary['total_visitors'] = 0
-        summary['pending_followups'] = 0
+            member__in=Member.objects.filter(**member_filter),
+            created_at__date__range=(start_date, end_date),
+        ).count(),
+    }
+    attendance_qs = Attendance.objects.filter(
+        church=church,
+        service__date__range=(start_date, end_date),
+    ).filter(service_filter).filter(member__isnull=False)
+    summary['present'] = attendance_qs.filter(result='present').count()
+    summary['absent'] = attendance_qs.filter(result='absent').count()
+    marked_total = summary['present'] + summary['absent']
+    summary['attendance_rate'] = round(
+        (summary['present'] / marked_total) * 100, 1
+    ) if marked_total else 0
 
     summary['upcoming_services'] = Service.objects.filter(
-        church=church, date__gte=timezone.now().date()
-    ).order_by('date')[:5]
+        service_filter, date__gte=today,
+    ).order_by('date', 'start_time', 'created_at')[:5]
     now = timezone.localtime()
     summary['today_service'] = decorate_dashboard_service(
         Service.objects.filter(
-            church=church,
+            service_filter,
             date=now.date(),
         ).order_by('start_time', 'created_at').first(),
         now=now,
-    ) if Service.objects.filter(church=church, date=now.date()).exists() else None
+    ) if Service.objects.filter(service_filter, date=now.date()).exists() else None
     summary['upcoming_services'] = [
         decorate_dashboard_service(service, now=now)
         for service in summary['upcoming_services']
@@ -154,14 +168,15 @@ def dashboard_summary(church, trend_days=7):
     # Build a complete calendar series from real attendance rows.  Empty days
     # remain visible as zeroes instead of disappearing from the chart.
     today = timezone.localdate()
-    trend_start = today - timedelta(days=trend_days - 1)
+    trend_start = start_date
+    trend_days = (end_date - start_date).days + 1
     attendance_by_day = {
         row['service__date']: row['present']
         for row in Attendance.objects.filter(
             church=church,
             service__date__range=(trend_start, today),
             member__isnull=False,
-        ).values('service__date').annotate(
+        ).filter(service_filter).filter(service__date__range=(start_date, end_date)).values('service__date').annotate(
             present=Count('id', filter=Q(result='present')),
         )
     }
@@ -213,7 +228,5 @@ def dashboard_summary(church, trend_days=7):
     summary['attendance_chart_points'] = ' '.join(
         f"{point['x']},{point['y']}" for point in trend
     )
-    summary['recent_activity'] = AuditLog.objects.filter(
-        church=church
-    ).order_by('-created_at')[:6]
+    summary['recent_activity'] = AuditLog.objects.filter(church=church).order_by('-created_at')[:6]
     return summary

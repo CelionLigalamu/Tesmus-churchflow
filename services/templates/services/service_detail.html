@@ -2,15 +2,7 @@
 {% block title %}{{ service.name }} | Tesmus ChurchFlow{% endblock %}
 {% block page_title %}Service Detail{% endblock %}
 {% block nav_services %}active{% endblock %}
-{% block extra_style %}
-<style>
-    :root {
-        --brand-primary: {{ request.user.church.primary_color }};
-        --brand-secondary: {{ request.user.church.secondary_color }};
-        --brand-accent: {{ request.user.church.accent_color }};
-    }
-</style>
-{% endblock %}
+{% block extra_style %}{% endblock %}
 {% block content %}
 <div class="page-heading">
     <div>

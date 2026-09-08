@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404
@@ -19,8 +20,10 @@ def service_list(request):
         absent_count=Count('attendances', filter=Q(attendances__result='absent')),
     ).order_by('-date', '-start_time', 'name')
 
+    total_services = services.count()
+    page_obj = Paginator(services, 25).get_page(request.GET.get('page'))
     service_rows = []
-    for service in services:
+    for service in page_obj:
         marked_total = service.present_count + service.absent_count
         attendance_rate = round((service.present_count / marked_total) * 100, 1) if marked_total else 0
         service_rows.append({
@@ -31,7 +34,14 @@ def service_list(request):
             'attendance_rate': attendance_rate,
         })
 
-    return render(request, 'attendance/service_list.html', {'service_rows': service_rows})
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
+    return render(request, 'attendance/service_list.html', {
+        'service_rows': service_rows,
+        'page_obj': page_obj,
+        'query_params': query_params.urlencode(),
+        'total_services': total_services,
+    })
 
 
 @login_required
@@ -50,13 +60,18 @@ def service_detail(request, pk):
     unmarked = registered - present - absent
     marked_total = present + absent
     attendance_rate = round((present / marked_total) * 100, 1) if marked_total else 0
+    page_obj = Paginator(attendances, 25).get_page(request.GET.get('page'))
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
 
     return render(
         request,
         'attendance/service_detail.html',
         {
             'service': service,
-            'attendances': attendances,
+            'attendances': page_obj,
+            'page_obj': page_obj,
+            'query_params': query_params.urlencode(),
             'registered': registered,
             'present': present,
             'absent': absent,

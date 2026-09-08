@@ -2,15 +2,7 @@
 {% block title %}Messages | Tesmus ChurchFlow{% endblock %}
 {% block page_title %}Messages{% endblock %}
 {% block nav_messages %}active{% endblock %}
-{% block extra_style %}
-<style>
-    :root {
-        --brand-primary: {{ request.user.church.primary_color }};
-        --brand-secondary: {{ request.user.church.secondary_color }};
-        --brand-accent: {{ request.user.church.accent_color }};
-    }
-</style>
-{% endblock %}
+{% block extra_style %}{% endblock %}
 {% block content %}
 <div class="page-heading">
     <div>
@@ -22,6 +14,13 @@
         <div class="metric-label">Showing</div>
         <div class="metric-value">{{ total_messages }}</div>
     </div>
+</div>
+
+<div class="metric-row">
+    <div class="metric-card"><div class="metric-label">Total recipients</div><div class="metric-value">{{ total_recipients }}</div></div>
+    <div class="metric-card"><div class="metric-label">Sent</div><div class="metric-value">{{ sent_count }}</div></div>
+    <div class="metric-card"><div class="metric-label">Delivered</div><div class="metric-value">{{ delivered_count }}</div></div>
+    <div class="metric-card"><div class="metric-label">Failed</div><div class="metric-value">{{ failed_count }}</div></div>
 </div>
 
 <form method="get" class="toolbar-card">
@@ -52,7 +51,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for message in messages %}
+                {% for message in sent_messages %}
                     <tr>
                         <td><a class="table-link" href="{% url 'message_detail' message.pk %}">{{ message.recipient_phone }}</a></td>
                         <td>{{ message.body|truncatechars:96 }}</td>
@@ -72,4 +71,5 @@
         </table>
     </div>
 </div>
+{% include "includes/pagination.html" %}
 {% endblock %}

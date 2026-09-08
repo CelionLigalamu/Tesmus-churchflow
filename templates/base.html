@@ -5,32 +5,32 @@
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=plcm-navigation-20260908-3" rel="stylesheet">
-    {% if request.user.church %}<style>
-        :root {
-            --brand-primary: {{ request.user.church.primary_color }};
-            --brand-secondary: {{ request.user.church.secondary_color }};
-            --brand-accent: {{ request.user.church.accent_color }};
-        }
-    </style>{% endif %}
+    <link href="{% static 'css/theme.css' %}?v=plcm-blue-actions-20260908-4" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
-<body>
+<body style="--brand-primary: {{ request.user.church.primary_color|default:'#2C2C2C' }}; --brand-secondary: {{ request.user.church.secondary_color|default:'#F5EEE4' }}; --brand-accent: {{ request.user.church.accent_color|default:'#C6A16A' }};">
+<header class="mobile-header">
+    <button type="button" class="mobile-menu-button" id="mobile-menu-button" aria-label="Open navigation" aria-controls="church-sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="mobile-brand"><span class="sidebar-brand-badge">{{ request.user.church.code|slice:":2" }}</span><span>PLCM</span></div>
+    <span class="mobile-header-title">{{ request.user.church.name }}</span>
+</header>
 <div class="d-flex">
-    <div class="sidebar-custom">
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+    <div class="sidebar-custom" id="church-sidebar" aria-label="Primary navigation">
         <div class="sidebar-brand">
             <div class="sidebar-brand-badge">{{ request.user.church.code|slice:":2" }}</div>
-            {{ request.user.church.name }}
+            <span class="sidebar-brand-name">{{ request.user.church.name }}</span>
+            <button type="button" class="sidebar-close-button" id="sidebar-close-button" aria-label="Close navigation">×</button>
         </div>
         <div class="sidebar-nav">
-            <a href="{% url 'home' %}" class="sidebar-link {% block nav_home %}{% endblock %}">Dashboard</a>
-            <a href="{% url 'member_list' %}" class="sidebar-link {% block nav_members %}{% endblock %}">Members</a>
-            <a href="{% url 'visitor_list' %}" class="sidebar-link {% block nav_visitors %}{% endblock %}">Visitors</a>
-            <a href="{% url 'service_list' %}" class="sidebar-link {% block nav_services %}{% endblock %}">Services</a>
-            <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}">Attendance</a>
-            <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}">Messages</a>
-            <a href="{% url 'pastoral_followup_list' %}" class="sidebar-link {% block nav_pastoral %}{% endblock %}">Pastoral Care</a>
-            <a href="{% url 'activity_list' %}" class="sidebar-link {% block nav_audit %}{% endblock %}">Audit</a>
+            <a href="{% url 'home' %}" class="sidebar-link {% block nav_home %}{% endblock %}" data-nav-icon="⌂" title="Dashboard"><span class="sidebar-link-icon" aria-hidden="true">⌂</span><span class="sidebar-link-label">Dashboard</span></a>
+            <a href="{% url 'member_list' %}" class="sidebar-link {% block nav_members %}{% endblock %}" data-nav-icon="♙" title="Members"><span class="sidebar-link-icon" aria-hidden="true">♙</span><span class="sidebar-link-label">Members</span></a>
+            <a href="{% url 'visitor_list' %}" class="sidebar-link {% block nav_visitors %}{% endblock %}" data-nav-icon="◉" title="Visitors"><span class="sidebar-link-icon" aria-hidden="true">◉</span><span class="sidebar-link-label">Visitors</span></a>
+            <a href="{% url 'service_list' %}" class="sidebar-link {% block nav_services %}{% endblock %}" data-nav-icon="□" title="Services"><span class="sidebar-link-icon" aria-hidden="true">□</span><span class="sidebar-link-label">Services</span></a>
+            <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}" data-nav-icon="✓" title="Attendance"><span class="sidebar-link-icon" aria-hidden="true">✓</span><span class="sidebar-link-label">Attendance</span></a>
+            <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}" data-nav-icon="✉" title="Messages"><span class="sidebar-link-icon" aria-hidden="true">✉</span><span class="sidebar-link-label">Messages</span></a>
+            <a href="{% url 'pastoral_followup_list' %}" class="sidebar-link {% block nav_pastoral %}{% endblock %}" data-nav-icon="♡" title="Pastoral Care"><span class="sidebar-link-icon" aria-hidden="true">♡</span><span class="sidebar-link-label">Pastoral Care</span></a>
+            <a href="{% url 'activity_list' %}" class="sidebar-link {% block nav_audit %}{% endblock %}" data-nav-icon="⌁" title="Audit"><span class="sidebar-link-icon" aria-hidden="true">⌁</span><span class="sidebar-link-label">Audit</span></a>
         </div>
         <div class="sidebar-footer">
             <form method="post" action="{% url 'logout' %}">
@@ -45,6 +45,16 @@
             <span class="topbar-user">{{ request.user.username }}</span>
         </div>
         <div class="page-body">
+            {% if messages %}
+                <div class="site-messages" aria-live="polite">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             {% block content %}{% endblock %}
         </div>
         <footer class="main-footer">
@@ -53,5 +63,30 @@
         </footer>
     </div>
 </div>
+<script>
+    (() => {
+        const sidebar = document.getElementById('church-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const menu = document.getElementById('mobile-menu-button');
+        const close = document.getElementById('sidebar-close-button');
+        if (!sidebar || !overlay || !menu || !close) return;
+        const setOpen = (open) => {
+            sidebar.classList.toggle('is-open', open);
+            overlay.classList.toggle('is-visible', open);
+            document.body.classList.toggle('navigation-open', open);
+            menu.setAttribute('aria-expanded', String(open));
+            overlay.setAttribute('aria-hidden', String(!open));
+            if (open) close.focus(); else menu.focus();
+        };
+        menu.addEventListener('click', () => setOpen(true));
+        close.addEventListener('click', () => setOpen(false));
+        overlay.addEventListener('click', () => setOpen(false));
+        document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && sidebar.classList.contains('is-open')) setOpen(false); });
+        sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => { if (window.innerWidth <= 767) setOpen(false); }));
+    })();
+    document.querySelectorAll('.site-messages .btn-close').forEach((button) => {
+        button.addEventListener('click', () => button.closest('.alert')?.remove());
+    });
+</script>
 </body>
 </html>

@@ -2,15 +2,7 @@
 {% block title %}{{ service.name }} Attendance | Tesmus ChurchFlow{% endblock %}
 {% block page_title %}Attendance Detail{% endblock %}
 {% block nav_attendance %}active{% endblock %}
-{% block extra_style %}
-<style>
-    :root {
-        --brand-primary: {{ request.user.church.primary_color }};
-        --brand-secondary: {{ request.user.church.secondary_color }};
-        --brand-accent: {{ request.user.church.accent_color }};
-    }
-</style>
-{% endblock %}
+{% block extra_style %}{% endblock %}
 {% block content %}
 <div class="page-heading">
     <div>
@@ -116,4 +108,5 @@
         </div>
     </section>
 </div>
+{% include "includes/pagination.html" %}
 {% endblock %}

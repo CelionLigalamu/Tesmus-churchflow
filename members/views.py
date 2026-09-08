@@ -1,9 +1,14 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from attendance.models import Attendance
 from .models import Member
+from .forms import MemberForm
+from .services import generate_reference_number
+from audit.services import log_action
 
 
 @login_required
@@ -25,14 +30,37 @@ def member_list(request):
     if status_filter in dict(Member.STATUS_CHOICES):
         members = members.filter(status=status_filter)
 
+    total_members = members.count()
+    page_obj = Paginator(members, 25).get_page(request.GET.get('page'))
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
+
     context = {
-        'members': members,
+        'members': page_obj,
+        'page_obj': page_obj,
+        'query_params': query_params.urlencode(),
         'search_query': search_query,
         'status_filter': status_filter,
         'status_choices': Member.STATUS_CHOICES,
-        'total_members': members.count(),
+        'total_members': total_members,
     }
     return render(request, 'members/member_list.html', context)
+
+
+@login_required
+def member_create(request):
+    if request.user.is_tesmus_staff or not request.user.church_id:
+        return redirect('home')
+    form = MemberForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        member = form.save(commit=False)
+        member.church = request.user.church
+        member.reference_number = generate_reference_number(member.church_id)
+        member.save()
+        log_action(request.user, 'member_created', church=member.church, details=f'{member.reference_number} - {member.full_name}')
+        messages.success(request, f'{member.full_name} was registered successfully.')
+        return redirect('member_detail', pk=member.pk)
+    return render(request, 'members/member_form.html', {'form': form})
 
 
 @login_required
