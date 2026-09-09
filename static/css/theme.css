@@ -713,16 +713,12 @@ h1, h2, h3, h4, h5 {
 }
 
 .church-logo {
-    background: #fff;
-    border-radius: 9px;
     height: 42px;
     object-fit: contain;
-    padding: 3px;
     width: 42px;
 }
 
 .mobile-brand .church-logo {
-    border-radius: 7px;
     height: 28px;
     width: 28px;
 }
@@ -763,6 +759,251 @@ h1, h2, h3, h4, h5 {
     color: var(--text-secondary);
     font-size: 0.82rem;
     margin-top: 20px;
+}
+
+/* --- Tenant login experience --- */
+.tenant-login-page {
+    background: var(--bg-body);
+    display: grid;
+    grid-template-columns: minmax(380px, 46%) minmax(420px, 54%);
+    min-height: 100vh;
+}
+
+.tenant-login-marketing {
+    background: linear-gradient(145deg, rgba(20, 16, 12, .34), rgba(20, 16, 12, .86)), url('https://images.unsplash.com/photo-1763645274832-3f63395dd8f6?auto=format&fit=crop&fm=jpg&q=82&w=1600') center / cover;
+    color: #fff;
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+}
+
+.tenant-login-marketing-content {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 560px;
+    padding: clamp(34px, 7vw, 92px);
+}
+
+.tenant-tesmus-logo {
+    align-self: center;
+    height: 104px;
+    margin-bottom: 24px;
+    mix-blend-mode: screen;
+    object-fit: contain;
+    object-position: center;
+    width: 210px;
+}
+
+.tenant-marketing-kicker {
+    color: #e2bd78;
+    font-size: .67rem;
+    font-weight: 750;
+    letter-spacing: .14em;
+    margin-bottom: 22px;
+    text-transform: uppercase;
+}
+
+.tenant-login-marketing h1 {
+    color: #fff;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2rem, 3.2vw, 3.15rem);
+    font-weight: 500;
+    line-height: 1.08;
+    margin: 0 0 20px;
+    white-space: nowrap;
+}
+
+.tenant-login-marketing h1 span {
+    color: #d6ae6a;
+    display: block;
+}
+
+.tenant-login-marketing p {
+    color: rgba(255,255,255,.84);
+    font-size: .98rem;
+    line-height: 1.7;
+    margin: 0;
+    max-width: 430px;
+}
+
+.tenant-marketing-features {
+    display: grid;
+    gap: 14px 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 38px;
+    max-width: 430px;
+}
+
+.tenant-marketing-features span {
+    align-items: center;
+    color: rgba(255,255,255,.9);
+    display: flex;
+    font-size: .76rem;
+    gap: 8px;
+}
+
+.tenant-marketing-features svg {
+    fill: none;
+    height: 18px;
+    stroke: #d6ae6a;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6;
+    width: 18px;
+}
+
+.tenant-unsplash-credit {
+    color: rgba(255,255,255,.62);
+    font-size: .66rem;
+    margin-top: 38px;
+}
+
+.tenant-unsplash-credit a { color: #e2bd78; }
+
+.tenant-login-side {
+    align-items: center;
+    background: #f7f9fc;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 42px 28px;
+    position: relative;
+}
+
+.tenant-login-side::before {
+    border: 1px solid rgba(18,63,146,.08);
+    border-radius: 50%;
+    content: '';
+    height: 440px;
+    position: absolute;
+    right: -190px;
+    top: -210px;
+    width: 440px;
+}
+
+.tenant-login-card {
+    background: #fff;
+    border: 1px solid #e5eaf2;
+    border-radius: 14px;
+    box-shadow: 0 18px 48px rgba(17, 42, 82, .09);
+    max-width: 470px;
+    padding: 42px clamp(28px, 5vw, 58px) 32px;
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
+.tenant-plcm-logo {
+    background: #fff;
+    border-radius: 10px;
+    display: block;
+    height: 72px;
+    margin: 0 auto 13px;
+    object-fit: contain;
+    padding: 3px;
+    width: 72px;
+}
+
+.tenant-plcm-name {
+    color: #173b76;
+    font-size: .72rem;
+    font-weight: 750;
+    letter-spacing: .13em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.tenant-plcm-divider {
+    background: #c9a052;
+    height: 2px;
+    margin: 16px auto 22px;
+    width: 42px;
+}
+
+.tenant-login-card h2 {
+    color: #122f60;
+    font-size: 1.75rem;
+    margin: 0 0 7px;
+    text-align: center;
+}
+
+.tenant-login-subtitle {
+    color: #74829a;
+    font-size: .83rem;
+    margin: 0 0 28px;
+    text-align: center;
+}
+
+.tenant-form-field { display: grid; gap: 7px; margin-bottom: 17px; }
+.tenant-form-field label { color: #233b61; font-size: .74rem; font-weight: 700; }
+.tenant-form-field input { background: #fff; border: 1px solid #dbe3ef; border-radius: 7px; color: #1b3154; min-height: 46px; padding: 10px 12px; width: 100%; }
+.tenant-form-field input:focus { border-color: #184a9c; box-shadow: 0 0 0 3px rgba(24,74,156,.12); outline: none; }
+.tenant-login-error { color: #bd3030; font-size: .75rem; margin: 0 0 14px; }
+.tenant-login-submit { background: #123f92; border: 1px solid #123f92; border-radius: 7px; color: #fff; font-size: .86rem; font-weight: 750; min-height: 46px; width: 100%; }
+.tenant-login-submit:hover { background: #0e3276; border-color: #0e3276; }
+.tenant-login-submit:focus, .tenant-login-submit:focus-visible, .tenant-login-submit:active { background: #fff; border-color: #123f92; color: #123f92; outline: none; }
+.tenant-login-submit span { font-size: 1.1rem; margin-left: 7px; }
+.tenant-login-footer { align-items: center; display: flex; gap: 9px; margin-top: 27px; }
+.tenant-login-footer span { background: #e3e8ef; flex: 1; height: 1px; }
+.tenant-login-footer small { color: #8491a3; font-size: .66rem; white-space: nowrap; }
+.tenant-login-security { color: #9aa5b5; font-size: .65rem; margin-top: 15px; text-align: center; }
+.tenant-page-footer { color: #64748b; font-size: .7rem; line-height: 1.7; margin-top: 20px; text-align: center; }
+.tenant-page-footer div:last-child { color: #94a3b8; font-size: .65rem; }
+
+.platform-login-brand { align-items: center; display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+.platform-login-brand .login-tesmus-logo { height: 86px; max-width: 220px; object-fit: contain; }
+.platform-login-side { background: #f5eee4; }
+.platform-login-side::before { border-color: rgba(198,161,106,.18); }
+.platform-login-card { background: #fffdfa; border-color: rgba(198,161,106,.34); box-shadow: 0 18px 48px rgba(44,44,44,.11); }
+.platform-login-card h2 { color: #2c2c2c; font-size: 1.75rem; margin: 0 0 7px; text-align: center; }
+.platform-login-card .login-kicker { color: #b18445; }
+.platform-login-card .tenant-login-subtitle { color: #6f685f; }
+.platform-login-card .tenant-form-field label { color: #403a34; }
+.platform-login-card .tenant-form-field input { background: #fffdfa; border-color: #ddd1bf; color: #2c2c2c; }
+.platform-login-card .tenant-form-field input:focus { border-color: #c6a16a; box-shadow: 0 0 0 3px rgba(198,161,106,.2); }
+.platform-login-card .tenant-login-security { color: #8a8176; }
+.platform-login-side .tenant-page-footer { color: #6f685f; }
+.platform-login-side .tenant-page-footer div:last-child { color: #9a8b79; }
+.platform-login-submit { background: #d6ae6a; border-color: #d6ae6a; color: #2c2c2c; }
+.platform-login-submit:hover { background: #2c2c2c; border-color: #2c2c2c; color: #fff; }
+.platform-login-submit:focus, .platform-login-submit:focus-visible { background: #d6ae6a; border-color: #b18445; color: #2c2c2c; outline: 3px solid rgba(198,161,106,.28); outline-offset: 2px; }
+.platform-login-submit:active { background: #b18445; border-color: #b18445; color: #2c2c2c; }
+
+@media (max-width: 720px) {
+    .platform-login-side { min-height: calc(100vh - 310px); }
+}
+
+@media (max-width: 420px) {
+    .platform-login-card { padding: 30px 22px 25px; }
+    .platform-login-brand .login-tesmus-logo { height: 72px; }
+}
+
+@media (max-width: 900px) {
+    .tenant-login-page { grid-template-columns: minmax(300px, 40%) minmax(400px, 60%); }
+    .tenant-login-marketing-content { padding: 36px; }
+    .tenant-login-marketing h1 { font-size: 2.1rem; }
+    .tenant-marketing-features { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+    .tenant-login-page { display: block; }
+    .tenant-login-marketing { min-height: 310px; }
+    .tenant-login-marketing-content { justify-content: flex-end; padding: 34px 26px; }
+    .tenant-tesmus-logo { align-self: center; height: 72px; margin-bottom: 13px; width: 145px; }
+    .tenant-marketing-kicker { margin-bottom: 10px; }
+    .tenant-login-marketing h1 { font-size: 2rem; margin-bottom: 9px; white-space: normal; }
+    .tenant-login-marketing p, .tenant-marketing-features { display: none; }
+    .tenant-unsplash-credit { margin-top: 12px; }
+    .tenant-login-side { min-height: calc(100vh - 310px); padding: 28px 16px 38px; }
+}
+
+@media (max-width: 420px) {
+    .tenant-login-marketing { min-height: 260px; }
+    .tenant-login-side { min-height: calc(100vh - 260px); }
+    .tenant-login-card { padding: 30px 22px 25px; }
+    .tenant-login-card h2 { font-size: 1.5rem; }
 }
 
 .main-footer {

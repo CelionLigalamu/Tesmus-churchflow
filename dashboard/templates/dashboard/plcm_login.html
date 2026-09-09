@@ -1,8 +1,8 @@
 {% extends "base_plain.html" %}
 {% load static %}
-{% block title %}Tesmus ChurchFlow | Sign in{% endblock %}
+{% block title %}PLCM | Tesmus ChurchFlow{% endblock %}
 {% block content %}
-<main class="tenant-login-page platform-login-page">
+<main class="tenant-login-page">
     <section class="tenant-login-marketing" aria-label="Tesmus ChurchFlow platform">
         <div class="tenant-login-marketing-content">
             <img class="tenant-tesmus-logo" src="{% static 'images/branding/tesmus-marketing-logo.png' %}" alt="Tesmus Technologies Limited">
@@ -17,14 +17,13 @@
             </div>
         </div>
     </section>
-    <section class="tenant-login-side platform-login-side" aria-label="Tesmus sign in">
-        <div class="tenant-login-card platform-login-card">
-            <div class="platform-login-brand">
-                <img class="login-tesmus-logo" src="{% static 'images/branding/tesmus-logo.png' %}" alt="Tesmus Technologies Limited">
-                <div class="login-kicker">ChurchFlow platform</div>
-            </div>
-            <h2>Tesmus ChurchFlow</h2>
-            <p class="tenant-login-subtitle">Church Management &amp; Engagement</p>
+    <section class="tenant-login-side" aria-label="PLCM sign in">
+        <div class="tenant-login-card">
+            <img class="tenant-plcm-logo" src="{% static 'images/branding/plcm-logo.jpeg' %}" alt="Preaching Life Change Ministry logo">
+            <div class="tenant-plcm-name">Preaching Life Change Ministry</div>
+            <div class="tenant-plcm-divider"></div>
+            <h2>Welcome Back</h2>
+            <p class="tenant-login-subtitle">Sign in to access your ChurchFlow dashboard</p>
             <form method="post" novalidate>
                 {% csrf_token %}
                 <div class="tenant-form-field">
@@ -36,7 +35,7 @@
                     {{ form.password }}
                 </div>
                 {% if form.errors %}<p class="tenant-login-error">Invalid username or password.</p>{% endif %}
-                <button type="submit" class="tenant-login-submit platform-login-submit">Sign In <span aria-hidden="true">→</span></button>
+                <button type="submit" class="tenant-login-submit">Sign In <span aria-hidden="true">→</span></button>
             </form>
             <div class="tenant-login-security">Your data is secure and private</div>
         </div>
