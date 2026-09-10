@@ -24,11 +24,9 @@ def finalize_service(service):
         service=service, member__isnull=False
     ).values_list('member_id', flat=True))
 
-    all_active_members = Member.objects.filter(
-        church_id=service.church_id, status='active'
-    )
+    all_members = Member.objects.filter(church_id=service.church_id)
 
-    absent_members = all_active_members.exclude(id__in=attended_member_ids)
+    absent_members = all_members.exclude(id__in=attended_member_ids)
     absent_template = get_attendance_template(service.church, 'absent')
 
     for member in absent_members:

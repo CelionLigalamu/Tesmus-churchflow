@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Register Member | Tesmus ChurchFlow{% endblock %}
-{% block page_title %}Register Member{% endblock %}
+{% block title %}{% if member %}Edit Member{% else %}Register Member{% endif %} | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}{% if member %}Edit Member{% else %}Register Member{% endif %}{% endblock %}
 {% block nav_members %}active{% endblock %}
 {% block content %}
 <div class="page-heading">
-    <div><div class="page-kicker">People</div><h1>Register member</h1><p class="page-subtitle">Add a member to {{ request.user.church.name }}.</p></div>
+    <div><div class="page-kicker">People</div><h1>{% if member %}Edit member{% else %}Register member{% endif %}</h1><p class="page-subtitle">{% if member %}Update this member's record and ministry roles.{% else %}Add a member to {{ request.user.church.name }}.{% endif %}</p></div>
     <a href="{% url 'member_list' %}" class="btn btn-back-dashboard">← Back to members</a>
 </div>
 <div class="detail-card form-page-card">
@@ -13,14 +13,14 @@
         {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
         <div class="form-grid-two">
             {% for field in form %}
-                <div class="form-field {% if field.name == 'status' %}form-field-short{% endif %}">
+                <div class="form-field">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
                 </div>
             {% endfor %}
         </div>
-        <div class="form-actions"><a href="{% url 'member_list' %}" class="btn btn-outline-secondary">Cancel</a><button type="submit" class="btn btn-brand">Register member</button></div>
+        <div class="form-actions"><a href="{% if member %}{% url 'member_detail' member.pk %}{% else %}{% url 'member_list' %}{% endif %}" class="btn btn-outline-secondary">Cancel</a><button type="submit" class="btn btn-brand">{% if member %}Save changes{% else %}Register member{% endif %}</button></div>
     </form>
 </div>
 {% endblock %}

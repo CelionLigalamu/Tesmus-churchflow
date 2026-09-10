@@ -31,6 +31,16 @@ class SMSTemplate(models.Model):
 
 
 class SMSMessage(models.Model):
+    AUDIENCE_CHOICES = [
+        ('church', 'All members'),
+        ('leadership', 'Leadership group'),
+        ('region', 'Members in a region'),
+        ('branch', 'Members in a branch'),
+        ('service_present', 'Members present at a service'),
+        ('service_absent', 'Members absent from a service'),
+        ('visitor_present', 'Visitors present at a service'),
+        ('individual', 'Individual or automated message'),
+    ]
     STATUS_CHOICES = [
         ('queued', 'Queued'),
         ('sent', 'Sent'),
@@ -41,6 +51,8 @@ class SMSMessage(models.Model):
     church = models.ForeignKey('tenants.Church', on_delete=models.CASCADE, related_name='sms_messages')
     recipient_phone = models.CharField(max_length=20)
     body = models.TextField()
+    audience_type = models.CharField(max_length=30, choices=AUDIENCE_CHOICES, default='individual')
+    audience_label = models.CharField(max_length=150, blank=True)
     template = models.ForeignKey('SMSTemplate', on_delete=models.SET_NULL, blank=True, null=True, related_name='messages')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='queued')
     provider_message_id = models.CharField(max_length=100, blank=True)

@@ -26,7 +26,7 @@ def decorate_dashboard_service(service, now=None):
 
 
 def church_summary(church):
-    total_members = Member.objects.filter(church=church, status='active').count()
+    total_members = Member.objects.filter(church=church).count()
     total_visitors = Visitor.objects.filter(church=church).count()
 
     attendance_qs = Attendance.objects.filter(church=church, member__isnull=False)
@@ -63,7 +63,7 @@ def service_summary(service):
 
 
 def region_summary(region):
-    members = Member.objects.filter(church=region.church, region=region, status='active')
+    members = Member.objects.filter(church=region.church, region=region)
     attendances = Attendance.objects.filter(church=region.church, member__in=members)
     present = attendances.filter(result='present').count()
     absent = attendances.filter(result='absent').count()
@@ -91,7 +91,7 @@ def dashboard_summary(
         end_date = today
         start_date = today - timedelta(days=trend_days - 1)
 
-    member_filter = {'church': church, 'status': 'active'}
+    member_filter = {'church': church}
     person_filter = Q(church=church)
     service_filter = Q(church=church)
     if region:

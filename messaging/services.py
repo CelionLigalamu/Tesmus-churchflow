@@ -39,7 +39,7 @@ def render_attendance_message(template, member, service):
     })).strip()
 
 
-def send_message(church, recipient_phone, body, template=None, dedupe_key=None):
+def send_message(church, recipient_phone, body, template=None, dedupe_key=None, audience_type='individual', audience_label=''):
     if dedupe_key:
         existing = SMSMessage.objects.filter(dedupe_key=dedupe_key).first()
         if existing:
@@ -49,6 +49,8 @@ def send_message(church, recipient_phone, body, template=None, dedupe_key=None):
         church=church,
         recipient_phone=recipient_phone,
         body=body,
+        audience_type=audience_type,
+        audience_label=audience_label,
         template=template,
         dedupe_key=dedupe_key,
         status='queued',
@@ -72,9 +74,9 @@ def send_message(church, recipient_phone, body, template=None, dedupe_key=None):
     return sms_message
 
 
-def send_bulk(church, recipients, body, template=None):
+def send_bulk(church, recipients, body, template=None, audience_type='individual', audience_label=''):
     results = []
     for member in recipients:
-        msg = send_message(church, member.phone_number, body, template=template)
+        msg = send_message(church, member.phone_number, body, template=template, audience_type=audience_type, audience_label=audience_label)
         results.append(msg)
     return results

@@ -8,7 +8,7 @@
     <div>
         <div class="page-kicker">People</div>
         <h1>Members</h1>
-        <p class="page-subtitle">See everyone registered at your church and their status.</p>
+        <p class="page-subtitle">See everyone registered at your church.</p>
     </div>
     {% if not request.user.is_tesmus_staff and request.user.church_id %}
         <a class="btn btn-brand page-primary-action" href="{% url 'member_create' %}">+ Add member</a>
@@ -24,15 +24,7 @@
         <div class="col-md-7">
             <input class="form-control form-control-custom" type="search" name="q" value="{{ search_query }}" placeholder="Search by name or reference number">
         </div>
-        <div class="col-md-3">
-            <select class="form-select form-select-custom" name="status">
-                <option value="">All statuses</option>
-                {% for value, label in status_choices %}
-                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2 d-grid">
+        <div class="col-md-5 d-grid">
             <button class="btn btn-brand" type="submit">Filter</button>
         </div>
     </div>
@@ -47,7 +39,7 @@
                     <th>Full Name</th>
                     <th>Phone</th>
                     <th>Region / Branch</th>
-                    <th>Status</th>
+                    <th>Ministry role</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,14 +55,16 @@
                             </div>
                         </td>
                         <td>
-                            <span class="status-pill {% if member.status == 'active' %}status-pill-success{% else %}status-pill-neutral{% endif %}">
-                                {{ member.get_status_display }}
-                            </span>
+                            {% for role in member.ministry_roles.all %}
+                                <span class="status-pill status-pill-neutral">{{ role.name }}</span>
+                            {% empty %}
+                                <span class="meta-muted">None assigned</span>
+                            {% endfor %}
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="5" class="empty-state">No members match this view.</td>
+                        <td colspan="5" class="empty-state">No members found.</td>
                     </tr>
                 {% endfor %}
             </tbody>

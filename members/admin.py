@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Member
+from .models import Member, MinistryRole
 from .services import generate_reference_number
 from messaging.services import send_message
 from audit.services import log_action
@@ -7,7 +7,8 @@ from audit.services import log_action
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ('reference_number', 'full_name', 'phone_number', 'church', 'status')
+    list_display = ('reference_number', 'full_name', 'phone_number', 'church')
+    filter_horizontal = ('ministry_roles',)
     readonly_fields = ('reference_number',)
     actions = ['send_reference_sms']
 
@@ -31,3 +32,9 @@ class MemberAdmin(admin.ModelAdmin):
             count += 1
         self.message_user(request, f"Reference SMS queued for {count} member(s).")
     send_reference_sms.short_description = "Send reference number SMS to selected members"
+
+
+@admin.register(MinistryRole)
+class MinistryRoleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'church')
+    list_filter = ('church',)

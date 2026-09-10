@@ -10,6 +10,7 @@ from .forms import SMSTemplateForm
 from .services import send_bulk
 from .services import get_attendance_template
 from members.models import Member
+from members.services import ensure_default_ministry_roles
 from services.models import Service
 from tenants.models import Branch, Region
 
@@ -75,6 +76,7 @@ def message_create(request):
     regions = Region.objects.filter(church=request.user.church).order_by('name')
     branches = Branch.objects.filter(church=request.user.church).select_related('region').order_by('name')
     services = Service.objects.filter(church=request.user.church).order_by('-date', '-start_time')[:30]
+    ministry_roles = ensure_default_ministry_roles(request.user.church)
     if request.user.scope_type == 'region' and request.user.scope_region_id:
         regions = regions.filter(pk=request.user.scope_region_id)
         branches = branches.filter(region_id=request.user.scope_region_id)
@@ -93,22 +95,47 @@ def message_create(request):
                 region = regions.filter(pk=request.user.scope_region_id).first()
             elif request.user.scope_type == 'branch' and request.user.scope_branch_id:
                 branch = branches.filter(pk=request.user.scope_branch_id).first()
+        leadership_role = None
+        if audience_type == 'leadership':
+            leadership_role = ministry_roles.filter(
+                pk=request.POST.get('leadership_role')
+            ).first()
+            if request.user.scope_type == 'region' and request.user.scope_region_id:
+                region = regions.filter(pk=request.user.scope_region_id).first()
+            elif request.user.scope_type == 'branch' and request.user.scope_branch_id:
+                region = regions.filter(pk=request.user.scope_branch.region_id).first()
+                branch = branches.filter(pk=request.user.scope_branch_id).first()
         body = request.POST.get('body', '').strip()
         if not body:
             flash_messages.error(request, 'Write a message before sending.')
+        elif audience_type == 'leadership' and not leadership_role:
+            flash_messages.error(request, 'Choose a leadership group.')
         elif not user_can_send_to(request.user, audience_type, region=region, branch=branch):
             flash_messages.error(request, 'You do not have permission to message that audience.')
         else:
-            recipients = get_recipients(request.user.church, audience_type, region=region, branch=branch, service=service)
+            recipients = get_recipients(
+                request.user.church,
+                audience_type,
+                region=region,
+                branch=branch,
+                service=service,
+                result=leadership_role.pk if leadership_role else None,
+            )
             if audience_type in {'service_present', 'service_absent', 'visitor_present'} and not service:
                 recipients = Member.objects.none()
             if not recipients.exists():
                 flash_messages.error(request, 'No recipients match that audience.')
             else:
-                send_bulk(request.user.church, recipients, body)
+                audience_label = leadership_role.name if leadership_role else dict(SMSMessage.AUDIENCE_CHOICES).get(audience_type, audience_type)
+                send_bulk(request.user.church, recipients, body, audience_type=audience_type, audience_label=audience_label)
                 flash_messages.success(request, f'Message queued for {recipients.count()} recipient(s).')
                 return redirect('message_list')
-    return render(request, 'messaging/message_form.html', {'regions': regions, 'branches': branches, 'services': services})
+    return render(request, 'messaging/message_form.html', {
+        'regions': regions,
+        'branches': branches,
+        'services': services,
+        'ministry_roles': ministry_roles,
+    })
 
 
 @login_required

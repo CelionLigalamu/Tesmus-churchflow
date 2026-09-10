@@ -1,5 +1,16 @@
 from django.db import transaction
 from tenants.models import Church
+from .models import DEFAULT_MINISTRY_ROLES, MinistryRole
+
+
+def ensure_default_ministry_roles(church):
+    existing = set(
+        MinistryRole.objects.filter(church=church).values_list('name', flat=True)
+    )
+    for index, name in enumerate(DEFAULT_MINISTRY_ROLES, start=1):
+        if name not in existing:
+            MinistryRole.objects.create(church=church, name=name, sort_order=index * 10)
+    return MinistryRole.objects.filter(church=church).order_by('sort_order', 'name')
 
 
 def generate_reference_number(church_id):

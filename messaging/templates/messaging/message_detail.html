@@ -18,6 +18,10 @@
         <h2>Delivery Info</h2>
         <div class="info-list">
             <div>
+                <div class="info-label">Audience</div>
+                <div class="info-value">{% if message.audience_label %}{{ message.audience_label }}{% else %}{{ message.get_audience_type_display }}{% endif %}</div>
+            </div>
+            <div>
                 <div class="info-label">Recipient</div>
                 <div class="info-value">{{ message.recipient_phone }}</div>
             </div>

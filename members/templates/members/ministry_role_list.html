@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Ministry Roles | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Ministry Roles{% endblock %}
+{% block nav_members %}active{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="page-kicker">Members</div><h1>Ministry roles</h1><p class="page-subtitle">Manage leadership groups for {{ request.user.church.name }}.</p></div><a class="btn btn-brand" href="{% url 'ministry_role_create' %}">+ Add role</a></div>
+<div class="table-card"><div class="table-responsive"><table class="table table-custom"><thead><tr><th>Role</th><th>Members assigned</th><th></th></tr></thead><tbody>
+{% for role in roles %}<tr><td><strong>{{ role.name }}</strong></td><td>{{ role.members.count }}</td><td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'ministry_role_edit' role.pk %}">Rename</a> <form method="post" action="{% url 'ministry_role_delete' role.pk %}" class="d-inline" onsubmit="return confirm('Remove this ministry role? Members will remain in the system.');">{% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Remove</button></form></td></tr>{% empty %}<tr><td colspan="3" class="empty-state">No ministry roles configured.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

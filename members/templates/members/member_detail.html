@@ -10,7 +10,7 @@
         <h1>{{ member.full_name }}</h1>
         <p class="page-subtitle">See this member's details and attendance history.</p>
     </div>
-    <a class="btn btn-brand" href="{% url 'member_list' %}">Back to Members</a>
+    <div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{% url 'member_edit' member.pk %}">Edit member</a><a class="btn btn-brand" href="{% url 'member_list' %}">Back to Members</a></div>
 </div>
 
 <div class="detail-grid">
@@ -34,10 +34,10 @@
                 <div class="info-value">{{ member.branch.name|default:"No branch" }}</div>
             </div>
             <div>
-                <div class="info-label">Status</div>
-                <span class="status-pill {% if member.status == 'active' %}status-pill-success{% else %}status-pill-neutral{% endif %}">
-                    {{ member.get_status_display }}
-                </span>
+                <div class="info-label">Ministry roles</div>
+                <div class="info-value">
+                    {% for role in member.ministry_roles.all %}{{ role.name }}{% if not forloop.last %}, {% endif %}{% empty %}None assigned{% endfor %}
+                </div>
             </div>
         </div>
     </section>
