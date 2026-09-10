@@ -9,6 +9,7 @@ from audit.models import AuditLog
 from django.utils import timezone
 from accounts.permissions import user_can_access_branch, user_can_access_region
 from tenants.models import Branch, Region
+from messaging.models import SMSTemplate, SMSConfiguration
 
 
 @login_required
@@ -122,3 +123,16 @@ def activity_list(request):
             'query_params': query_params.urlencode(),
         },
     )
+
+
+@login_required
+def settings_page(request):
+    if request.user.is_tesmus_staff or not request.user.church_id:
+        return render(request, 'dashboard/tesmus_home.html')
+
+    return render(request, 'dashboard/settings.html', {
+        'church': request.user.church,
+        'template_count': SMSTemplate.objects.filter(church=request.user.church).count(),
+        'sms_configured': hasattr(request.user.church, 'sms_config'),
+        'can_manage_templates': request.user.scope_type == 'church',
+    })

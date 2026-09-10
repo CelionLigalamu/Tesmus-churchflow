@@ -4,12 +4,29 @@ from django.db.models import Count
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import SMSMessage
+from .models import SMSMessage, SMSTemplate
 from .audience import get_recipients, user_can_send_to
+from .forms import SMSTemplateForm
 from .services import send_bulk
+from .services import get_attendance_template
 from members.models import Member
 from services.models import Service
 from tenants.models import Branch, Region
+
+
+TEMPLATE_LABELS = {
+    'attendance_present': 'Attendance — Present',
+    'attendance_absent': 'Attendance — Absent',
+}
+
+
+def can_manage_templates(user):
+    return (
+        user.is_authenticated
+        and not user.is_tesmus_staff
+        and bool(user.church_id)
+        and user.scope_type == 'church'
+    )
 
 
 @login_required
@@ -102,3 +119,41 @@ def message_detail(request, pk):
     )
 
     return render(request, 'messaging/message_detail.html', {'message': message})
+
+
+@login_required
+def template_list(request):
+    if not can_manage_templates(request.user):
+        flash_messages.error(request, 'Only church-wide administrators can manage SMS templates.')
+        return redirect('message_list')
+
+    present = get_attendance_template(request.user.church, 'present')
+    absent = get_attendance_template(request.user.church, 'absent')
+    templates = [present, absent]
+    return render(request, 'messaging/template_list.html', {
+        'templates': templates,
+        'template_labels': TEMPLATE_LABELS,
+    })
+
+
+@login_required
+def template_edit(request, pk):
+    if not can_manage_templates(request.user):
+        flash_messages.error(request, 'Only church-wide administrators can manage SMS templates.')
+        return redirect('message_list')
+
+    sms_template = get_object_or_404(
+        SMSTemplate.objects.filter(church=request.user.church),
+        pk=pk,
+    )
+    form = SMSTemplateForm(request.POST or None, instance=sms_template)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        flash_messages.success(request, 'SMS template updated successfully.')
+        return redirect('sms_template_list')
+
+    return render(request, 'messaging/template_form.html', {
+        'form': form,
+        'sms_template': sms_template,
+        'template_label': TEMPLATE_LABELS.get(sms_template.name, sms_template.name),
+    })

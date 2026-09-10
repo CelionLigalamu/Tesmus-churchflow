@@ -5,6 +5,7 @@ from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_protect
 from services.models import Service
+from services.services import sync_and_finalize_service
 from members.models import Member
 from .models import Attendance
 
@@ -19,6 +20,9 @@ def service_list(request):
         present_count=Count('attendances', filter=Q(attendances__result='present')),
         absent_count=Count('attendances', filter=Q(attendances__result='absent')),
     ).order_by('-date', '-start_time', 'name')
+
+    for service in services:
+        sync_and_finalize_service(service)
 
     total_services = services.count()
     page_obj = Paginator(services, 25).get_page(request.GET.get('page'))
@@ -50,6 +54,7 @@ def service_detail(request, pk):
         Service.objects.for_user(request.user).select_related('region', 'branch'),
         pk=pk,
     )
+    sync_and_finalize_service(service)
     attendances = Attendance.objects.for_user(request.user).filter(
         service=service,
     ).select_related('member', 'visitor').order_by('member__full_name', 'visitor__full_name', 'checked_in_at')
@@ -84,6 +89,7 @@ def service_detail(request, pk):
 @csrf_protect
 def qr_checkin(request, token):
     service = get_object_or_404(Service, qr_token=token)
+    sync_and_finalize_service(service)
 
     if service.status != 'open':
         return render(request, 'attendance/checkin_closed.html', {'service': service})

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Church Setup | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Church Setup{% endblock %}
+{% block nav_settings %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Administration</div>
+        <h1>Church setup</h1>
+        <p class="page-subtitle">View your church information and change attendance messages.</p>
+    </div>
+</div>
+
+<div class="settings-grid">
+    <section class="detail-card settings-card">
+        <div class="settings-card-icon">□</div>
+        <div>
+            <div class="page-kicker">Church information</div>
+            <h2>{{ church.name }}</h2>
+            <p>Church code: <strong>{{ church.code }}</strong></p>
+            <p class="settings-muted">These details are managed by Tesmus so your church identity stays correct.</p>
+        </div>
+    </section>
+    <section class="detail-card settings-card">
+        <div class="settings-card-icon">✉</div>
+        <div>
+            <div class="page-kicker">Attendance messages</div>
+            <h2>Messages after a service</h2>
+            <p>Change what members receive after they attend or miss a service.</p>
+            <a class="btn btn-brand settings-action" href="{% url 'sms_template_list' %}">Change attendance messages</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

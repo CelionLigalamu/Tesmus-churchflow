@@ -5,7 +5,7 @@
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=plcm-blue-actions-20260908-5" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=church-setup-simple-20260909-1" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
 <body style="--brand-primary: {{ request.user.church.primary_color|default:'#2C2C2C' }}; --brand-secondary: {{ request.user.church.secondary_color|default:'#F5EEE4' }}; --brand-accent: {{ request.user.church.accent_color|default:'#C6A16A' }};">
@@ -31,6 +31,7 @@
             <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}" data-nav-icon="✉" title="Messages"><span class="sidebar-link-icon" aria-hidden="true">✉</span><span class="sidebar-link-label">Messages</span></a>
             <a href="{% url 'pastoral_followup_list' %}" class="sidebar-link {% block nav_pastoral %}{% endblock %}" data-nav-icon="♡" title="Pastoral Care"><span class="sidebar-link-icon" aria-hidden="true">♡</span><span class="sidebar-link-label">Pastoral Care</span></a>
             <a href="{% url 'activity_list' %}" class="sidebar-link {% block nav_audit %}{% endblock %}" data-nav-icon="⌁" title="Audit"><span class="sidebar-link-icon" aria-hidden="true">⌁</span><span class="sidebar-link-label">Audit</span></a>
+            <a href="{% url 'settings_page' %}" class="sidebar-link {% block nav_settings %}{% endblock %}" data-nav-icon="⚙" title="Church setup"><span class="sidebar-link-icon" aria-hidden="true">⚙</span><span class="sidebar-link-label">Church setup</span></a>
         </div>
         <div class="sidebar-footer">
             <form method="post" action="{% url 'logout' %}">

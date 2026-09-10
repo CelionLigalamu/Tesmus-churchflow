@@ -4,6 +4,7 @@ from math import floor, log10
 from django.utils import timezone
 from pastoral.models import PastoralFollowUp
 from services.models import Service
+from services.services import sync_and_finalize_service
 from audit.models import AuditLog
 from django.db.models import Count, Q
 from members.models import Member
@@ -13,29 +14,8 @@ from visitors.models import Visitor
 
 def dashboard_service_status(service, now=None):
     """Return the time-aware status shown on the dashboard."""
-    now = now or timezone.localtime()
-    if service.status in {'closed', 'finalized'}:
-        return 'closed'
-    if service.date > now.date():
-        return 'upcoming'
-    if service.date < now.date():
-        return 'closed'
-
-    if service.start_time:
-        starts_at = timezone.make_aware(
-            datetime.combine(service.date, service.start_time),
-            timezone.get_current_timezone(),
-        )
-        if now < starts_at:
-            return 'upcoming'
-    if service.end_time:
-        ends_at = timezone.make_aware(
-            datetime.combine(service.date, service.end_time),
-            timezone.get_current_timezone(),
-        )
-        if now >= ends_at:
-            return 'closed'
-    return 'open'
+    sync_and_finalize_service(service, now=now)
+    return 'closed' if service.status == 'finalized' else service.status
 
 
 def decorate_dashboard_service(service, now=None):

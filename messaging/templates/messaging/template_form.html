@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Change Attendance Message | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Attendance Messages{% endblock %}
+{% block nav_settings %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Communication</div>
+        <h1>{% if sms_template.name == 'attendance_present' %}Members who attended{% else %}Members who were absent{% endif %}</h1>
+        <p class="page-subtitle">Write the message for {{ request.user.church.name }}.</p>
+    </div>
+    <a class="btn btn-back-dashboard" href="{% url 'sms_template_list' %}">← Back to templates</a>
+</div>
+
+<div class="detail-card form-page-card template-edit-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-field">
+            <label for="id_body">Your message</label>
+            {{ form.body }}
+            {% for error in form.body.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+            <small class="form-help">Keep it clear and friendly. Maximum 480 characters.</small>
+        </div>
+        <div class="template-variable-help">
+            <strong>Details added automatically</strong>
+            <span><code>&#123;&#123;member_name&#125;&#125;</code> <code>&#123;&#123;church_name&#125;&#125;</code> <code>&#123;&#123;service_name&#125;&#125;</code> <code>&#123;&#123;service_date&#125;&#125;</code> <code>&#123;&#123;start_time&#125;&#125;</code> <code>&#123;&#123;end_time&#125;&#125;</code></span>
+        </div>
+        <label class="template-active-toggle" for="id_is_active">
+            {{ form.is_active }}
+            <span><strong>Use this template automatically</strong><small>Turn this off if your church does not want this notification.</small></span>
+        </label>
+        <div class="form-actions">
+            <a class="btn btn-outline-secondary" href="{% url 'sms_template_list' %}">Cancel</a>
+            <button class="btn btn-brand" type="submit">Save template</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

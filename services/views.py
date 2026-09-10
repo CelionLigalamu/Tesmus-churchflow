@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .models import Service
 from .forms import ServiceForm
+from .services import sync_and_finalize_service
 from audit.services import log_action
 
 
@@ -16,6 +17,9 @@ def service_list(request):
         'region',
         'branch',
     ).order_by('-date', '-start_time', 'name')
+
+    for service in services:
+        sync_and_finalize_service(service)
 
     if status_filter in dict(Service.STATUS_CHOICES):
         services = services.filter(status=status_filter)
@@ -65,5 +69,6 @@ def service_detail(request, pk):
         ),
         pk=pk,
     )
+    sync_and_finalize_service(service)
 
     return render(request, 'services/service_detail.html', {'service': service})

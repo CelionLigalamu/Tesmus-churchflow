@@ -44,6 +44,7 @@ class SMSMessage(models.Model):
     template = models.ForeignKey('SMSTemplate', on_delete=models.SET_NULL, blank=True, null=True, related_name='messages')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='queued')
     provider_message_id = models.CharField(max_length=100, blank=True)
+    dedupe_key = models.CharField(max_length=150, unique=True, blank=True, null=True)
     failure_reason = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(blank=True, null=True)
