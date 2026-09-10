@@ -10,6 +10,9 @@
         <h1>Visitors</h1>
         <p class="page-subtitle">See people who visited your church and whether they became members.</p>
     </div>
+    {% if not request.user.is_tesmus_staff and request.user.church_id %}
+        <a class="btn btn-brand page-primary-action" href="{% url 'visitor_create' %}">+ Add visitor</a>
+    {% endif %}
     <div class="metric-card">
         <div class="metric-label">Showing</div>
         <div class="metric-value">{{ total_visitors }}</div>

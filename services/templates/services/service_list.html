@@ -10,6 +10,9 @@
         <h1>Services</h1>
         <p class="page-subtitle">See your church services and how each one is going.</p>
     </div>
+    {% if not request.user.is_tesmus_staff and request.user.church_id %}
+        <a class="btn btn-brand page-primary-action" href="{% url 'service_create' %}">+ Create service</a>
+    {% endif %}
     <div class="metric-card">
         <div class="metric-label">Showing</div>
         <div class="metric-value">{{ total_services }}</div>

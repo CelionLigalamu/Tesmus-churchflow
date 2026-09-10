@@ -20,9 +20,9 @@ def finalize_service(service):
     if service.status == 'finalized':
         return
 
-    attended_member_ids = Attendance.objects.filter(
+    attended_member_ids = set(Attendance.objects.filter(
         service=service, member__isnull=False
-    ).values_list('member_id', flat=True)
+    ).values_list('member_id', flat=True))
 
     all_active_members = Member.objects.filter(
         church_id=service.church_id, status='active'

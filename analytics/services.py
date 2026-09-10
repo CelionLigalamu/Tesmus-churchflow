@@ -133,13 +133,34 @@ def dashboard_summary(
         service_filter, date__gte=today,
     ).order_by('date', 'start_time', 'created_at')[:5]
     now = timezone.localtime()
-    summary['today_service'] = decorate_dashboard_service(
-        Service.objects.filter(
+    today_services = [
+        decorate_dashboard_service(service, now=now)
+        for service in Service.objects.filter(
             service_filter,
             date=now.date(),
-        ).order_by('start_time', 'created_at').first(),
-        now=now,
-    ) if Service.objects.filter(service_filter, date=now.date()).exists() else None
+        ).order_by('start_time', 'created_at')
+    ]
+    open_services = [
+        service for service in today_services
+        if service.dashboard_status == 'open'
+    ]
+    upcoming_services_today = [
+        service for service in today_services
+        if service.dashboard_status == 'upcoming'
+    ]
+    closed_services_today = [
+        service for service in today_services
+        if service.dashboard_status == 'closed'
+    ]
+    summary['today_service'] = (
+        open_services[0]
+        if open_services
+        else upcoming_services_today[0]
+        if upcoming_services_today
+        else closed_services_today[-1]
+        if closed_services_today
+        else None
+    )
     summary['upcoming_services'] = [
         decorate_dashboard_service(service, now=now)
         for service in summary['upcoming_services']

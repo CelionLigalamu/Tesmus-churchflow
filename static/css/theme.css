@@ -332,6 +332,12 @@ h1, h2, h3, h4, h5 {
     margin-bottom: 20px;
 }
 
+.page-primary-action,
+.page-secondary-action {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
 .page-kicker {
     color: var(--text-secondary);
     font-size: 0.82rem;
@@ -601,6 +607,14 @@ h1, h2, h3, h4, h5 {
 @media (max-width: 920px) {
     .page-heading {
         display: block;
+    }
+
+    .page-heading .page-primary-action,
+    .page-heading .page-secondary-action {
+        display: inline-flex;
+        width: 100%;
+        justify-content: center;
+        margin-top: 12px;
     }
 
     .detail-grid,

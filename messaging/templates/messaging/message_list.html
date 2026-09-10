@@ -10,6 +10,9 @@
         <h1>Messages</h1>
         <p class="page-subtitle">See text messages sent from your church and their status.</p>
     </div>
+    {% if not request.user.is_tesmus_staff and request.user.church_id %}
+        <a class="btn btn-brand page-primary-action" href="{% url 'message_create' %}">+ Send message</a>
+    {% endif %}
     <div class="metric-card">
         <div class="metric-label">Showing</div>
         <div class="metric-value">{{ total_messages }}</div>

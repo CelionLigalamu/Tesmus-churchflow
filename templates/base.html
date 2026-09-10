@@ -5,7 +5,7 @@
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=church-setup-simple-20260909-1" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=contextual-actions-20260910-1" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
 <body style="--brand-primary: {{ request.user.church.primary_color|default:'#2C2C2C' }}; --brand-secondary: {{ request.user.church.secondary_color|default:'#F5EEE4' }}; --brand-accent: {{ request.user.church.accent_color|default:'#C6A16A' }};">
