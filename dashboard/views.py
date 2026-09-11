@@ -12,6 +12,10 @@ from tenants.models import Branch, Region
 from messaging.models import SMSTemplate, SMSConfiguration
 
 
+def public_home(request):
+    return render(request, 'dashboard/public_home.html')
+
+
 @login_required
 def home(request):
     user = request.user
