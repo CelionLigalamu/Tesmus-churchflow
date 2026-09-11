@@ -1021,6 +1021,21 @@ h1, h2, h3, h4, h5 {
 .platform-login-submit:focus, .platform-login-submit:focus-visible { background: #d6ae6a; border-color: #b18445; color: #2c2c2c; outline: 3px solid rgba(198,161,106,.28); outline-offset: 2px; }
 .platform-login-submit:active { background: #b18445; border-color: #b18445; color: #2c2c2c; }
 
+.church-login-page .tenant-login-side { background: var(--church-secondary, #f5eee4); }
+.church-login-page .tenant-login-side::before { border-color: color-mix(in srgb, var(--church-primary, #2c2c2c) 14%, transparent); }
+.church-login-page .tenant-login-card { border-color: color-mix(in srgb, var(--church-primary, #2c2c2c) 22%, #ffffff); }
+.tenant-church-logo { background: #fff; border-radius: 10px; display: block; height: 72px; margin: 0 auto 13px; object-fit: contain; padding: 3px; width: 72px; }
+.tenant-default-logo { padding: 10px; }
+.tenant-church-name { color: var(--church-primary, #2c2c2c); font-size: .72rem; font-weight: 750; letter-spacing: .13em; text-align: center; text-transform: uppercase; }
+.tenant-church-divider { background: var(--church-accent, #c6a16a); height: 2px; margin: 16px auto 22px; width: 42px; }
+.church-login-page .tenant-login-card h2 { color: var(--church-primary, #2c2c2c); }
+.church-login-page .tenant-login-subtitle { color: color-mix(in srgb, var(--church-primary, #2c2c2c) 58%, #ffffff); }
+.church-login-page .tenant-form-field label { color: var(--church-primary, #2c2c2c); }
+.church-login-page .tenant-form-field input { border-color: color-mix(in srgb, var(--church-primary, #2c2c2c) 18%, #ffffff); }
+.church-login-page .tenant-form-field input:focus { border-color: var(--church-primary, #2c2c2c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--church-primary, #2c2c2c) 18%, transparent); }
+.church-login-page .tenant-login-submit { background: var(--church-primary, #2c2c2c); border-color: var(--church-primary, #2c2c2c); color: #fff; }
+.church-login-page .tenant-login-submit:hover { filter: brightness(.88); }
+
 @media (max-width: 720px) {
     .platform-login-side { min-height: calc(100vh - 310px); }
 }
@@ -1064,4 +1079,17 @@ h1, h2, h3, h4, h5 {
     color: #8A857E;
     font-size: 0.8rem;
     line-height: 1.6;
+}
+
+/* Final login sizing overrides: keep the branded layout inside every viewport. */
+html:has(.tenant-login-page), body:has(.tenant-login-page) { overflow-x: hidden; }
+.tenant-login-page { max-width: 100vw; min-width: 0; overflow: hidden; width: 100%; }
+.tenant-login-page > section, .tenant-login-marketing-content { min-width: 0; }
+.tenant-login-marketing-content { width: 100%; }
+.tenant-login-page .tenant-login-marketing h1 { overflow-wrap: anywhere; white-space: normal; }
+
+@media (min-width: 721px) and (max-width: 1100px) {
+    .tenant-login-page { grid-template-columns: minmax(0, 42%) minmax(0, 58%); }
+    .tenant-login-marketing-content { padding: 36px; }
+    .tenant-login-page .tenant-login-marketing h1 { font-size: clamp(1.85rem, 4vw, 2.65rem); }
 }
