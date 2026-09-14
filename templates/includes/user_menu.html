@@ -1,0 +1,31 @@
+{% comment %}
+Account menu shown in the top bar (desktop/tablet) and the mobile header.
+Everything comes from the signed-in user and their church - nothing is
+church-specific. `menu_id` must be unique on the page.
+Usage: {% include "includes/user_menu.html" with menu_id="user-menu-top" %}
+{% endcomment %}{% with display_name=request.user.get_short_name|default:request.user.username current_theme=request.user.theme_preference|default:'system' %}
+<div class="user-menu" data-user-menu>
+    <button type="button" class="user-menu-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="{{ menu_id }}" aria-label="Account menu for {{ display_name }}">
+        <span class="user-menu-avatar" aria-hidden="true">{{ display_name|first|upper }}</span>
+        <span class="user-menu-name">{{ display_name }}</span>
+        <span class="user-menu-chevron">{% include "includes/nav_icon.html" with name="chevron_down" %}</span>
+    </button>
+    <div class="user-menu-panel" id="{{ menu_id }}" hidden>
+        <div class="user-menu-section" role="group" aria-labelledby="{{ menu_id }}-appearance">
+            <span class="user-menu-section-label" id="{{ menu_id }}-appearance">Appearance</span>
+            <div class="theme-switch" data-theme-switch data-theme-url="{% url 'set_theme_preference' %}" data-csrf-token="{{ csrf_token }}">
+                <button type="button" class="theme-option" data-theme-value="light" aria-pressed="{% if current_theme == 'light' %}true{% else %}false{% endif %}">{% include "includes/nav_icon.html" with name="sun" %}<span>Light</span></button>
+                <button type="button" class="theme-option" data-theme-value="dark" aria-pressed="{% if current_theme == 'dark' %}true{% else %}false{% endif %}">{% include "includes/nav_icon.html" with name="moon" %}<span>Dark</span></button>
+                <button type="button" class="theme-option" data-theme-value="system" aria-pressed="{% if current_theme == 'system' %}true{% else %}false{% endif %}" title="Match your device setting">{% include "includes/nav_icon.html" with name="monitor" %}<span>Auto</span></button>
+            </div>
+        </div>
+        {% if request.user.church_id and not request.user.is_tesmus_staff %}
+            <a class="user-menu-item" href="{% url 'settings_page' %}">{% include "includes/nav_icon.html" with name="settings" %}<span>Church setup</span></a>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}" data-logout-confirm>
+            {% csrf_token %}
+            <button type="submit" class="user-menu-item user-menu-logout">{% include "includes/nav_icon.html" with name="logout" %}<span>Logout</span></button>
+        </form>
+    </div>
+</div>
+{% endwith %}

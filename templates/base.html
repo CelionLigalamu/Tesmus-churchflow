@@ -1,18 +1,35 @@
-{% load static %}
+{% load static church_theme %}
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme-preference="{{ request.user.theme_preference|default:'system' }}" data-theme="{% if request.user.theme_preference == 'dark' %}dark{% else %}light{% endif %}" data-bs-theme="{% if request.user.theme_preference == 'dark' %}dark{% else %}light{% endif %}" style="{% church_theme_style request.user.church %}">
 <head>
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
+    <script>
+        // Resolve the theme before the stylesheet paints, so there's no flash.
+        // "system" follows the device setting and keeps following it.
+        (() => {
+            const root = document.documentElement;
+            const media = window.matchMedia('(prefers-color-scheme: dark)');
+            const apply = () => {
+                const preference = root.getAttribute('data-theme-preference') || 'system';
+                const theme = preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
+                root.setAttribute('data-theme', theme);
+                root.setAttribute('data-bs-theme', theme);
+            };
+            apply();
+            if (media.addEventListener) media.addEventListener('change', apply);
+            window.churchflowApplyTheme = apply;
+        })();
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=contextual-actions-20260910-1" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=theme-20260914" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
-<body style="--brand-primary: {{ request.user.church.primary_color|default:'#2C2C2C' }}; --brand-secondary: {{ request.user.church.secondary_color|default:'#F5EEE4' }}; --brand-accent: {{ request.user.church.accent_color|default:'#C6A16A' }};">
+<body>
 <header class="mobile-header">
     <button type="button" class="mobile-menu-button" id="mobile-menu-button" aria-label="Open navigation" aria-controls="church-sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="mobile-brand">{% include "includes/church_logo.html" with church=request.user.church css_class="church-logo" %}<span>{{ request.user.church.name }}</span></div>
-    <span class="mobile-header-title">{{ request.user.church.name }}</span>
+    {% include "includes/user_menu.html" with menu_id="user-menu-mobile" %}
 </header>
 <div class="d-flex">
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
@@ -22,29 +39,37 @@
             <span class="sidebar-brand-name">{{ request.user.church.name }}</span>
             <button type="button" class="sidebar-close-button" id="sidebar-close-button" aria-label="Close navigation">×</button>
         </div>
-        <div class="sidebar-nav">
-            <a href="{% url 'home' %}" class="sidebar-link {% block nav_home %}{% endblock %}" data-nav-icon="⌂" title="Dashboard"><span class="sidebar-link-icon" aria-hidden="true">⌂</span><span class="sidebar-link-label">Dashboard</span></a>
-            <a href="{% url 'member_list' %}" class="sidebar-link {% block nav_members %}{% endblock %}" data-nav-icon="♙" title="Members"><span class="sidebar-link-icon" aria-hidden="true">♙</span><span class="sidebar-link-label">Members</span></a>
-            {% if request.user.scope_type == 'church' and not request.user.is_tesmus_staff %}<a href="{% url 'ministry_role_list' %}" class="sidebar-link {% block nav_ministry_roles %}{% endblock %}" data-nav-icon="✦" title="Ministry Roles"><span class="sidebar-link-icon" aria-hidden="true">✦</span><span class="sidebar-link-label">Ministry Roles</span></a>{% endif %}
-            <a href="{% url 'visitor_list' %}" class="sidebar-link {% block nav_visitors %}{% endblock %}" data-nav-icon="◉" title="Visitors"><span class="sidebar-link-icon" aria-hidden="true">◉</span><span class="sidebar-link-label">Visitors</span></a>
-            <a href="{% url 'service_list' %}" class="sidebar-link {% block nav_services %}{% endblock %}" data-nav-icon="□" title="Services"><span class="sidebar-link-icon" aria-hidden="true">□</span><span class="sidebar-link-label">Services</span></a>
-            <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}" data-nav-icon="✓" title="Attendance"><span class="sidebar-link-icon" aria-hidden="true">✓</span><span class="sidebar-link-label">Attendance</span></a>
-            <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}" data-nav-icon="✉" title="Messages"><span class="sidebar-link-icon" aria-hidden="true">✉</span><span class="sidebar-link-label">Messages</span></a>
-            <a href="{% url 'pastoral_followup_list' %}" class="sidebar-link {% block nav_pastoral %}{% endblock %}" data-nav-icon="♡" title="Pastoral Care"><span class="sidebar-link-icon" aria-hidden="true">♡</span><span class="sidebar-link-label">Pastoral Care</span></a>
-            <a href="{% url 'activity_list' %}" class="sidebar-link {% block nav_audit %}{% endblock %}" data-nav-icon="⌁" title="Audit"><span class="sidebar-link-icon" aria-hidden="true">⌁</span><span class="sidebar-link-label">Audit</span></a>
-            <a href="{% url 'settings_page' %}" class="sidebar-link {% block nav_settings %}{% endblock %}" data-nav-icon="⚙" title="Church setup"><span class="sidebar-link-icon" aria-hidden="true">⚙</span><span class="sidebar-link-label">Church setup</span></a>
-        </div>
-        <div class="sidebar-footer">
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-light btn-sm w-100">Logout</button>
-            </form>
-        </div>
+        <nav class="sidebar-nav" aria-label="Main menu">
+            <p class="sidebar-group-label">Overview</p>
+            <a href="{% url 'home' %}" class="sidebar-link {% block nav_home %}{% endblock %}" title="Dashboard"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="dashboard" %}</span><span class="sidebar-link-label">Dashboard</span></a>
+
+            <p class="sidebar-group-label">People</p>
+            <a href="{% url 'member_list' %}" class="sidebar-link {% block nav_members %}{% endblock %}" title="Members"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="members" %}</span><span class="sidebar-link-label">Members</span></a>
+            {% if request.user.scope_type == 'church' and not request.user.is_tesmus_staff %}<a href="{% url 'ministry_role_list' %}" class="sidebar-link {% block nav_ministry_roles %}{% endblock %}" title="Ministry Roles"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="ministry_roles" %}</span><span class="sidebar-link-label">Ministry Roles</span></a>{% endif %}
+            <a href="{% url 'visitor_list' %}" class="sidebar-link {% block nav_visitors %}{% endblock %}" title="Visitors"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="visitors" %}</span><span class="sidebar-link-label">Visitors</span></a>
+
+            <p class="sidebar-group-label">Services</p>
+            <a href="{% url 'service_list' %}" class="sidebar-link {% block nav_services %}{% endblock %}" title="Services"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="services" %}</span><span class="sidebar-link-label">Services</span></a>
+            <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}" title="Attendance"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="attendance" %}</span><span class="sidebar-link-label">Attendance</span></a>
+
+            <p class="sidebar-group-label">Care</p>
+            <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}" title="Messages"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="messages" %}</span><span class="sidebar-link-label">Messages</span></a>
+            <a href="{% url 'pastoral_followup_list' %}" class="sidebar-link {% block nav_pastoral %}{% endblock %}" title="Pastoral Care"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="pastoral" %}</span><span class="sidebar-link-label">Pastoral Care</span></a>
+
+            <p class="sidebar-group-label">Admin</p>
+            <a href="{% url 'activity_list' %}" class="sidebar-link {% block nav_audit %}{% endblock %}" title="Audit"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="audit" %}</span><span class="sidebar-link-label">Audit</span></a>
+            <a href="{% url 'settings_page' %}" class="sidebar-link {% block nav_settings %}{% endblock %}" title="Church setup"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="settings" %}</span><span class="sidebar-link-label">Church setup</span></a>
+        </nav>
+        <div class="sidebar-footer-brand">Tesmus ChurchFlow</div>
     </div>
     <div class="main-content">
         <div class="topbar">
-            <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
-            <span class="topbar-user">{{ request.user.username }}</span>
+            <nav class="topbar-breadcrumb" aria-label="Breadcrumb">
+                <a href="{% url 'home' %}">Home</a>
+                <span class="topbar-breadcrumb-separator" aria-hidden="true">{% include "includes/nav_icon.html" with name="chevron_right" %}</span>
+                <span aria-current="page">{% block page_title %}Dashboard{% endblock %}</span>
+            </nav>
+            {% include "includes/user_menu.html" with menu_id="user-menu-top" %}
         </div>
         <div class="page-body">
             {% if messages %}
@@ -65,6 +90,7 @@
         </footer>
     </div>
 </div>
+{% include "includes/logout_dialog.html" %}
 <script>
     (() => {
         const sidebar = document.getElementById('church-sidebar');
@@ -89,6 +115,73 @@
     document.querySelectorAll('.site-messages .btn-close').forEach((button) => {
         button.addEventListener('click', () => button.closest('.alert')?.remove());
     });
+    document.querySelectorAll('[data-user-menu]').forEach((menu) => {
+        const toggle = menu.querySelector('.user-menu-toggle');
+        const panel = menu.querySelector('.user-menu-panel');
+        if (!toggle || !panel) return;
+        const setOpen = (open) => {
+            panel.hidden = !open;
+            toggle.setAttribute('aria-expanded', String(open));
+            menu.classList.toggle('is-open', open);
+        };
+        toggle.addEventListener('click', (event) => { event.stopPropagation(); setOpen(panel.hidden); });
+        document.addEventListener('click', (event) => { if (!menu.contains(event.target)) setOpen(false); });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !panel.hidden) { setOpen(false); toggle.focus(); }
+        });
+    });
+    (() => {
+        // Appearance switch: apply straight away, then save it for this person.
+        const root = document.documentElement;
+        const markPressed = (value) => {
+            document.querySelectorAll('[data-theme-value]').forEach((option) => {
+                option.setAttribute('aria-pressed', String(option.dataset.themeValue === value));
+            });
+        };
+        document.querySelectorAll('[data-theme-switch]').forEach((group) => {
+            group.addEventListener('click', (event) => {
+                const option = event.target.closest('[data-theme-value]');
+                if (!option) return;
+                const value = option.dataset.themeValue;
+                root.setAttribute('data-theme-preference', value);
+                window.churchflowApplyTheme?.();
+                markPressed(value);
+                fetch(group.dataset.themeUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRFToken': group.dataset.csrfToken, 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ theme: value }),
+                }).catch(() => {});
+            });
+        });
+    })();
+    (() => {
+        // Ask before logging out. Without <dialog> support the form simply submits.
+        const dialog = document.getElementById('logout-dialog');
+        if (!dialog || typeof dialog.showModal !== 'function') return;
+        let origin = null;
+        document.querySelectorAll('form[data-logout-confirm]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                origin = form.closest('[data-user-menu]');
+                document.querySelectorAll('[data-user-menu]').forEach((menu) => {
+                    const panel = menu.querySelector('.user-menu-panel');
+                    const toggle = menu.querySelector('.user-menu-toggle');
+                    if (panel) panel.hidden = true;
+                    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                    menu.classList.remove('is-open');
+                });
+                dialog.showModal();
+            });
+        });
+        dialog.querySelector('[data-logout-cancel]')?.addEventListener('click', () => dialog.close());
+        dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+        // Close on Esc explicitly, so it works the same in every browser.
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && dialog.open) { event.preventDefault(); dialog.close(); }
+        });
+        dialog.addEventListener('close', () => { origin?.querySelector('.user-menu-toggle')?.focus(); });
+    })();
 </script>
 </body>
 </html>

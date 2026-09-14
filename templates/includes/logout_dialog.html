@@ -1,0 +1,18 @@
+{% comment %}
+Logout confirmation, included once in base.html. The account menu's Logout
+form opens this instead of submitting straight away. Wording, church name and
+colours all come from the signed-in user and their church.
+{% endcomment %}{% with display_name=request.user.get_short_name|default:request.user.username %}
+<dialog class="logout-dialog" id="logout-dialog" aria-labelledby="logout-dialog-title" aria-describedby="logout-dialog-text">
+    <div class="logout-dialog-body">
+        <span class="logout-dialog-icon" aria-hidden="true">{% include "includes/nav_icon.html" with name="logout" %}</span>
+        <h2 class="logout-dialog-title" id="logout-dialog-title">Log out?</h2>
+        <p class="logout-dialog-text" id="logout-dialog-text">You're signed in to <strong>{{ request.user.church.name|default:"Tesmus ChurchFlow" }}</strong> as {{ display_name }}. You'll need to sign in again to continue.</p>
+        <form method="post" action="{% url 'logout' %}" class="logout-dialog-actions">
+            {% csrf_token %}
+            <button type="button" class="logout-dialog-cancel" data-logout-cancel autofocus>Cancel</button>
+            <button type="submit" class="logout-dialog-confirm">Log out</button>
+        </form>
+    </div>
+</dialog>
+{% endwith %}

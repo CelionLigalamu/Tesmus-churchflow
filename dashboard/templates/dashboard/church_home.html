@@ -49,7 +49,7 @@
 </script>
 
 <div class="dashboard-hero-row">
-    <div class="dashboard-hero" style="background-image: linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.86) 54%, rgba(255,255,255,.12) 100%), url('https://images.unsplash.com/photo-1684366454386-b97de2dcf0a7?auto=format&fit=crop&w=1400&q=85');">
+    <div class="dashboard-hero" style="background-image: linear-gradient(90deg, var(--hero-fade-start) 0%, var(--hero-fade-mid) 54%, var(--hero-fade-end) 100%), url('https://images.unsplash.com/photo-1684366454386-b97de2dcf0a7?auto=format&fit=crop&w=1400&q=85');">
         <div class="dashboard-hero-copy"><div class="page-kicker">Welcome back</div><h3>{{ request.user.church.name }}</h3><p class="mb-0">A clear view of your ministry, people and services.</p></div>
     </div>
     <div class="today-service-card">
@@ -72,7 +72,7 @@
             <div class="card-heading"><h6 class="dashboard-section-title"><span class="heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-7"/></svg></span>Attendance overview</h6><div class="chart-filters"><a class="{% if summary.attendance_range == 7 %}filter-active{% endif %}" href="?range=7d{% if selected_region %}&region={{ selected_region.id }}{% endif %}{% if selected_branch %}&branch={{ selected_branch.id }}{% endif %}">7 days</a><a class="{% if summary.attendance_range == 30 %}filter-active{% endif %}" href="?range=30d{% if selected_region %}&region={{ selected_region.id }}{% endif %}{% if selected_branch %}&branch={{ selected_branch.id }}{% endif %}">30 days</a><a class="{% if summary.attendance_range == 90 %}filter-active{% endif %}" href="?range=3m{% if selected_region %}&region={{ selected_region.id }}{% endif %}{% if selected_branch %}&branch={{ selected_branch.id }}{% endif %}">3 months</a></div></div>
             {% if summary.attendance_trend %}
                 <svg class="attendance-chart" viewBox="0 0 640 190" role="img" aria-label="Attendance trend across the last seven services">
-                    <defs><linearGradient id="attendance-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--brand-primary)" stop-opacity=".18"/><stop offset="1" stop-color="var(--brand-primary)" stop-opacity="0"/></linearGradient></defs>
+                    <defs><linearGradient id="attendance-fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--brand-ink)" stop-opacity=".18"/><stop offset="1" stop-color="var(--brand-ink)" stop-opacity="0"/></linearGradient></defs>
                     {% for tick in summary.attendance_y_ticks %}<line class="chart-grid" x1="24" y1="{{ tick.y }}" x2="616" y2="{{ tick.y }}"/><text class="chart-y-label" x="1" y="{{ tick.y|add:'3' }}">{{ tick.value }}</text>{% endfor %}
                     <polygon class="chart-area" points="24,156 {{ summary.attendance_chart_points }} 616,156"/>
                     <polyline class="chart-line" points="{{ summary.attendance_chart_points }}"/>
