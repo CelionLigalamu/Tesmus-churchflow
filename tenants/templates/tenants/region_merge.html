@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Merge {{ region.name }} | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Merge Region{% endblock %}
+{% block nav_regions %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">People</div>
+        <h1>Merge {{ region.name }}</h1>
+        <p class="page-subtitle">Use this when the same area was typed two ways, for example "Sikendu" and "Sikhendu".</p>
+    </div>
+    <a class="btn btn-back-dashboard" href="{% url 'region_list' %}">&larr; Back to regions</a>
+</div>
+
+<div class="detail-card form-page-card">
+    <div class="template-notice">
+        <strong>Everything in {{ region.name }} moves into the region you choose, then {{ region.name }} is removed.</strong>
+        <span>Pastors picked for {{ region.name }} are added to that region's pastors. Past attendance statistics move with it.</span>
+    </div>
+
+    <h2 class="merge-usage-title">What will move</h2>
+    <ul class="merge-usage">
+        {% for label, count in usage %}
+            <li><span>{{ label }}</span><strong>{{ count }}</strong></li>
+        {% endfor %}
+    </ul>
+
+    {% if form.fields.target.queryset.exists %}
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
+            <div class="form-field">
+                <label for="{{ form.target.id_for_label }}">{{ form.target.label }}</label>
+                {{ form.target }}
+                {% if form.suggested %}<small class="form-help">"{{ form.suggested.name }}" looks like the same area, so it has been chosen for you.</small>{% endif %}
+                {% for error in form.target.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+            </div>
+            <label class="template-active-toggle merge-confirm" for="{{ form.confirm.id_for_label }}">
+                {{ form.confirm }}
+                <span><strong>{{ form.confirm.label }}</strong><small>This cannot be undone.</small></span>
+            </label>
+            {% for error in form.confirm.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+            <div class="form-actions">
+                <a href="{% url 'region_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-danger">Merge regions</button>
+            </div>
+        </form>
+    {% else %}
+        <p class="empty-state">There is no other region to merge {{ region.name }} into yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

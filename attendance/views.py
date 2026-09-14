@@ -14,7 +14,6 @@ from .models import Attendance
 def service_list(request):
     services = Service.objects.for_user(request.user).select_related(
         'region',
-        'branch',
     ).annotate(
         registered_count=Count('attendances'),
         present_count=Count('attendances', filter=Q(attendances__result='present')),
@@ -51,7 +50,7 @@ def service_list(request):
 @login_required
 def service_detail(request, pk):
     service = get_object_or_404(
-        Service.objects.for_user(request.user).select_related('region', 'branch'),
+        Service.objects.for_user(request.user).select_related('region'),
         pk=pk,
     )
     sync_and_finalize_service(service)

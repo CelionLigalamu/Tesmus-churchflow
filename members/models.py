@@ -31,7 +31,6 @@ class MinistryRole(models.Model):
 class Member(models.Model):
     church = models.ForeignKey('tenants.Church', on_delete=models.PROTECT, related_name='members')
     region = models.ForeignKey('tenants.Region', on_delete=models.SET_NULL, blank=True, null=True, related_name='members')
-    branch = models.ForeignKey('tenants.Branch', on_delete=models.SET_NULL, blank=True, null=True, related_name='members')
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     reference_number = models.CharField(max_length=30)

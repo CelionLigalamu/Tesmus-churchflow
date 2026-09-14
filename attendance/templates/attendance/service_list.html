@@ -20,7 +20,7 @@
                 <tr>
                     <th>Service</th>
                     <th>Date</th>
-                    <th>Region / Branch</th>
+                    <th>Region</th>
                     <th>Status</th>
                     <th>Registered</th>
                     <th>Present</th>
@@ -38,12 +38,7 @@
                             </div>
                         </td>
                         <td>{{ row.service.date|date:"M j, Y" }}</td>
-                        <td>
-                            <div class="meta-stack">
-                                <span>{{ row.service.region.name|default:"No region" }}</span>
-                                <span class="meta-muted">{{ row.service.branch.name|default:"No branch" }}</span>
-                            </div>
-                        </td>
+                        <td>{{ row.service.region.name|default:"No region" }}</td>
                         <td>
                             <span class="status-pill {% if row.service.status == 'finalized' %}status-pill-success{% elif row.service.status == 'closed' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
                                 {{ row.service.get_status_display }}

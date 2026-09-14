@@ -5,10 +5,10 @@ from .models import User
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
-        ('Tesmus / Church', {'fields': ('is_tesmus_staff', 'church', 'scope_type', 'scope_region', 'scope_branch')}),
+        ('Tesmus / Church', {'fields': ('is_tesmus_staff', 'church', 'scope_type', 'scope_region')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Tesmus / Church', {'fields': ('is_tesmus_staff', 'church', 'scope_type', 'scope_region', 'scope_branch')}),
+        ('Tesmus / Church', {'fields': ('is_tesmus_staff', 'church', 'scope_type', 'scope_region')}),
     )
     list_display = ('username', 'email', 'is_tesmus_staff', 'church', 'scope_type', 'is_staff')
 

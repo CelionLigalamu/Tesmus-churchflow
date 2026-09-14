@@ -6,7 +6,6 @@ class User(AbstractUser):
     SCOPE_CHOICES = [
         ('church', 'Church-wide'),
         ('region', 'Region'),
-        ('branch', 'Branch'),
         ('none', 'None'),
     ]
 
@@ -18,10 +17,6 @@ class User(AbstractUser):
     scope_type = models.CharField(max_length=10, choices=SCOPE_CHOICES, default='none')
     scope_region = models.ForeignKey(
         'tenants.Region', on_delete=models.PROTECT,
-        related_name='scoped_users', blank=True, null=True,
-    )
-    scope_branch = models.ForeignKey(
-        'tenants.Branch', on_delete=models.PROTECT,
         related_name='scoped_users', blank=True, null=True,
     )
 

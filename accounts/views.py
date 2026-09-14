@@ -1,13 +1,40 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, resolve_url
 
 from tenants.models import Church
 
 from .forms import ChurchAuthenticationForm
 from .models import User
+
+
+class ChurchLogoutView(LogoutView):
+    """Log out, then return church users to their own church's sign-in page.
+
+    Tesmus staff, people without a church, and users of a church that is no
+    longer active go to the general sign-in page instead. A safe `next`
+    address, when one is sent, still takes priority.
+    """
+
+    def post(self, request, *args, **kwargs):
+        # Read the church first: logging out replaces the signed-in user.
+        self.church_login_url = self._church_login_url(request.user)
+        return super().post(request, *args, **kwargs)
+
+    @staticmethod
+    def _church_login_url(user):
+        if not user.is_authenticated or user.is_tesmus_staff or not user.church_id:
+            return None
+        church = user.church
+        if not church.is_active or not church.slug:
+            return None
+        return reverse('church_login', args=[church.slug])
+
+    def get_default_redirect_url(self):
+        return getattr(self, 'church_login_url', None) or resolve_url('login')
 
 
 class ChurchLoginView(LoginView):

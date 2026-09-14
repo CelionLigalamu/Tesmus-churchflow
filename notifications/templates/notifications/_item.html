@@ -1,0 +1,12 @@
+<form method="post" action="{% url 'notification_open' notification.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="notification-item{% if notification.is_unread %} is-unread{% endif %}{% if notification.needs_attention %} is-attention{% endif %}">
+        <span class="notification-item-icon" aria-hidden="true">{% include "includes/nav_icon.html" with name=notification.icon %}</span>
+        <span class="notification-item-text">
+            <span class="notification-item-title">{{ notification.title }}</span>
+            {% if notification.detail %}<span class="notification-item-detail">{{ notification.detail }}</span>{% endif %}
+            <span class="notification-item-time">{{ notification.time_label }}</span>
+        </span>
+        {% if notification.is_unread %}<span class="notification-item-dot"><span class="visually-hidden">Unread</span></span>{% endif %}
+    </button>
+</form>

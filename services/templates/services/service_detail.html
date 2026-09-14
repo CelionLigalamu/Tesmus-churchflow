@@ -10,7 +10,15 @@
         <h1>{{ service.name }}</h1>
         <p class="page-subtitle">See this service's details and who attended.</p>
     </div>
-    <a class="btn btn-brand" href="{% url 'service_list' %}">Back to Services</a>
+    <div class="page-heading-actions">
+        {% if service.status == 'finalized' and request.user.scope_type == 'church' and not request.user.is_tesmus_staff %}
+            <form method="post" action="{% url 'service_send_region_summaries' service.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-secondary" type="submit">Text region pastors</button>
+            </form>
+        {% endif %}
+        <a class="btn btn-brand" href="{% url 'service_list' %}">Back to Services</a>
+    </div>
 </div>
 
 <div class="detail-grid">
@@ -48,10 +56,6 @@
             <div>
                 <div class="info-label">Region</div>
                 <div class="info-value">{{ service.region.name|default:"No region" }}</div>
-            </div>
-            <div>
-                <div class="info-label">Branch</div>
-                <div class="info-value">{{ service.branch.name|default:"No branch" }}</div>
             </div>
             <div>
                 <div class="info-label">Created By</div>

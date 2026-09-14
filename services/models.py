@@ -14,7 +14,6 @@ class Service(models.Model):
 
     church = models.ForeignKey('tenants.Church', on_delete=models.PROTECT, related_name='services')
     region = models.ForeignKey('tenants.Region', on_delete=models.SET_NULL, blank=True, null=True, related_name='services')
-    branch = models.ForeignKey('tenants.Branch', on_delete=models.SET_NULL, blank=True, null=True, related_name='services')
     name = models.CharField(max_length=255)
     service_type = models.CharField(max_length=100, blank=True)
     date = models.DateField()

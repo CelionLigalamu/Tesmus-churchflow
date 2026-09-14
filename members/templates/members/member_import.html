@@ -18,20 +18,13 @@
         <div class="template-notice">
             <strong>Your file needs a header row with these columns:</strong>
             <span><code>{{ template_header }}</code></span>
-            <span>Region and branch may be left blank. In Excel, choose <strong>File &rsaquo; Save As &rsaquo; CSV</strong>.</span>
+            <span>Region is the area each member lives in. New areas are added as regions automatically, and it may be left blank. In Excel, choose <strong>File &rsaquo; Save As &rsaquo; CSV</strong>.</span>
         </div>
         <div class="form-field">
             <label for="id_file">Spreadsheet file (.csv)</label>
             <input type="file" name="file" id="id_file" accept=".csv,text/csv" class="form-control">
             <small class="form-help">Up to 5,000 rows. Nothing is saved until you review the summary on the next screen.</small>
         </div>
-        <label class="template-active-toggle" for="id_create_places">
-            <input type="checkbox" name="create_places" id="id_create_places">
-            <span>
-                <strong>Create regions and branches that don't exist yet</strong>
-                <small>Leave this off once your regions are set up, so a typo is reported instead of quietly becoming a new region. Turn it on for your first import.</small>
-            </span>
-        </label>
         <div class="form-actions">
             <a href="{% url 'member_list' %}" class="btn btn-outline-secondary">Cancel</a>
             <button type="submit" class="btn btn-brand">Check the file</button>

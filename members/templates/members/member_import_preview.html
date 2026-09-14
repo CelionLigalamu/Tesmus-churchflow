@@ -29,7 +29,7 @@
 <div class="table-card">
     <div class="table-responsive">
         <table class="table table-custom">
-            <thead><tr><th>Row</th><th>Name</th><th>Phone</th><th>Region</th><th>Branch</th><th>What will happen</th></tr></thead>
+            <thead><tr><th>Row</th><th>Name</th><th>Phone</th><th>Region</th><th>What will happen</th></tr></thead>
             <tbody>
                 {% for row in results %}
                     <tr>
@@ -37,7 +37,6 @@
                         <td>{{ row.full_name|default:"—" }}</td>
                         <td>{{ row.phone_number|default:"—" }}</td>
                         <td>{{ row.region|default:"—" }}</td>
-                        <td>{{ row.branch|default:"—" }}</td>
                         <td>
                             {% if row.action == 'create' %}
                                 <span class="status-pill status-pill-success">Will be added</span>

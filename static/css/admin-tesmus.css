@@ -1,0 +1,205 @@
+/*
+ * Tesmus theme for Django admin (/admin/), styled on top of Jazzmin (AdminLTE 4,
+ * Bootstrap 5.3). Loaded only through JAZZMIN_SETTINGS['custom_css'], so church
+ * dashboards, sign-in pages and the public site never use this file.
+ *
+ * Brand colours: charcoal #2C2C2C, gold #C6A16A, cream #F5EEE4.
+ * Gold is used as a fill and for large accents; text uses the darker
+ * "gold ink" shade so it stays readable on white and cream.
+ */
+
+:root,
+[data-bs-theme="light"] {
+    --tesmus-charcoal: #2C2C2C;
+    --tesmus-charcoal-deep: #1F1F1F;
+    --tesmus-gold: #C6A16A;
+    --tesmus-gold-ink: #7A5B2E;
+    --tesmus-gold-soft: #F3E9D8;
+    --tesmus-cream: #F5EEE4;
+    --tesmus-cream-light: #FBF8F3;
+    --tesmus-line: #E8E1D6;
+    --tesmus-muted: #6F685F;
+
+    /* Bootstrap 5.3 */
+    --bs-primary: var(--tesmus-charcoal);
+    --bs-primary-rgb: 44, 44, 44;
+    --bs-link-color: var(--tesmus-gold-ink);
+    --bs-link-color-rgb: 122, 91, 46;
+    --bs-link-hover-color: var(--tesmus-charcoal);
+    --bs-link-hover-color-rgb: 44, 44, 44;
+    --bs-tertiary-bg: var(--tesmus-cream);
+    --bs-tertiary-bg-rgb: 245, 238, 228;
+    --bs-border-color: var(--tesmus-line);
+    --bs-focus-ring-color: rgba(198, 161, 106, .35);
+
+    /* Django admin's own widgets (filter boxes, calendar, selector) */
+    --primary: var(--tesmus-charcoal);
+    --secondary: var(--tesmus-charcoal-deep);
+    --accent: var(--tesmus-gold);
+    --primary-fg: #FFFFFF;
+    --link-fg: var(--tesmus-gold-ink);
+    --link-hover-color: var(--tesmus-charcoal);
+    --link-selected-fg: var(--tesmus-charcoal);
+    --selected-bg: var(--tesmus-gold-soft);
+    --selected-row: var(--tesmus-gold-soft);
+    --button-bg: var(--tesmus-charcoal);
+    --button-hover-bg: var(--tesmus-charcoal-deep);
+    --default-button-bg: var(--tesmus-gold-ink);
+    --default-button-hover-bg: var(--tesmus-charcoal);
+}
+
+/* ---- Sidebar ---------------------------------------------------------- */
+.app-sidebar,
+.app-sidebar.bg-body-secondary {
+    background-color: var(--tesmus-charcoal) !important;
+}
+.app-sidebar .sidebar-brand {
+    background-color: var(--tesmus-charcoal-deep);
+    border-bottom: 1px solid rgba(198, 161, 106, .28);
+}
+.app-sidebar .brand-link .brand-text {
+    color: #FFFFFF;
+    font-weight: 600 !important;
+    letter-spacing: .01em;
+}
+.tesmus-admin-logo {
+    width: 34px;
+    height: 34px;
+    padding: 2px;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: var(--tesmus-cream);
+    opacity: 1 !important;
+    box-shadow: none !important;
+}
+.app-sidebar .nav-header {
+    color: var(--tesmus-gold);
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.app-sidebar .sidebar-menu .nav-link {
+    color: #DDD8D0;
+    border-radius: 6px;
+}
+.app-sidebar .sidebar-menu .nav-link:hover,
+.app-sidebar .sidebar-menu .nav-link:focus-visible {
+    color: #FFFFFF;
+    background-color: rgba(255, 255, 255, .08);
+}
+.app-sidebar .sidebar-menu .nav-link.active,
+.app-sidebar .sidebar-menu .menu-open > .nav-link.active {
+    color: var(--tesmus-charcoal-deep) !important;
+    background-color: var(--tesmus-gold) !important;
+    font-weight: 600;
+}
+.app-sidebar .sidebar-menu .nav-link .nav-icon {
+    color: inherit;
+}
+
+/* ---- Top bar and footer ----------------------------------------------- */
+.app-header {
+    border-bottom: 3px solid var(--tesmus-gold);
+}
+.app-header .nav-link {
+    color: var(--tesmus-charcoal);
+}
+.app-header .nav-link:hover,
+.app-header .nav-link:focus-visible {
+    color: var(--tesmus-gold-ink);
+}
+.app-footer {
+    color: var(--tesmus-muted);
+    background-color: #FFFFFF;
+    border-top: 1px solid var(--tesmus-line);
+}
+.app-footer a {
+    color: var(--tesmus-gold-ink);
+}
+
+/* ---- Content ---------------------------------------------------------- */
+.app-content-header h1,
+.app-content-header .h1 {
+    color: var(--tesmus-charcoal);
+}
+.breadcrumb-item a {
+    color: var(--tesmus-gold-ink);
+}
+.card-primary.card-outline,
+.card.card-outline {
+    border-top: 3px solid var(--tesmus-gold);
+}
+.table thead th {
+    color: var(--tesmus-charcoal);
+}
+.table-hover > tbody > tr:hover > * {
+    --bs-table-bg-state: var(--tesmus-gold-soft);
+}
+.page-link {
+    color: var(--tesmus-gold-ink);
+}
+.page-item.active .page-link {
+    color: #FFFFFF;
+    background-color: var(--tesmus-charcoal);
+    border-color: var(--tesmus-charcoal);
+}
+
+/* ---- Buttons and form fields ------------------------------------------ */
+.btn-primary {
+    --bs-btn-color: #FFFFFF;
+    --bs-btn-bg: var(--tesmus-charcoal);
+    --bs-btn-border-color: var(--tesmus-charcoal);
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-hover-bg: var(--tesmus-charcoal-deep);
+    --bs-btn-hover-border-color: var(--tesmus-charcoal-deep);
+    --bs-btn-active-color: #FFFFFF;
+    --bs-btn-active-bg: #141414;
+    --bs-btn-active-border-color: #141414;
+    --bs-btn-disabled-color: #FFFFFF;
+    --bs-btn-disabled-bg: var(--tesmus-charcoal);
+    --bs-btn-disabled-border-color: var(--tesmus-charcoal);
+    --bs-btn-focus-shadow-rgb: 198, 161, 106;
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--tesmus-charcoal);
+    --bs-btn-border-color: var(--tesmus-charcoal);
+    --bs-btn-hover-color: #FFFFFF;
+    --bs-btn-hover-bg: var(--tesmus-charcoal);
+    --bs-btn-hover-border-color: var(--tesmus-charcoal);
+    --bs-btn-active-color: #FFFFFF;
+    --bs-btn-active-bg: var(--tesmus-charcoal-deep);
+    --bs-btn-active-border-color: var(--tesmus-charcoal-deep);
+    --bs-btn-focus-shadow-rgb: 198, 161, 106;
+}
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--tesmus-gold);
+    box-shadow: 0 0 0 .2rem rgba(198, 161, 106, .3);
+}
+.form-check-input:checked {
+    background-color: var(--tesmus-charcoal);
+    border-color: var(--tesmus-charcoal);
+}
+
+/* ---- Sign-in page ----------------------------------------------------- */
+.login-page {
+    background: linear-gradient(160deg, var(--tesmus-cream) 0%, #EFE4D3 100%) !important;
+}
+.login-box .login-logo img {
+    width: auto;
+    max-height: 132px;
+}
+.login-box .card {
+    border: 1px solid rgba(198, 161, 106, .34);
+    border-top: 4px solid var(--tesmus-gold);
+    border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(44, 44, 44, .11);
+}
+.login-box .login-box-msg {
+    color: #403A34;
+}
+.login-box .input-group-text {
+    color: var(--tesmus-gold-ink);
+    background-color: var(--tesmus-cream-light);
+}

@@ -13,7 +13,7 @@ import re
 
 from django.db import transaction
 
-from tenants.services import PlaceError, normalize_place_name, resolve_branch, resolve_region
+from tenants.services import find_region, normalize_place_name, resolve_region
 
 from .models import Member
 from .services import generate_reference_number
@@ -22,7 +22,7 @@ MAX_ROWS = 5000
 MAX_FILE_BYTES = 2 * 1024 * 1024
 
 REQUIRED_COLUMNS = ('full_name', 'phone_number')
-OPTIONAL_COLUMNS = ('region', 'branch')
+OPTIONAL_COLUMNS = ('region',)
 TEMPLATE_HEADER = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
 
 CREATE = 'create'
@@ -94,7 +94,7 @@ def read_rows(uploaded_file):
     return rows
 
 
-def validate(church, rows, create_places=False):
+def validate(church, rows):
     """Turn parsed rows into per-row outcomes. Touches nothing in the database."""
     existing_phones = {
         phone_key(p)
@@ -107,7 +107,6 @@ def validate(church, rows, create_places=False):
         full_name = normalize_place_name(row.get('full_name'))
         phone_raw = (row.get('phone_number') or '').strip()
         region_name = normalize_place_name(row.get('region'))
-        branch_name = normalize_place_name(row.get('branch'))
         key = phone_key(phone_raw)
 
         entry = {
@@ -115,7 +114,6 @@ def validate(church, rows, create_places=False):
             'full_name': full_name,
             'phone_number': phone_raw,
             'region': region_name,
-            'branch': branch_name,
             'action': CREATE,
             'message': '',
         }
@@ -131,35 +129,15 @@ def validate(church, rows, create_places=False):
             )
         elif key in existing_phones:
             entry.update(action=SKIP, message='Already a member - will be left unchanged.')
-        else:
-            try:
-                _check_places(church, region_name, branch_name, create_places)
-            except PlaceError as error:
-                entry.update(action=ERROR, message=str(error))
+        elif region_name and not find_region(church, region_name):
+            # Any area is accepted: one the church does not have yet is added.
+            entry['message'] = f'New area "{region_name}" will be added as a region.'
 
         if entry['action'] != ERROR and key:
             seen_in_file.setdefault(key, line_number)
         results.append(entry)
 
     return results
-
-
-def _check_places(church, region_name, branch_name, create_places):
-    """Validate place names without writing anything."""
-    from tenants.services import find_branch, find_region
-
-    region = find_region(church, region_name) if region_name else None
-    if region_name and not region and not create_places:
-        raise PlaceError(f'"{region_name}" is not one of your regions.')
-
-    if branch_name:
-        branch = find_branch(church, branch_name)
-        if not branch and not create_places:
-            raise PlaceError(f'"{branch_name}" is not one of your branches.')
-        if branch and region and branch.region_id and branch.region_id != region.id:
-            raise PlaceError(
-                f'"{branch.name}" already belongs to the {branch.region.name} region.'
-            )
 
 
 def summarise(results):
@@ -172,18 +150,16 @@ def summarise(results):
 
 
 @transaction.atomic
-def commit(church, results, create_places=False):
+def commit(church, results):
     """Create the members the preview marked as `create`. All or nothing."""
     created = 0
     for entry in results:
         if entry['action'] != CREATE:
             continue
-        region = resolve_region(church, entry['region'], create=create_places)
-        branch = resolve_branch(church, entry['branch'], region=region, create=create_places)
+        region = resolve_region(church, entry['region'], create=True)
         Member.objects.create(
             church=church,
             region=region,
-            branch=branch,
             full_name=entry['full_name'],
             phone_number=entry['phone_number'],
             reference_number=generate_reference_number(church.id),

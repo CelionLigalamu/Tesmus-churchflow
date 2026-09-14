@@ -2,6 +2,7 @@ from django.template import Context, Template
 
 from .models import SMSMessage, SMSTemplate
 from .providers.africastalking import send_sms
+from notifications.services import notify_sms_failed
 
 
 # Every automated message the platform can send. Churches edit the wording
@@ -26,6 +27,20 @@ SYSTEM_TEMPLATES = {
             'Mpendwa {{member_name}}, tulikukosa katika {{service_name}} ya '
             '{{service_date}}. Tunatumaini uko salama. Ikiwa kuna changamoto '
             'yoyote unayopitia, tafadhali wasiliana na kanisa.'
+        ),
+    },
+    'region_attendance_summary': {
+        'label': 'Region attendance summary',
+        'description': "Sent to each region's pastors when a service closes.",
+        'placeholders': (
+            'pastor_name', 'region_name', 'church_name', 'service_name', 'service_date',
+            'total_members', 'present', 'absent', 'attendance_rate',
+        ),
+        'body': (
+            'Mchungaji {{pastor_name}}, mahudhurio ya {{region_name}} katika '
+            '{{service_name}} ya {{service_date}}: waliohudhuria {{present}} kati ya '
+            '{{total_members}} ({{attendance_rate}}%), hawakuhudhuria {{absent}}. '
+            '{{church_name}}'
         ),
     },
     'member_reference': {
@@ -164,6 +179,35 @@ def send_attendance_present_sms(attendance):
     )
 
 
+def send_region_summary_sms(pastor, stats, service, template):
+    """Text one pastor their region's statistics for a service.
+
+    Deduplicated per service, region and pastor, so re-running finalisation
+    never texts a pastor twice.
+    """
+    region = stats['region']
+    body = render_sms(
+        template,
+        pastor_name=pastor.full_name,
+        region_name=region.name,
+        church_name=service.church.name,
+        service_name=service.name,
+        service_date=service.date.strftime('%d %b %Y'),
+        total_members=stats['total_members'],
+        present=stats['present'],
+        absent=stats['absent'],
+        attendance_rate=stats['attendance_rate'],
+    )
+    return send_message(
+        service.church,
+        pastor.phone_number,
+        body,
+        template=template,
+        dedupe_key=f'region-summary:{service.pk}:{region.pk}:{pastor.pk}',
+        audience_label=f'{region.name} attendance summary - {service.name}',
+    )
+
+
 def send_message(church, recipient_phone, body, template=None, dedupe_key=None, audience_type='individual', audience_label=''):
     if dedupe_key:
         existing = SMSMessage.objects.filter(dedupe_key=dedupe_key).first()
@@ -195,6 +239,7 @@ def send_message(church, recipient_phone, body, template=None, dedupe_key=None, 
         sms_message.status = 'failed'
         sms_message.failure_reason = str(e)
         sms_message.save(update_fields=['status', 'failure_reason'])
+        notify_sms_failed(sms_message)
 
     return sms_message
 

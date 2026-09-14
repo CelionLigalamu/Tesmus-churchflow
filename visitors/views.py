@@ -21,7 +21,6 @@ def visitor_list(request):
 
     visitors = Visitor.objects.for_user(request.user).select_related(
         'region',
-        'branch',
         'converted_to_member',
     ).order_by('-first_visit_date', 'full_name')
 
@@ -69,7 +68,6 @@ def visitor_detail(request, pk):
     visitor = get_object_or_404(
         Visitor.objects.for_user(request.user).select_related(
             'region',
-            'branch',
             'converted_to_member',
         ),
         pk=pk,

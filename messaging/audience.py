@@ -1,8 +1,9 @@
+from accounts.permissions import user_can_access_region
 from members.models import Member
 from visitors.models import Visitor
 
 
-def get_recipients(church, audience_type, region=None, branch=None, service=None, result=None):
+def get_recipients(church, audience_type, region=None, service=None, result=None):
     qs = Member.objects.filter(church=church)
 
     if audience_type == 'visitor_present' and service:
@@ -16,14 +17,10 @@ def get_recipients(church, audience_type, region=None, branch=None, service=None
         return qs
     if audience_type == 'region' and region:
         return qs.filter(region=region)
-    if audience_type == 'branch' and branch:
-        return qs.filter(branch=branch)
     if audience_type == 'leadership' and result:
         recipients = qs.filter(ministry_roles=result)
         if region:
             recipients = recipients.filter(region=region)
-        if branch:
-            recipients = recipients.filter(branch=branch)
         return recipients.distinct()
     if audience_type == 'service_present' and service:
         member_ids = service.attendances.filter(result='present').values_list('member_id', flat=True)
@@ -34,10 +31,7 @@ def get_recipients(church, audience_type, region=None, branch=None, service=None
     return qs.none()
 
 
-from accounts.permissions import user_can_access_region, user_can_access_branch
-
-
-def user_can_send_to(user, audience_type, region=None, branch=None):
+def user_can_send_to(user, audience_type, region=None):
     if user.is_tesmus_staff:
         return True
     if audience_type == 'church':
@@ -45,17 +39,11 @@ def user_can_send_to(user, audience_type, region=None, branch=None):
     if audience_type == 'visitor_present':
         if user.scope_type == 'region':
             return bool(region and user_can_access_region(user, region))
-        if user.scope_type == 'branch':
-            return bool(branch and user_can_access_branch(user, branch))
         return user.scope_type == 'church'
     if audience_type in {'region', 'visitor_region'} and region:
         return user_can_access_region(user, region)
-    if audience_type in {'branch', 'visitor_branch'} and branch:
-        return user_can_access_branch(user, branch)
     if audience_type == 'leadership':
         if user.scope_type == 'region':
             return bool(region and user_can_access_region(user, region))
-        if user.scope_type == 'branch':
-            return bool(branch and user_can_access_branch(user, branch))
         return user.scope_type == 'church'
     return True

@@ -12,7 +12,6 @@ def convert_visitor_to_member(visitor):
     member = Member.objects.create(
         church=visitor.church,
         region=visitor.region,
-        branch=visitor.branch,
         full_name=visitor.full_name,
         phone_number=visitor.phone_number,
         reference_number=reference_number,

@@ -1,31 +1,38 @@
 {% extends "base_plain.html" %}
-{% load static %}
+{% load church_theme %}
 {% block title %}Register | {{ church.name }}{% endblock %}
 {% block content %}
-<main class="tenant-login-page church-login-page" style="--church-primary: {{ church.primary_color }}; --church-secondary: {{ church.secondary_color }}; --church-accent: {{ church.accent_color }};">
-    <section class="tenant-login-side" aria-label="{{ church.name }} registration">
-        <div class="tenant-login-card">
-            {% include "includes/church_logo.html" with church=church css_class="tenant-church-logo" %}
-            <div class="tenant-church-name">{{ church.name }}</div>
-            <div class="tenant-church-divider"></div>
-            <h2>Register</h2>
-            <p class="tenant-login-subtitle">Enter your details and we will text you your church reference number.</p>
-            <form method="post" novalidate>
+<main class="join-page" style="{% church_theme_style church %}">
+    {% include "members/_join_panel.html" %}
+    <section class="join-side" aria-label="{{ church.name }} registration">
+        <div class="join-card">
+            <div class="join-brand">
+                {% include "includes/church_logo.html" with church=church css_class="join-logo" %}
+                <div class="join-church-name">{{ church.name }}</div>
+                <div class="join-divider" aria-hidden="true"></div>
+            </div>
+            <h1 class="join-title">Register</h1>
+            <p class="join-subtitle">Enter your details and we will text you your church reference number.</p>
+            <form method="post" class="join-form" novalidate>
                 {% csrf_token %}
-                {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
+                {% if form.non_field_errors %}<div class="join-error-summary" role="alert">{{ form.non_field_errors }}</div>{% endif %}
                 {% for field in form %}
-                    <div class="tenant-form-field">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="join-field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="join-optional">(optional)</span>{% endif %}</label>
                         {{ field }}
-                        {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                        {% if field.name == 'region' %}<small class="join-hint">Pick your area from the list, or type it if it isn't there.</small>{% endif %}
+                        {% for error in field.errors %}<div class="join-field-error">{{ error }}</div>{% endfor %}
                     </div>
                 {% endfor %}
-                <datalist id="region-options">
-                    {% for name in form.region_options %}<option value="{{ name }}"></option>{% endfor %}
-                </datalist>
-                <button class="btn btn-brand w-100" type="submit">Register</button>
+                {% if form.region_options %}
+                    <datalist id="region-options">
+                        {% for name in form.region_options %}<option value="{{ name }}"></option>{% endfor %}
+                    </datalist>
+                {% endif %}
+                <button class="join-button" type="submit">Register <span aria-hidden="true">&rarr;</span></button>
             </form>
         </div>
+        <footer class="join-footer">Powered by Tesmus ChurchFlow</footer>
     </section>
 </main>
 {% endblock %}

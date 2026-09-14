@@ -3,12 +3,12 @@ from datetime import date, timedelta
 from analytics.services import dashboard_summary
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from analytics.services import church_summary
 from audit.models import AuditLog
 from django.utils import timezone
-from accounts.permissions import user_can_access_branch, user_can_access_region
-from tenants.models import Branch, Region
+from accounts.permissions import user_can_access_region
+from tenants.models import Region
 from messaging.models import SMSTemplate, SMSConfiguration
 
 
@@ -16,11 +16,22 @@ def public_home(request):
     return render(request, 'dashboard/public_home.html')
 
 
+def tesmus_staff_landing(request):
+    """Tesmus staff manage the platform in Django admin, so send them there.
+
+    Staff without Django admin access would only be refused by admin, so they
+    keep the platform page instead.
+    """
+    if request.user.is_staff:
+        return redirect('admin:index')
+    return render(request, 'dashboard/tesmus_home.html')
+
+
 @login_required
 def home(request):
     user = request.user
     if user.is_tesmus_staff:
-        return render(request, 'dashboard/tesmus_home.html')
+        return tesmus_staff_landing(request)
 
     today = timezone.localdate()
     range_key = request.GET.get('range', 'today')
@@ -55,53 +66,30 @@ def home(request):
         range_label = 'Today'
 
     regions = Region.objects.filter(church=user.church).order_by('name')
-    branches = Branch.objects.filter(church=user.church).select_related('region').order_by('name')
     if user.scope_type == 'region' and user.scope_region_id:
         regions = regions.filter(pk=user.scope_region_id)
-        branches = branches.filter(region_id=user.scope_region_id)
-    elif user.scope_type == 'branch' and user.scope_branch_id:
-        branches = branches.filter(pk=user.scope_branch_id)
-        regions = regions.filter(pk=user.scope_branch.region_id)
 
     selected_region = None
-    selected_branch = None
     region_id = request.GET.get('region', '')
-    branch_id = request.GET.get('branch', '')
     if region_id:
         candidate = regions.filter(pk=region_id).first()
         if candidate and user_can_access_region(user, candidate):
             selected_region = candidate
-    if branch_id:
-        candidate = branches.filter(pk=branch_id).first()
-        if candidate and user_can_access_branch(user, candidate):
-            if not selected_region or candidate.region_id == selected_region.id:
-                selected_branch = candidate
-            else:
-                filter_error = 'The selected branch does not belong to the selected region.'
 
     # Scope is enforced here, independent of what the browser sends.
     if user.scope_type == 'region' and user.scope_region_id:
         selected_region = regions.filter(pk=user.scope_region_id).first()
-        selected_branch = selected_branch if selected_branch and selected_branch.region_id == selected_region.id else None
-    elif user.scope_type == 'branch' and user.scope_branch_id:
-        selected_branch = branches.filter(pk=user.scope_branch_id).first()
-        selected_region = regions.filter(pk=selected_branch.region_id).first() if selected_branch else None
 
-    if selected_region:
-        branches = branches.filter(region=selected_region)
     summary = dashboard_summary(
         user.church,
         start_date=start_date,
         end_date=end_date,
         region=selected_region,
-        branch=selected_branch,
     )
     return render(request, 'dashboard/church_home.html', {
         'summary': summary,
         'regions': regions,
-        'branches': branches,
         'selected_region': selected_region,
-        'selected_branch': selected_branch,
         'selected_range': range_key,
         'custom_start': custom_start,
         'custom_end': custom_end,
@@ -131,7 +119,9 @@ def activity_list(request):
 
 @login_required
 def settings_page(request):
-    if request.user.is_tesmus_staff or not request.user.church_id:
+    if request.user.is_tesmus_staff:
+        return tesmus_staff_landing(request)
+    if not request.user.church_id:
         return render(request, 'dashboard/tesmus_home.html')
 
     return render(request, 'dashboard/settings.html', {

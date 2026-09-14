@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Notifications | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Account</div>
+        <h1>Notifications</h1>
+        <p class="page-subtitle">Things that need your attention at {{ request.user.church.name }}.</p>
+    </div>
+    {% if unread_count %}
+        <form method="post" action="{% url 'notification_mark_all_read' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'notification_list' %}">
+            <button type="submit" class="btn btn-outline-secondary page-secondary-action">Mark all as read</button>
+        </form>
+    {% endif %}
+</div>
+
+<div class="table-card">
+    <div class="notification-items notification-items-page">
+        {% for notification in notifications %}
+            {% include "notifications/_item.html" %}
+        {% empty %}
+            <div class="empty-state">You're all caught up. Failed text messages, follow-ups that are due and new registrations will appear here.</div>
+        {% endfor %}
+    </div>
+</div>
+{% include "includes/pagination.html" %}
+{% endblock %}

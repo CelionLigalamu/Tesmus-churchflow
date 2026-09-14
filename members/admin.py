@@ -4,10 +4,19 @@ from .services import generate_reference_number
 from messaging.admin_helpers import report_delivery
 from messaging.services import send_reference_number_sms
 from audit.services import log_action
+from tenants.admin_region import TypedRegionAdminForm
+
+
+class MemberAdminForm(TypedRegionAdminForm):
+    class Meta:
+        model = Member
+        exclude = ('region',)
 
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
+    form = MemberAdminForm
+    fields = ('church', 'region', 'full_name', 'phone_number', 'ministry_roles', 'reference_number')
     list_display = ('reference_number', 'full_name', 'phone_number', 'church')
     filter_horizontal = ('ministry_roles',)
     readonly_fields = ('reference_number',)

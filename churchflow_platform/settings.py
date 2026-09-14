@@ -34,6 +34,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Must come before django.contrib.admin so its admin templates are used.
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,6 +53,7 @@ INSTALLED_APPS = [
     'analytics',
     'audit',
     'dashboard',
+    'notifications',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -144,3 +147,94 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
+
+# Photo beside the public self-registration form, for churches that have not
+# uploaded their own registration image. Loaded from Unsplash (free Unsplash
+# License): https://unsplash.com/photos/a-cross-on-a-hill-with-a-sunset-in-the-background-rsEzCapRG74
+# Set to '' to show the church's colours instead.
+SELF_REGISTRATION_DEFAULT_IMAGE = (
+    'https://images.unsplash.com/photo-1632257132513-ca29158c154c?auto=format&fit=crop&w=1400&q=80'
+)
+
+
+# Django admin (/admin/) appearance, using Jazzmin in the Tesmus brand colours
+# (charcoal #2C2C2C, gold #C6A16A, cream #F5EEE4). Church dashboards, sign-in
+# pages and the public site do not use these settings.
+# https://django-jazzmin.readthedocs.io/configuration/
+JAZZMIN_SETTINGS = {
+    'site_title': 'Tesmus ChurchFlow Admin',
+    'site_header': 'Tesmus ChurchFlow',
+    'site_brand': 'Tesmus ChurchFlow',
+    'site_logo': 'images/branding/tesmus-logo.png',
+    'login_logo': 'images/branding/tesmus-logo.png',
+    'site_logo_classes': 'tesmus-admin-logo',
+    'site_icon': 'images/branding/tesmus-logo.png',
+    'welcome_sign': 'Sign in to manage Tesmus ChurchFlow',
+    'copyright': 'Tesmus Technologies Limited',
+    'topmenu_links': [
+        {'name': 'Admin home', 'url': 'admin:index'},
+        {'name': 'View site', 'url': 'public_home', 'new_window': True},
+    ],
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'order_with_respect_to': [
+        'tenants', 'accounts', 'members', 'visitors', 'services', 'attendance',
+        'messaging', 'pastoral', 'notifications', 'audit', 'auth',
+    ],
+    'icons': {
+        'tenants': 'fas fa-church',
+        'tenants.church': 'fas fa-church',
+        'tenants.region': 'fas fa-map-marker-alt',
+        'accounts': 'fas fa-user-shield',
+        'accounts.user': 'fas fa-user',
+        'auth': 'fas fa-users-cog',
+        'auth.group': 'fas fa-users',
+        'members': 'fas fa-address-book',
+        'members.member': 'fas fa-user-friends',
+        'members.ministryrole': 'fas fa-hands-helping',
+        'visitors': 'fas fa-door-open',
+        'visitors.visitor': 'fas fa-user-plus',
+        'services': 'fas fa-calendar-alt',
+        'services.service': 'fas fa-calendar-alt',
+        'attendance': 'fas fa-clipboard-check',
+        'attendance.attendance': 'fas fa-clipboard-check',
+        'messaging': 'fas fa-comment-dots',
+        'messaging.smsconfiguration': 'fas fa-sliders-h',
+        'messaging.smstemplate': 'fas fa-file-alt',
+        'messaging.smsmessage': 'fas fa-sms',
+        'pastoral': 'fas fa-hand-holding-heart',
+        'pastoral.pastoralfollowup': 'fas fa-hand-holding-heart',
+        'notifications': 'fas fa-bell',
+        'notifications.notification': 'fas fa-bell',
+        'audit': 'fas fa-history',
+        'audit.auditlog': 'fas fa-history',
+    },
+    'default_icon_parents': 'fas fa-folder',
+    'default_icon_children': 'fas fa-circle',
+    'related_modal_active': False,
+    'custom_css': 'css/admin-tesmus.css',
+    'show_ui_builder': False,
+    # One page per form, as before, so no field is hidden behind a tab.
+    'changeform_format': 'single',
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'theme': 'default',
+    'default_theme_mode': 'light',
+    'navbar': 'navbar-white navbar-light',
+    'sidebar': 'sidebar-dark-primary',
+    'accent': 'accent-primary',
+    'navbar_fixed': True,
+    'sidebar_fixed': True,
+    'sidebar_nav_child_indent': True,
+    'sidebar_nav_flat_style': True,
+    # Save buttons in Tesmus charcoal instead of green; delete stays red.
+    'button_classes': {
+        'primary': 'btn-primary',
+        'secondary': 'btn-outline-primary',
+        'info': 'btn-outline-primary',
+        'warning': 'btn-warning',
+        'danger': 'btn-danger',
+        'success': 'btn-primary',
+    },
+}

@@ -1,0 +1,14 @@
+{% comment %}
+Welcome panel beside the public self-registration pages. The heading and
+message are optional per church (set in admin). The photo is the church's own
+registration image, or the platform default; with neither, the church colours show.
+{% endcomment %}
+<aside class="join-panel{% if panel_image %} has-image{% endif %}" aria-label="Welcome">
+    {% if panel_image %}<img class="join-panel-image" src="{{ panel_image }}" alt="" referrerpolicy="no-referrer">{% endif %}
+    <div class="join-panel-content">
+        <div class="join-panel-kicker">A place to belong</div>
+        <div class="join-panel-rule" aria-hidden="true"></div>
+        <h2 class="join-panel-heading">{% if church.registration_heading %}{{ church.registration_heading }}{% else %}Welcome to {{ church.name }}{% endif %}</h2>
+        <p class="join-panel-message">{% if church.registration_message %}{{ church.registration_message }}{% else %}We are glad to have you with us. May you be blessed as you grow in faith and fellowship.{% endif %}</p>
+    </div>
+</aside>

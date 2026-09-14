@@ -1318,3 +1318,196 @@ html[data-theme="dark"] .btn-outline-danger {
     --bs-btn-active-bg: var(--color-error);
     --bs-btn-active-border-color: var(--color-error);
 }
+
+/* --- Notifications (bell in the top bar and mobile header) --- */
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.notification-menu { position: relative; }
+.notification-toggle {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; padding: 0; cursor: pointer;
+    border: 1px solid color-mix(in srgb, var(--brand-primary) 14%, var(--border-color)); border-radius: 50%;
+    background: var(--bg-surface); color: var(--text-secondary);
+    transition: border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.notification-toggle .nav-icon { width: 20px; height: 20px; }
+.notification-toggle:hover,
+.notification-menu.is-open .notification-toggle { color: var(--text-primary); border-color: color-mix(in srgb, var(--brand-primary) 35%, var(--border-color)); box-shadow: var(--shadow-sm); }
+.notification-toggle:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand-ink) 45%, transparent); outline-offset: 2px; }
+/* The badge never uses the church colour, so it stands out for every church and theme. */
+.notification-badge {
+    position: absolute; top: -4px; right: -4px; min-width: 19px; height: 19px; padding: 0 5px;
+    border: 2px solid var(--bg-surface); border-radius: 999px;
+    background: var(--text-secondary); color: var(--bg-surface);
+    font-size: .66rem; font-weight: 700; line-height: 15px; text-align: center;
+}
+.notification-badge.is-attention { background: #DC2626; color: #FFFFFF; }
+
+.notification-panel {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 1100;
+    width: min(360px, calc(100vw - 24px)); overflow: hidden;
+    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px;
+    box-shadow: var(--shadow-popover);
+}
+.notification-panel[hidden] { display: none; }
+.notification-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border-color); }
+.notification-panel-title { color: var(--text-primary); font-size: .92rem; font-weight: 700; }
+.notification-panel-header form,
+.notification-items form { margin: 0; }
+.notification-mark-all { padding: 0; border: 0; background: transparent; color: var(--brand-ink); font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
+.notification-mark-all:hover { text-decoration: underline; }
+.notification-items { max-height: 380px; overflow-y: auto; }
+.notification-items-page { max-height: none; }
+.notification-item {
+    display: flex; align-items: flex-start; gap: 11px; width: 100%;
+    padding: 12px 14px; border: 0; border-bottom: 1px solid var(--border-subtle);
+    background: transparent; color: var(--text-primary);
+    font: inherit; text-align: left; cursor: pointer;
+}
+.notification-items form:last-child .notification-item { border-bottom: 0; }
+.notification-item:hover,
+.notification-item:focus-visible { background: var(--surface-muted); outline: none; }
+.notification-item.is-unread { box-shadow: inset 3px 0 0 var(--brand-fill); }
+.notification-item-icon {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface-muted); color: var(--text-secondary);
+}
+.notification-item-icon .nav-icon { width: 17px; height: 17px; }
+.notification-item.is-attention .notification-item-icon { background: color-mix(in srgb, var(--color-error) 12%, var(--bg-surface)); color: var(--color-error); }
+.notification-item-text { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.notification-item-title { font-size: .86rem; font-weight: 600; }
+.notification-item.is-unread .notification-item-title { font-weight: 700; }
+.notification-item-detail { overflow: hidden; color: var(--text-secondary); font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+.notification-item-time { color: var(--text-secondary); font-size: .72rem; }
+.notification-item-dot { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--brand-fill); }
+.notification-empty { margin: 0; padding: 26px 14px; color: var(--text-secondary); font-size: .86rem; text-align: center; }
+.notification-view-all { display: block; padding: 11px 14px; border-top: 1px solid var(--border-color); color: var(--brand-ink); font-size: .82rem; font-weight: 600; text-align: center; text-decoration: none; }
+.notification-view-all:hover { background: var(--surface-muted); color: var(--brand-ink); }
+
+@media (max-width: 767px) {
+    .mobile-header .header-actions { margin-left: auto; gap: 8px; }
+    .mobile-header .notification-toggle { width: 38px; height: 38px; }
+    .mobile-header .notification-panel { position: fixed; top: 64px; right: 12px; left: 12px; width: auto; }
+}
+
+/* --- Regions: pastor picker --- */
+.pastor-picker { margin-top: 20px; }
+.pastor-picker-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.pastor-picker .form-help { margin: 0; }
+.pastor-picker-list { max-height: 340px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-surface); }
+.form-field .pastor-option { display: flex; align-items: center; gap: 11px; margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); font-size: .86rem; font-weight: 400; cursor: pointer; }
+.form-field .pastor-option:last-of-type { border-bottom: 0; }
+.form-field .pastor-option:hover { background: var(--surface-muted); }
+.form-field .pastor-option input { flex: none; width: 17px; height: 17px; min-height: 0; padding: 0; accent-color: var(--brand-fill); }
+.pastor-option-text { display: grid; gap: 1px; min-width: 0; }
+.pastor-option-name { font-weight: 600; }
+.pastor-option-meta { color: var(--text-secondary); font-size: .76rem; }
+.pastor-picker-empty { margin: 0; padding: 14px 12px; color: var(--text-secondary); font-size: .82rem; }
+
+/* --- Regions: pastors chosen by ministry role, and page heading actions --- */
+.region-role-card { margin-bottom: 18px; padding: 18px 20px; }
+.region-role-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 0; }
+.region-role-form .form-field { flex: 1 1 320px; }
+.pastor-source { color: var(--text-secondary); font-size: .76rem; }
+.page-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.page-heading-actions form { margin: 0; }
+
+/* --- Member self-registration pages (public, light only, church colours) --- */
+/* Uses the "-light" palette values directly: church_theme_style sits on <main> here, not <html>. */
+.join-page {
+    display: grid;
+    /* Photo panel on the left, form on the right. */
+    grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
+    min-height: 100vh;
+    background: color-mix(in srgb, var(--brand-tint-light, #E9E9E9) 55%, #FFFFFF);
+    color: #1E293B;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.join-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 48px clamp(16px, 5vw, 64px); }
+.join-card {
+    width: 100%; max-width: 520px; padding: 44px clamp(22px, 4vw, 48px) 38px;
+    background: #FFFFFF; border: 1px solid color-mix(in srgb, var(--brand-primary, #2C2C2C) 12%, #E2E8F0); border-radius: 16px;
+    box-shadow: 0 24px 60px color-mix(in srgb, var(--brand-primary, #2C2C2C) 12%, transparent);
+    text-align: center;
+}
+.join-brand { display: flex; flex-direction: column; align-items: center; }
+.join-logo { width: 88px; height: 88px; object-fit: contain; border-radius: 14px; }
+.join-church-name { margin-top: 14px; color: var(--brand-ink-light, #2C2C2C); font-size: .8rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; overflow-wrap: anywhere; }
+.join-divider { width: 48px; height: 2px; margin: 20px auto 24px; border-radius: 2px; background: color-mix(in srgb, var(--brand-primary, #2C2C2C) 25%, #E2E8F0); }
+.join-title { margin: 0 0 8px; color: var(--brand-ink-light, #2C2C2C); font-size: clamp(1.6rem, 3vw, 2rem); font-weight: 700; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.join-subtitle { margin: 0; color: #475569; font-size: .98rem; line-height: 1.55; }
+.join-note { margin: 14px 0 22px; color: #64748B; font-size: .9rem; line-height: 1.6; }
+.join-form { margin-top: 26px; text-align: left; }
+.join-field { display: grid; gap: 7px; margin-bottom: 16px; }
+.join-field label { color: #1E293B; font-size: .86rem; font-weight: 600; }
+.join-optional { color: #64748B; font-weight: 400; }
+.join-field input { width: 100%; min-height: 48px; padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; color: #0F172A; font-size: 1rem; }
+.join-field input:focus { outline: none; border-color: var(--brand-fill-light, #2C2C2C); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-fill-light, #2C2C2C) 22%, transparent); }
+.join-hint { color: #64748B; font-size: .78rem; }
+.join-field-error, .join-error-summary { color: #B42318; font-size: .82rem; }
+.join-error-summary { margin-bottom: 14px; padding: 10px 12px; border: 1px solid #FECDCA; border-radius: 8px; background: #FEF3F2; }
+.join-error-summary ul { margin: 0; padding-left: 18px; }
+.join-button {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; margin-top: 8px; padding: 12px 18px;
+    border: 1px solid var(--brand-fill-light, #2C2C2C); border-radius: 8px; background: var(--brand-fill-light, #2C2C2C);
+    color: var(--brand-on-fill-light, #FFFFFF); font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: filter .15s ease;
+}
+.join-button:hover { color: var(--brand-on-fill-light, #FFFFFF); filter: brightness(.9); }
+.join-button:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand-fill-light, #2C2C2C) 40%, transparent); outline-offset: 3px; }
+.join-button span { font-size: 1.15rem; }
+.join-reference {
+    display: flex; align-items: center; gap: 16px; margin: 0 0 22px; padding: 18px 20px; text-align: left;
+    border: 1px solid color-mix(in srgb, var(--brand-primary, #2C2C2C) 14%, #E2E8F0); border-radius: 12px;
+    background: color-mix(in srgb, var(--brand-tint-light, #E9E9E9) 45%, #FFFFFF);
+}
+.join-reference-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--brand-tint-light, #E9E9E9); color: var(--brand-ink-light, #2C2C2C); }
+.join-reference-icon svg { width: 26px; height: 26px; }
+.join-reference-text { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.join-reference-label { color: #475569; font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.join-reference-number { color: #0F172A; font-size: 1.6rem; font-weight: 700; letter-spacing: .02em; overflow-wrap: anywhere; }
+.join-copy { display: inline-flex; align-items: center; flex: none; gap: 6px; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--brand-ink-light, #2C2C2C); font-size: .88rem; font-weight: 600; cursor: pointer; }
+.join-copy:hover { background: var(--brand-tint-light, #E9E9E9); }
+.join-copy:focus-visible { outline: 2px solid var(--brand-ink-light, #2C2C2C); outline-offset: 2px; }
+.join-copy svg { width: 16px; height: 16px; }
+.join-footer { color: #64748B; font-size: .75rem; }
+
+.join-panel {
+    position: relative; display: flex; align-items: center; overflow: hidden; padding: 48px clamp(24px, 5vw, 72px);
+    background: linear-gradient(160deg, var(--brand-tint-light, #E9E9E9) 0%, color-mix(in srgb, var(--brand-secondary, #F5EEE4) 60%, #FFFFFF) 100%);
+}
+.join-panel-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+/* A soft light haze over the side the text sits on, so the photo still shows through. */
+/* On a photo: a deep shade behind the text that fades out, so the photo stays vivid, with white text. */
+.join-panel.has-image::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(10,15,30,.82) 0%, rgba(10,15,30,.62) 45%, rgba(10,15,30,.18) 80%, rgba(10,15,30,.05) 100%); }
+.join-panel.has-image .join-panel-content { max-width: 420px; }
+.join-panel.has-image .join-panel-kicker { color: rgba(255,255,255,.85); }
+.join-panel.has-image .join-panel-rule { background: #FFFFFF; }
+.join-panel.has-image .join-panel-heading { color: #FFFFFF; text-shadow: 0 2px 18px rgba(0,0,0,.35); }
+.join-panel.has-image .join-panel-message { color: rgba(255,255,255,.92); }
+.join-panel-content { position: relative; z-index: 2; max-width: 460px; }
+.join-panel-kicker { color: #475569; font-size: .8rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.join-panel-rule { width: 56px; height: 3px; margin: 16px 0 26px; border-radius: 2px; background: var(--brand-fill-light, #2C2C2C); }
+.join-panel-heading { margin: 0 0 22px; color: var(--brand-ink-light, #2C2C2C); font-size: clamp(1.9rem, 3.2vw, 2.7rem); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.join-panel-message { margin: 0; color: #334155; font-size: 1.05rem; line-height: 1.7; }
+
+@media (max-width: 900px) {
+    .join-page { grid-template-columns: 1fr; }
+    .join-side { padding: 32px 16px 24px; }
+    .join-panel { padding: 32px 20px 36px; }
+    /* First on phones, so kept short enough that the form is reached quickly. */
+    .join-panel { min-height: 300px; }
+    .join-panel.has-image::before { background: linear-gradient(180deg, rgba(10,15,30,.78), rgba(10,15,30,.55)); }
+    .join-panel-heading { font-size: 1.7rem; }
+}
+@media (max-width: 480px) {
+    .join-card { padding: 32px 18px 28px; border-radius: 14px; }
+    .join-reference { flex-wrap: wrap; }
+    .join-copy { margin-left: auto; }
+}
+
+/* --- Regions: merge page --- */
+.merge-usage-title { margin: 22px 0 10px; color: var(--text-primary); font-size: .95rem; font-weight: 700; }
+.merge-usage { display: grid; gap: 6px; margin: 0 0 22px; padding: 0; list-style: none; }
+.merge-usage li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--surface-muted); color: var(--text-secondary); font-size: .86rem; }
+.merge-usage li strong { color: var(--text-primary); }
+.merge-confirm { margin-top: 18px; }

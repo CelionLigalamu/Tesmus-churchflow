@@ -1,7 +1,7 @@
 from django import forms
 
 from tenants.forms import TypedPlaceFormMixin
-from tenants.services import find_region, normalize_place_name, region_names
+from tenants.services import normalize_place_name, region_names
 
 from .models import Member, MinistryRole
 from .services import ensure_default_ministry_roles
@@ -49,37 +49,43 @@ class MinistryRoleForm(forms.ModelForm):
 class SelfRegistrationForm(forms.Form):
     """The public form a member fills in for themselves.
 
-    Regions must already exist: this endpoint is open to anyone with the link,
-    so it may never create new places.
+    Every field is required. The member types the area they live in: an area
+    the church already has is matched whatever the capitals, and a new one
+    becomes a region when the registration is saved - never during validation,
+    so a form with a mistake leaves nothing behind.
     """
 
     full_name = forms.CharField(
         label='Your full name',
         max_length=255,
+        error_messages={'required': 'Please enter your full name.'},
         widget=forms.TextInput(attrs={'placeholder': 'e.g. Mary Wanjiku', 'autocomplete': 'name'}),
     )
     phone_number = forms.CharField(
         label='Your phone number',
         max_length=20,
+        error_messages={'required': 'Please enter your phone number.'},
         widget=forms.TextInput(attrs={'placeholder': 'e.g. 0712 345 678', 'autocomplete': 'tel'}),
     )
     region = forms.CharField(
         label='Where you live',
-        required=False,
+        max_length=80,
+        error_messages={
+            'required': 'Please enter the area where you live.',
+            'max_length': 'Please shorten the area name to 80 characters or fewer.',
+        },
         widget=forms.TextInput(attrs={
             'list': 'region-options',
             'autocomplete': 'off',
-            'placeholder': 'Start typing to see the list',
+            'placeholder': 'e.g. Sikhendu',
         }),
     )
 
     def __init__(self, church, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.church = church
+        # Areas other members have already typed, suggested as the member types.
         self.region_options = region_names(church)
-        if not self.region_options:
-            # Nothing to choose from yet - do not ask a question with no answer.
-            del self.fields['region']
 
     def clean_full_name(self):
         name = normalize_place_name(self.cleaned_data['full_name'])
@@ -102,16 +108,10 @@ class SelfRegistrationForm(forms.Form):
         return raw
 
     def clean_region(self):
-        typed = normalize_place_name(self.cleaned_data.get('region'))
-        if not typed:
-            return None
-        region = find_region(self.church, typed)
-        if region is None:
-            raise forms.ValidationError(
-                'Please choose one of the areas listed. If yours is missing, '
-                'leave this blank and the church will complete it.'
-            )
-        return region
+        name = normalize_place_name(self.cleaned_data['region'])
+        if len(name) < 2 or not any(character.isalpha() for character in name):
+            raise forms.ValidationError('Please enter the area where you live.')
+        return name
 
 
 def _phone_variants(raw):

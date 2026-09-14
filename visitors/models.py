@@ -5,7 +5,6 @@ from tenants.managers import TenantManager
 class Visitor(models.Model):
     church = models.ForeignKey('tenants.Church', on_delete=models.PROTECT, related_name='visitors')
     region = models.ForeignKey('tenants.Region', on_delete=models.SET_NULL, blank=True, null=True, related_name='visitors')
-    branch = models.ForeignKey('tenants.Branch', on_delete=models.SET_NULL, blank=True, null=True, related_name='visitors')
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     first_visit_date = models.DateTimeField(auto_now_add=True)

@@ -40,10 +40,6 @@
                 <div class="info-value">{{ member.region.name|default:"No region" }}</div>
             </div>
             <div>
-                <div class="info-label">Branch</div>
-                <div class="info-value">{{ member.branch.name|default:"No branch" }}</div>
-            </div>
-            <div>
                 <div class="info-label">Ministry roles</div>
                 <div class="info-value">
                     {% for role in member.ministry_roles.all %}{{ role.name }}{% if not forloop.last %}, {% endif %}{% empty %}None assigned{% endfor %}

@@ -1,7 +1,8 @@
-{% load static church_theme %}
+{% load static church_theme notifications_tags %}
 <!DOCTYPE html>
 <html lang="en" data-theme-preference="{{ request.user.theme_preference|default:'system' }}" data-theme="{% if request.user.theme_preference == 'dark' %}dark{% else %}light{% endif %}" data-bs-theme="{% if request.user.theme_preference == 'dark' %}dark{% else %}light{% endif %}" style="{% church_theme_style request.user.church %}">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Tesmus ChurchFlow{% endblock %}</title>
     <script>
         // Resolve the theme before the stylesheet paints, so there's no flash.
@@ -22,14 +23,17 @@
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=theme-20260914" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=region-merge-20260914" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
 <body>
 <header class="mobile-header">
     <button type="button" class="mobile-menu-button" id="mobile-menu-button" aria-label="Open navigation" aria-controls="church-sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="mobile-brand">{% include "includes/church_logo.html" with church=request.user.church css_class="church-logo" %}<span>{{ request.user.church.name }}</span></div>
-    {% include "includes/user_menu.html" with menu_id="user-menu-mobile" %}
+    <div class="header-actions">
+        {% notification_bell "notifications-mobile" %}
+        {% include "includes/user_menu.html" with menu_id="user-menu-mobile" %}
+    </div>
 </header>
 <div class="d-flex">
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
@@ -46,6 +50,7 @@
             <p class="sidebar-group-label">People</p>
             <a href="{% url 'member_list' %}" class="sidebar-link {% block nav_members %}{% endblock %}" title="Members"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="members" %}</span><span class="sidebar-link-label">Members</span></a>
             {% if request.user.scope_type == 'church' and not request.user.is_tesmus_staff %}<a href="{% url 'ministry_role_list' %}" class="sidebar-link {% block nav_ministry_roles %}{% endblock %}" title="Ministry Roles"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="ministry_roles" %}</span><span class="sidebar-link-label">Ministry Roles</span></a>{% endif %}
+            {% if request.user.scope_type == 'church' and not request.user.is_tesmus_staff %}<a href="{% url 'region_list' %}" class="sidebar-link {% block nav_regions %}{% endblock %}" title="Regions"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="regions" %}</span><span class="sidebar-link-label">Regions</span></a>{% endif %}
             <a href="{% url 'visitor_list' %}" class="sidebar-link {% block nav_visitors %}{% endblock %}" title="Visitors"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="visitors" %}</span><span class="sidebar-link-label">Visitors</span></a>
 
             <p class="sidebar-group-label">Services</p>
@@ -69,7 +74,10 @@
                 <span class="topbar-breadcrumb-separator" aria-hidden="true">{% include "includes/nav_icon.html" with name="chevron_right" %}</span>
                 <span aria-current="page">{% block page_title %}Dashboard{% endblock %}</span>
             </nav>
-            {% include "includes/user_menu.html" with menu_id="user-menu-top" %}
+            <div class="header-actions">
+                {% notification_bell "notifications-top" %}
+                {% include "includes/user_menu.html" with menu_id="user-menu-top" %}
+            </div>
         </div>
         <div class="page-body">
             {% if messages %}
@@ -115,21 +123,42 @@
     document.querySelectorAll('.site-messages .btn-close').forEach((button) => {
         button.addEventListener('click', () => button.closest('.alert')?.remove());
     });
-    document.querySelectorAll('[data-user-menu]').forEach((menu) => {
-        const toggle = menu.querySelector('.user-menu-toggle');
-        const panel = menu.querySelector('.user-menu-panel');
-        if (!toggle || !panel) return;
-        const setOpen = (open) => {
+    (() => {
+        // Account menus and notification panels: only one open at a time,
+        // closed by clicking elsewhere or pressing Esc.
+        const menus = [...document.querySelectorAll('[data-user-menu], [data-dropdown]')];
+        const parts = (menu) => ({
+            toggle: menu.querySelector('.user-menu-toggle, [data-dropdown-toggle]'),
+            panel: menu.querySelector('.user-menu-panel, [data-dropdown-panel]'),
+        });
+        const setOpen = (menu, open) => {
+            const { toggle, panel } = parts(menu);
+            if (!toggle || !panel) return;
             panel.hidden = !open;
             toggle.setAttribute('aria-expanded', String(open));
             menu.classList.toggle('is-open', open);
         };
-        toggle.addEventListener('click', (event) => { event.stopPropagation(); setOpen(panel.hidden); });
-        document.addEventListener('click', (event) => { if (!menu.contains(event.target)) setOpen(false); });
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !panel.hidden) { setOpen(false); toggle.focus(); }
+        menus.forEach((menu) => {
+            const { toggle, panel } = parts(menu);
+            if (!toggle || !panel) return;
+            toggle.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const opening = panel.hidden;
+                menus.forEach((other) => { if (other !== menu) setOpen(other, false); });
+                setOpen(menu, opening);
+            });
         });
-    });
+        document.addEventListener('click', (event) => {
+            menus.forEach((menu) => { if (!menu.contains(event.target)) setOpen(menu, false); });
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            menus.forEach((menu) => {
+                const { toggle, panel } = parts(menu);
+                if (panel && !panel.hidden) { setOpen(menu, false); toggle.focus(); }
+            });
+        });
+    })();
     (() => {
         // Appearance switch: apply straight away, then save it for this person.
         const root = document.documentElement;

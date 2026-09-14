@@ -84,7 +84,6 @@ def dashboard_summary(
     start_date=None,
     end_date=None,
     region=None,
-    branch=None,
 ):
     today = timezone.localdate()
     if start_date is None or end_date is None:
@@ -94,14 +93,14 @@ def dashboard_summary(
     member_filter = {'church': church}
     person_filter = Q(church=church)
     service_filter = Q(church=church)
+    # Attendance is counted by where the member lives (the region recorded on
+    # each attendance), not by the service, which serves the whole church.
+    attendance_filter = Q()
     if region:
         member_filter['region'] = region
         person_filter &= Q(region=region)
         service_filter &= Q(region=region) | Q(region__isnull=True)
-    if branch:
-        member_filter['branch'] = branch
-        person_filter &= Q(branch=branch)
-        service_filter &= Q(branch=branch) | Q(branch__isnull=True)
+        attendance_filter &= Q(region=region)
 
     summary = {
         'total_members': Member.objects.filter(**member_filter).count(),
@@ -121,7 +120,7 @@ def dashboard_summary(
     attendance_qs = Attendance.objects.filter(
         church=church,
         service__date__range=(start_date, end_date),
-    ).filter(service_filter).filter(member__isnull=False)
+    ).filter(attendance_filter).filter(member__isnull=False)
     summary['present'] = attendance_qs.filter(result='present').count()
     summary['absent'] = attendance_qs.filter(result='absent').count()
     marked_total = summary['present'] + summary['absent']
@@ -177,7 +176,7 @@ def dashboard_summary(
             church=church,
             service__date__range=(trend_start, today),
             member__isnull=False,
-        ).filter(service_filter).filter(service__date__range=(start_date, end_date)).values('service__date').annotate(
+        ).filter(attendance_filter).filter(service__date__range=(start_date, end_date)).values('service__date').annotate(
             present=Count('id', filter=Q(result='present')),
         )
     }

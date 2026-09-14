@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Regions | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Regions{% endblock %}
+{% block nav_regions %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">People</div>
+        <h1>Regions</h1>
+        <p class="page-subtitle">Areas where your members live. When a service closes, each region's pastors are texted that region's attendance.</p>
+    </div>
+    <a class="btn btn-brand" href="{% url 'region_create' %}">+ Add region</a>
+</div>
+
+{% if not summary_template_active %}
+<div class="template-notice">
+    <strong>Pastor summaries are paused.</strong>
+    <span>Turn on the "Region attendance summary" message in <a href="{% url 'sms_template_list' %}">message templates</a> to text pastors again.</span>
+</div>
+{% endif %}
+
+<section class="detail-card region-role-card">
+    <form method="post" action="{% url 'region_pastor_role' %}" class="region-role-form">
+        {% csrf_token %}
+        <div class="form-field">
+            <label for="{{ role_form.region_pastor_role.id_for_label }}">{{ role_form.region_pastor_role.label }}</label>
+            {{ role_form.region_pastor_role }}
+            <small class="form-help">Members with this role are texted their own region's statistics automatically. You can also pick extra pastors for any region.</small>
+        </div>
+        <button class="btn btn-brand" type="submit">Save</button>
+    </form>
+</section>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead><tr><th>Region</th><th>Members</th><th>Pastors</th><th></th></tr></thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td><strong>{{ row.region.name }}</strong></td>
+                        <td>{{ row.region.member_count }}</td>
+                        <td>
+                            {% for pastor in row.picked %}{{ pastor.full_name }}{% if not forloop.last or row.by_role %}, {% endif %}{% endfor %}
+                            {% for pastor in row.by_role %}{{ pastor.full_name }} <span class="pastor-source">({{ role.name }})</span>{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% if not row.picked and not row.by_role %}<span class="status-pill status-pill-warning">No pastor yet</span>{% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'region_edit' row.region.pk %}">Edit</a>
+                            {% if rows|length > 1 %}<a class="btn btn-sm btn-outline-secondary" href="{% url 'region_merge' row.region.pk %}" title="Use when the same area was typed two ways">Merge</a>{% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="empty-state">No regions yet. Add one here, or type a region when registering a member.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

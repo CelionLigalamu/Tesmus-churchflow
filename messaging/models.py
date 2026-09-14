@@ -35,7 +35,6 @@ class SMSMessage(models.Model):
         ('church', 'All members'),
         ('leadership', 'Leadership group'),
         ('region', 'Members in a region'),
-        ('branch', 'Members in a branch'),
         ('service_present', 'Members present at a service'),
         ('service_absent', 'Members absent from a service'),
         ('visitor_present', 'Visitors present at a service'),

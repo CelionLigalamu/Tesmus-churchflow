@@ -26,8 +26,10 @@ urlpatterns = [
     path('members/', include('members.urls')),
     path('messages/', include('messaging.urls')),
     path('pastoral-care/', include('pastoral.urls')),
+    path('regions/', include('tenants.urls')),
     path('services/', include('services.urls')),
     path('visitors/', include('visitors.urls')),
+    path('notifications/', include('notifications.urls')),
     path('', include('dashboard.urls')),
 ]
 

@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls %}
+{% block title %}Merge regions | {{ site_title|default:"Django site admin" }}{% endblock %}
+{% block content %}
+<div id="content-main">
+    <p>
+        Use this when the same area of <strong>{{ church.name }}</strong> was typed more than one way.
+        Choose the region to keep: members, visitors, services, attendance records, dashboard users and
+        pastors from the others move into it, and the others are removed. This cannot be undone.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+            <h2>Keep this region</h2>
+            {% for region, member_count in choices %}
+                <div class="form-row">
+                    <label>
+                        <input type="radio" name="target" value="{{ region.pk }}" {% if region.pk == suggested.pk %}checked{% endif %} required>
+                        {{ region.name }} ({{ member_count }} member{{ member_count|pluralize }})
+                    </label>
+                </div>
+            {% endfor %}
+        </fieldset>
+        {% for region, member_count in choices %}
+            <input type="hidden" name="{{ action_checkbox_name }}" value="{{ region.pk }}">
+        {% endfor %}
+        <input type="hidden" name="action" value="merge_selected_regions">
+        <div class="submit-row">
+            <input type="submit" class="btn btn-primary" value="Merge regions">
+            <a href="{% url opts|admin_urlname:'changelist' %}" class="btn btn-outline-primary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

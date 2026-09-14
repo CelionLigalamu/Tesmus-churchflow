@@ -3,10 +3,19 @@ from .models import Visitor
 from .services import convert_visitor_to_member
 from messaging.admin_helpers import report_delivery
 from messaging.services import send_visitor_welcome_sms
+from tenants.admin_region import TypedRegionAdminForm
+
+
+class VisitorAdminForm(TypedRegionAdminForm):
+    class Meta:
+        model = Visitor
+        exclude = ('region',)
 
 
 @admin.register(Visitor)
 class VisitorAdmin(admin.ModelAdmin):
+    form = VisitorAdminForm
+    fields = ('church', 'region', 'full_name', 'phone_number', 'converted_to_member')
     list_display = ('full_name', 'phone_number', 'church', 'converted_to_member')
     actions = ['convert_to_member', 'send_welcome_sms']
 

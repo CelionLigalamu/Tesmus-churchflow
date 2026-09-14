@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{% if region %}Edit Region{% else %}Add Region{% endif %} | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}{% if region %}Edit Region{% else %}Add Region{% endif %}{% endblock %}
+{% block nav_regions %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">People</div>
+        <h1>{% if region %}Edit {{ region.name }}{% else %}Add region{% endif %}</h1>
+        <p class="page-subtitle">Choose the pastors who should receive this region's attendance statistics by SMS.</p>
+    </div>
+    <a class="btn btn-back-dashboard" href="{% url 'region_list' %}">← Back to regions</a>
+</div>
+
+<div class="detail-card form-page-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-field">
+            <label for="{{ form.name.id_for_label }}">Region name</label>
+            {{ form.name }}
+            {% for error in form.name.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+
+        <div class="form-field pastor-picker" data-pastor-picker>
+            <div class="pastor-picker-heading">
+                <label for="pastor-search">Pastors</label>
+                <span class="form-help" data-pastor-count aria-live="polite"></span>
+            </div>
+            <p class="form-help">Pastors are chosen from your members and texted on the phone number in their member record. They do not have to live in this region.</p>
+            {% if role %}<p class="form-help">Members with the <strong>{{ role.name }}</strong> role who live in this region are also texted automatically{% if role_pastors %}: {% for pastor in role_pastors %}{{ pastor.full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}.</p>{% endif %}
+            <input type="search" id="pastor-search" placeholder="Search by name, reference number or phone" autocomplete="off" data-pastor-search>
+            <div class="pastor-picker-list" role="group" aria-label="Members">
+                {% for option in form.pastor_options %}
+                    <label class="pastor-option" data-search-text="{{ option.member.full_name|lower }} {{ option.member.reference_number|lower }} {{ option.member.phone_number }}">
+                        <input type="checkbox" name="pastors" value="{{ option.member.pk }}" {% if option.selected %}checked{% endif %}>
+                        <span class="pastor-option-text">
+                            <span class="pastor-option-name">{{ option.member.full_name }}</span>
+                            <span class="pastor-option-meta">{{ option.member.reference_number }} · {{ option.member.phone_number }}{% if option.member.region %} · {{ option.member.region.name }}{% endif %}</span>
+                        </span>
+                    </label>
+                {% empty %}
+                    <p class="pastor-picker-empty">Register members first, then choose pastors from them.</p>
+                {% endfor %}
+                <p class="pastor-picker-empty" data-pastor-no-match hidden>No members match your search.</p>
+            </div>
+            {% for error in form.pastors.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'region_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button class="btn btn-brand" type="submit">{% if region %}Save changes{% else %}Add region{% endif %}</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (() => {
+        const picker = document.querySelector('[data-pastor-picker]');
+        if (!picker) return;
+        const search = picker.querySelector('[data-pastor-search]');
+        const options = [...picker.querySelectorAll('.pastor-option')];
+        const noMatch = picker.querySelector('[data-pastor-no-match]');
+        const count = picker.querySelector('[data-pastor-count]');
+        const updateCount = () => {
+            const selected = options.filter((option) => option.querySelector('input').checked).length;
+            count.textContent = `${selected} selected`;
+        };
+        search.addEventListener('input', () => {
+            const query = search.value.trim().toLowerCase();
+            let shown = 0;
+            options.forEach((option) => {
+                const match = !query || option.dataset.searchText.includes(query);
+                option.hidden = !match;
+                if (match) shown += 1;
+            });
+            noMatch.hidden = shown > 0 || !options.length;
+        });
+        // Pressing Enter while searching should not submit the form.
+        search.addEventListener('keydown', (event) => { if (event.key === 'Enter') event.preventDefault(); });
+        picker.addEventListener('change', updateCount);
+        updateCount();
+    })();
+</script>
+{% endblock %}

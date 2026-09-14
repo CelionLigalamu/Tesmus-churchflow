@@ -12,7 +12,7 @@ from .services import SYSTEM_TEMPLATES, ensure_system_templates
 from members.models import Member
 from members.services import ensure_default_ministry_roles
 from services.models import Service
-from tenants.models import Branch, Region
+from tenants.models import Region
 
 
 def can_manage_templates(user):
@@ -32,7 +32,9 @@ def message_list(request):
         'template',
     ).order_by('-created_at')
     status_totals = {status: 0 for status, _ in SMSMessage.STATUS_CHOICES}
-    for row in all_messages.values('status').annotate(total=Count('id')):
+    # order_by() clears the date ordering: left in place, Django groups by
+    # status *and* send time, so each message becomes its own group of one.
+    for row in all_messages.order_by().values('status').annotate(total=Count('id')):
         status_totals[row['status']] = row['total']
 
     sent_messages = all_messages
@@ -68,27 +70,21 @@ def message_create(request):
     if request.user.is_tesmus_staff or not request.user.church_id:
         return redirect('home')
     regions = Region.objects.filter(church=request.user.church).order_by('name')
-    branches = Branch.objects.filter(church=request.user.church).select_related('region').order_by('name')
-    services = Service.objects.filter(church=request.user.church).order_by('-date', '-start_time')[:30]
+    # Kept unsliced: Django cannot filter a queryset after slicing, and the
+    # chosen service is looked up below. Only the page list is shortened.
+    services = Service.objects.filter(church=request.user.church).order_by('-date', '-start_time')
     ministry_roles = ensure_default_ministry_roles(request.user.church)
     if request.user.scope_type == 'region' and request.user.scope_region_id:
         regions = regions.filter(pk=request.user.scope_region_id)
-        branches = branches.filter(region_id=request.user.scope_region_id)
         services = services.filter(region_id=request.user.scope_region_id)
-    elif request.user.scope_type == 'branch' and request.user.scope_branch_id:
-        branches = branches.filter(pk=request.user.scope_branch_id)
-        services = services.filter(branch_id=request.user.scope_branch_id)
 
     if request.method == 'POST':
         audience_type = request.POST.get('audience_type', 'church')
         region = regions.filter(pk=request.POST.get('region')).first() if request.POST.get('region') else None
-        branch = branches.filter(pk=request.POST.get('branch')).first() if request.POST.get('branch') else None
         service = services.filter(pk=request.POST.get('service')).first() if request.POST.get('service') else None
         if audience_type == 'visitor_present':
             if request.user.scope_type == 'region' and request.user.scope_region_id:
                 region = regions.filter(pk=request.user.scope_region_id).first()
-            elif request.user.scope_type == 'branch' and request.user.scope_branch_id:
-                branch = branches.filter(pk=request.user.scope_branch_id).first()
         leadership_role = None
         if audience_type == 'leadership':
             leadership_role = ministry_roles.filter(
@@ -96,22 +92,18 @@ def message_create(request):
             ).first()
             if request.user.scope_type == 'region' and request.user.scope_region_id:
                 region = regions.filter(pk=request.user.scope_region_id).first()
-            elif request.user.scope_type == 'branch' and request.user.scope_branch_id:
-                region = regions.filter(pk=request.user.scope_branch.region_id).first()
-                branch = branches.filter(pk=request.user.scope_branch_id).first()
         body = request.POST.get('body', '').strip()
         if not body:
             flash_messages.error(request, 'Write a message before sending.')
         elif audience_type == 'leadership' and not leadership_role:
             flash_messages.error(request, 'Choose a leadership group.')
-        elif not user_can_send_to(request.user, audience_type, region=region, branch=branch):
+        elif not user_can_send_to(request.user, audience_type, region=region):
             flash_messages.error(request, 'You do not have permission to message that audience.')
         else:
             recipients = get_recipients(
                 request.user.church,
                 audience_type,
                 region=region,
-                branch=branch,
                 service=service,
                 result=leadership_role.pk if leadership_role else None,
             )
@@ -127,8 +119,7 @@ def message_create(request):
                 return redirect('message_list')
     return render(request, 'messaging/message_form.html', {
         'regions': regions,
-        'branches': branches,
-        'services': services,
+        'services': services[:30],
         'ministry_roles': ministry_roles,
     })
 

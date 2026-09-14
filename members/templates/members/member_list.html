@@ -39,7 +39,7 @@
                     <th>Reference</th>
                     <th>Full Name</th>
                     <th>Phone</th>
-                    <th>Region / Branch</th>
+                    <th>Region</th>
                     <th>Ministry role</th>
                 </tr>
             </thead>
@@ -49,12 +49,7 @@
                         <td><a class="table-link" href="{% url 'member_detail' member.pk %}">{{ member.reference_number }}</a></td>
                         <td>{{ member.full_name }}</td>
                         <td>{{ member.phone_number }}</td>
-                        <td>
-                            <div class="meta-stack">
-                                <span>{{ member.region.name|default:"No region" }}</span>
-                                <span class="meta-muted">{{ member.branch.name|default:"No branch" }}</span>
-                            </div>
-                        </td>
+                        <td>{{ member.region.name|default:"No region" }}</td>
                         <td>
                             {% for role in member.ministry_roles.all %}
                                 <span class="status-pill status-pill-neutral">{{ role.name }}</span>

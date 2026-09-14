@@ -1,0 +1,28 @@
+{% if enabled %}
+<div class="notification-menu" data-dropdown>
+    <button type="button" class="notification-toggle" data-dropdown-toggle aria-haspopup="true" aria-expanded="false" aria-controls="{{ menu_id }}" aria-label="Notifications{% if unread_count %}, {{ unread_count }} unread{% endif %}">
+        {% include "includes/nav_icon.html" with name="bell" %}
+        {% if unread_count %}<span class="notification-badge{% if has_attention %} is-attention{% endif %}" aria-hidden="true">{% if unread_count > 9 %}9+{% else %}{{ unread_count }}{% endif %}</span>{% endif %}
+    </button>
+    <div class="notification-panel" id="{{ menu_id }}" data-dropdown-panel hidden>
+        <div class="notification-panel-header">
+            <span class="notification-panel-title">Notifications</span>
+            {% if unread_count %}
+                <form method="post" action="{% url 'notification_mark_all_read' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="notification-mark-all">Mark all as read</button>
+                </form>
+            {% endif %}
+        </div>
+        <div class="notification-items">
+            {% for notification in recent %}
+                {% include "notifications/_item.html" %}
+            {% empty %}
+                <p class="notification-empty">You're all caught up.</p>
+            {% endfor %}
+        </div>
+        <a class="notification-view-all" href="{% url 'notification_list' %}">View all notifications</a>
+    </div>
+</div>
+{% endif %}

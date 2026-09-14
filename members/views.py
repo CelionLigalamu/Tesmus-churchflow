@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -13,7 +15,9 @@ from .services import ensure_default_ministry_roles, generate_reference_number
 from . import importer
 from django.views.decorators.csrf import csrf_protect
 from tenants.models import Church
+from tenants.services import resolve_region
 from messaging.services import send_reference_number_sms
+from notifications.services import notify_member_self_registered
 from audit.services import log_action
 
 
@@ -27,7 +31,6 @@ def member_list(request):
 
     members = Member.objects.for_user(request.user).select_related(
         'region',
-        'branch',
     ).prefetch_related('ministry_roles').order_by('full_name', 'reference_number')
 
     if search_query:
@@ -137,7 +140,7 @@ def ministry_role_delete(request, pk):
 @login_required
 def member_detail(request, pk):
     member = get_object_or_404(
-        Member.objects.for_user(request.user).select_related('region', 'branch').prefetch_related('ministry_roles'),
+        Member.objects.for_user(request.user).select_related('region').prefetch_related('ministry_roles'),
         pk=pk,
     )
     attendance_history = Attendance.objects.for_user(request.user).filter(
@@ -225,7 +228,6 @@ def member_import(request):
 
     if request.method == 'POST':
         upload = request.FILES.get('file')
-        create_places = bool(request.POST.get('create_places'))
         if not upload:
             messages.error(request, 'Choose a CSV file to upload.')
             return render(request, 'members/member_import.html', context)
@@ -236,18 +238,16 @@ def member_import(request):
             messages.error(request, str(error))
             return render(request, 'members/member_import.html', context)
 
-        results = importer.validate(church, rows, create_places=create_places)
+        results = importer.validate(church, rows)
         # Held in the session so the confirm step cannot be pointed at a
         # different file than the one that was previewed.
         request.session[IMPORT_SESSION_KEY] = {
             'results': results,
-            'create_places': create_places,
             'filename': upload.name,
         }
         context.update({
             'results': results,
             'summary': importer.summarise(results),
-            'create_places': create_places,
             'filename': upload.name,
         })
         return render(request, 'members/member_import_preview.html', context)
@@ -267,11 +267,7 @@ def member_import_confirm(request):
         messages.error(request, 'That import has expired. Please upload the file again.')
         return redirect('member_import')
 
-    created = importer.commit(
-        request.user.church,
-        payload['results'],
-        create_places=payload['create_places'],
-    )
+    created = importer.commit(request.user.church, payload['results'])
     summary = importer.summarise(payload['results'])
     log_action(
         request.user,
@@ -308,25 +304,37 @@ def member_self_register(request, token):
     form = SelfRegistrationForm(church, request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        region = form.cleaned_data.get('region')
-        member = Member.objects.create(
-            church=church,
-            region=region,
-            branch=region.branches.first() if region else None,
-            full_name=form.cleaned_data['full_name'],
-            phone_number=form.cleaned_data['phone_number'],
-            reference_number=generate_reference_number(church.id),
-        )
+        with transaction.atomic():
+            # The area the member typed: matched to an existing region, or
+            # added as a new one for this church.
+            region = resolve_region(church, form.cleaned_data['region'], create=True)
+            member = Member.objects.create(
+                church=church,
+                region=region,
+                full_name=form.cleaned_data['full_name'],
+                phone_number=form.cleaned_data['phone_number'],
+                reference_number=generate_reference_number(church.id),
+            )
         log_action(None, 'member_self_registered', church=church,
                    details=f'{member.reference_number} - {member.full_name}')
+        notify_member_self_registered(member)
         # The member needs their reference number to check in at services.
         send_reference_number_sms(member)
         return render(request, 'members/self_register_done.html', {
             'church': church,
             'member': member,
+            'panel_image': registration_panel_image(church),
         })
 
     return render(request, 'members/self_register.html', {
         'church': church,
         'form': form,
+        'panel_image': registration_panel_image(church),
     })
+
+
+def registration_panel_image(church):
+    """The photo beside the registration pages: the church's own, else the default."""
+    if church.registration_image:
+        return church.registration_image.url
+    return getattr(settings, 'SELF_REGISTRATION_DEFAULT_IMAGE', '')

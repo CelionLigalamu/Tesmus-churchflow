@@ -37,7 +37,7 @@
                 <tr>
                     <th>Full Name</th>
                     <th>Phone</th>
-                    <th>Region / Branch</th>
+                    <th>Region</th>
                     <th>First Visit</th>
                     <th>Converted</th>
                 </tr>
@@ -47,12 +47,7 @@
                     <tr>
                         <td><a class="table-link" href="{% url 'visitor_detail' visitor.pk %}">{{ visitor.full_name }}</a></td>
                         <td>{{ visitor.phone_number }}</td>
-                        <td>
-                            <div class="meta-stack">
-                                <span>{{ visitor.region.name|default:"No region" }}</span>
-                                <span class="meta-muted">{{ visitor.branch.name|default:"No branch" }}</span>
-                            </div>
-                        </td>
+                        <td>{{ visitor.region.name|default:"No region" }}</td>
                         <td>{{ visitor.first_visit_date|date:"M j, Y" }}</td>
                         <td>
                             {% if visitor.converted_to_member %}

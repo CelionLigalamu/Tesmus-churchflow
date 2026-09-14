@@ -1,21 +1,61 @@
 {% extends "base_plain.html" %}
-{% load static %}
+{% load church_theme %}
 {% block title %}Registered | {{ church.name }}{% endblock %}
 {% block content %}
-<main class="tenant-login-page church-login-page" style="--church-primary: {{ church.primary_color }}; --church-secondary: {{ church.secondary_color }}; --church-accent: {{ church.accent_color }};">
-    <section class="tenant-login-side" aria-label="Registration complete">
-        <div class="tenant-login-card">
-            {% include "includes/church_logo.html" with church=church css_class="tenant-church-logo" %}
-            <div class="tenant-church-name">{{ church.name }}</div>
-            <div class="tenant-church-divider"></div>
-            <h2>Welcome, {{ member.full_name }}</h2>
-            <p class="tenant-login-subtitle">You are registered at {{ church.name }}.</p>
-            <div class="template-notice">
-                <strong>Your reference number</strong>
-                <span style="font-size:1.5rem;letter-spacing:.05em;">{{ member.reference_number }}</span>
-                <span>Keep this safe &mdash; you will use it to check in at services. We have also sent it to you by text.</span>
+<main class="join-page" style="{% church_theme_style church %}">
+    {% include "members/_join_panel.html" %}
+    <section class="join-side" aria-label="Registration complete">
+        <div class="join-card">
+            <div class="join-brand">
+                {% include "includes/church_logo.html" with church=church css_class="join-logo" %}
+                <div class="join-church-name">{{ church.name }}</div>
+                <div class="join-divider" aria-hidden="true"></div>
             </div>
+            <h1 class="join-title">Welcome, {{ member.full_name }}</h1>
+            <p class="join-subtitle">You are registered at {{ church.name }}.</p>
+            <p class="join-note">Your reference number is below. Keep it safe &mdash; you will use it to check in at services. We have also sent it to you by text.</p>
+            <div class="join-reference">
+                <span class="join-reference-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6.5 16c.6-1.4 1.5-2 2.5-2s1.9.6 2.5 2M14 10h4M14 14h3"/></svg>
+                </span>
+                <div class="join-reference-text">
+                    <span class="join-reference-label">Your reference number</span>
+                    <strong class="join-reference-number" id="reference-number">{{ member.reference_number }}</strong>
+                </div>
+                <button type="button" class="join-copy" data-copy-target="reference-number">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+                    <span aria-live="polite">Copy</span>
+                </button>
+            </div>
+            <a class="join-button" href="{% url 'member_self_register' church.registration_token %}">Register another person <span aria-hidden="true">&rarr;</span></a>
         </div>
+        <footer class="join-footer">Powered by Tesmus ChurchFlow</footer>
     </section>
 </main>
+<script>
+    (() => {
+        const button = document.querySelector('[data-copy-target]');
+        if (!button) return;
+        const target = document.getElementById(button.dataset.copyTarget);
+        const label = button.querySelector('span');
+        const show = (message) => {
+            label.textContent = message;
+            window.setTimeout(() => { label.textContent = 'Copy'; }, 2500);
+        };
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(target.textContent.trim());
+                show('Copied');
+            } catch (error) {
+                // Clipboard access needs a secure page; select the number instead.
+                const range = document.createRange();
+                range.selectNodeContents(target);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                show('Selected - press Ctrl+C');
+            }
+        });
+    })();
+</script>
 {% endblock %}
