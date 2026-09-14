@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Attendance
-from messaging.services import send_message
+from messaging.admin_helpers import report_delivery
+from messaging.services import send_attendance_present_sms
 
 
 @admin.register(Attendance)
@@ -9,17 +10,12 @@ class AttendanceAdmin(admin.ModelAdmin):
     actions = ['send_present_sms']
 
     def send_present_sms(self, request, queryset):
-        count = 0
-        for attendance in queryset:
+        results = []
+        for attendance in queryset.select_related('member', 'service'):
             if not attendance.member:
                 continue
-            body = (
-                f"Mpendwa {attendance.member.full_name}, tunakushukuru kwa kushiriki nasi "
-                f"katika {attendance.service.name} ya leo. Mungu akubariki."
-            )
-            send_message(attendance.church, attendance.member.phone_number, body)
+            results.append(send_attendance_present_sms(attendance))
             attendance.result = 'present'
             attendance.save(update_fields=['result'])
-            count += 1
-        self.message_user(request, f"Present SMS queued for {count} attendee(s).")
+        report_delivery(self, request, results, noun='attendee')
     send_present_sms.short_description = "Mark present + send thank-you SMS"

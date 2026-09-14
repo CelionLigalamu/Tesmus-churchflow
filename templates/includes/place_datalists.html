@@ -1,0 +1,10 @@
+{% comment %}
+Autocomplete suggestions for the free-text region and branch inputs.
+Include once on any page rendering a form that uses TypedPlaceFormMixin.
+{% endcomment %}
+<datalist id="region-options">
+    {% for name in form.region_options %}<option value="{{ name }}"></option>{% endfor %}
+</datalist>
+<datalist id="branch-options">
+    {% for name in form.branch_options %}<option value="{{ name }}"></option>{% endfor %}
+</datalist>

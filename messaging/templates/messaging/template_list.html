@@ -1,47 +1,41 @@
 {% extends "base.html" %}
-{% block title %}Attendance Messages | Tesmus ChurchFlow{% endblock %}
-{% block page_title %}Attendance Messages{% endblock %}
+{% block title %}Message Templates | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Message Templates{% endblock %}
 {% block nav_settings %}active{% endblock %}
 {% block content %}
 <div class="page-heading">
     <div>
         <div class="page-kicker">Communication</div>
-        <h1>Attendance messages</h1>
-        <p class="page-subtitle">Choose what members receive after each service.</p>
+        <h1>Message templates</h1>
+        <p class="page-subtitle">Choose the wording {{ request.user.church.name }} sends automatically.</p>
     </div>
 </div>
 
 <div class="template-notice">
     <strong>You can change these messages at any time.</strong>
-    <span>The member’s name, church name, service name, and date are added automatically when the message is sent.</span>
+    <span>Details such as the member&rsquo;s name and your church name are filled in automatically when each message is sent.</span>
 </div>
 
 <div class="template-grid">
-    {% for sms_template in templates %}
+    {% for item in templates %}
         <article class="template-card">
             <div class="template-card-header">
                 <div>
-                    <div class="page-kicker">After a service</div>
-                    <h2>{% if sms_template.name == 'attendance_present' %}Members who attended{% elif sms_template.name == 'attendance_absent' %}Members who were absent{% else %}{{ sms_template.name }}{% endif %}</h2>
+                    <div class="page-kicker">{{ item.description }}</div>
+                    <h2>{{ item.label }}</h2>
                 </div>
-                <span class="status-pill {% if sms_template.is_active %}status-pill-success{% else %}status-pill-warning{% endif %}">
-                    {% if sms_template.is_active %}Active{% else %}Paused{% endif %}
+                <span class="status-pill {% if item.template.is_active %}status-pill-success{% else %}status-pill-warning{% endif %}">
+                    {% if item.template.is_active %}Active{% else %}Paused{% endif %}
                 </span>
             </div>
-            <div class="template-preview">{{ sms_template.body }}</div>
+            <div class="template-preview">{{ item.template.body }}</div>
             <div class="template-card-footer">
                 <span class="template-help">Up to 480 characters</span>
-                <a class="btn btn-brand" href="{% url 'sms_template_edit' sms_template.pk %}">Change message</a>
+                <a class="btn btn-brand" href="{% url 'sms_template_edit' item.template.pk %}">Change message</a>
             </div>
         </article>
+    {% empty %}
+        <div class="empty-state">No message templates configured.</div>
     {% endfor %}
 </div>
-
-<section class="detail-card template-guidance">
-    <h2>Personalized automatically</h2>
-    <p>The system fills in these details for each member when the message is sent.</p>
-    <div class="placeholder-list">
-        <code>&#123;&#123;member_name&#125;&#125;</code><code>&#123;&#123;church_name&#125;&#125;</code><code>&#123;&#123;service_name&#125;&#125;</code><code>&#123;&#123;service_date&#125;&#125;</code><code>&#123;&#123;start_time&#125;&#125;</code><code>&#123;&#123;end_time&#125;&#125;</code>
-    </div>
-</section>
 {% endblock %}

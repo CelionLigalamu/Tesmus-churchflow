@@ -16,7 +16,6 @@ def convert_visitor_to_member(visitor):
         full_name=visitor.full_name,
         phone_number=visitor.phone_number,
         reference_number=reference_number,
-        status='active',
     )
     visitor.converted_to_member = member
     visitor.save(update_fields=['converted_to_member'])

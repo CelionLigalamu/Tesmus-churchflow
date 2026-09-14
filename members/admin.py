@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import Member, MinistryRole
 from .services import generate_reference_number
-from messaging.services import send_message
+from messaging.admin_helpers import report_delivery
+from messaging.services import send_reference_number_sms
 from audit.services import log_action
 
 
@@ -20,17 +21,8 @@ class MemberAdmin(admin.ModelAdmin):
         log_action(request.user, action, church=obj.church, details=f"{obj.reference_number} - {obj.full_name}")
 
     def send_reference_sms(self, request, queryset):
-        count = 0
-        for member in queryset:
-            body = (
-                f"Mpendwa {member.full_name}, namba yako ya usajili katika "
-                f"{member.church.name} ni {member.reference_number}. "
-                f"Tafadhali ihifadhi kwa matumizi ya mahudhurio ya ibada na shughuli nyingine za kanisa. "
-                f"Mungu akubariki."
-            )
-            send_message(member.church, member.phone_number, body)
-            count += 1
-        self.message_user(request, f"Reference SMS queued for {count} member(s).")
+        results = [send_reference_number_sms(member) for member in queryset]
+        report_delivery(self, request, results, noun='member')
     send_reference_sms.short_description = "Send reference number SMS to selected members"
 
 

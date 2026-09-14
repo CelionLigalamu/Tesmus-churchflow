@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{% if role %}Rename{% else %}Add{% endif %} Ministry Role | Tesmus ChurchFlow{% endblock %}
 {% block page_title %}{% if role %}Rename Ministry Role{% else %}Add Ministry Role{% endif %}{% endblock %}
-{% block nav_members %}active{% endblock %}
+{% block nav_ministry_roles %}active{% endblock %}
 {% block content %}
 <div class="page-heading"><div><div class="page-kicker">Members</div><h1>{% if role %}Rename role{% else %}Add ministry role{% endif %}</h1><p class="page-subtitle">Role names are unique within your church.</p></div><a class="btn btn-back-dashboard" href="{% url 'ministry_role_list' %}">← Back to roles</a></div>
 <div class="detail-card form-page-card"><form method="post" novalidate>{% csrf_token %}{% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}<div class="form-field"><label for="{{ form.name.id_for_label }}">Role name</label>{{ form.name }}{% for error in form.name.errors %}<div class="field-error">{{ error }}</div>{% endfor %}</div><div class="form-actions"><a href="{% url 'ministry_role_list' %}" class="btn btn-outline-secondary">Cancel</a><button class="btn btn-brand" type="submit">Save role</button></div></form></div>

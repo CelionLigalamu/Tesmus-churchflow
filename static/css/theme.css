@@ -922,17 +922,6 @@ h1, h2, h3, h4, h5 {
     position: relative;
 }
 
-.tenant-login-side::before {
-    border: 1px solid rgba(18,63,146,.08);
-    border-radius: 50%;
-    content: '';
-    height: 440px;
-    position: absolute;
-    right: -190px;
-    top: -210px;
-    width: 440px;
-}
-
 .tenant-login-card {
     background: #fff;
     border: 1px solid #e5eaf2;
@@ -1000,12 +989,11 @@ h1, h2, h3, h4, h5 {
 .tenant-login-footer small { color: #8491a3; font-size: .66rem; white-space: nowrap; }
 .tenant-login-security { color: #9aa5b5; font-size: .65rem; margin-top: 15px; text-align: center; }
 .tenant-page-footer { color: #64748b; font-size: .7rem; line-height: 1.7; margin-top: 20px; text-align: center; }
-.tenant-page-footer div:last-child { color: #94a3b8; font-size: .65rem; }
+.tenant-page-footer div:last-child { color: #64748b; font-size: .65rem; }
 
 .platform-login-brand { align-items: center; display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
 .platform-login-brand .login-tesmus-logo { height: 86px; max-width: 220px; object-fit: contain; }
 .platform-login-side { background: #f5eee4; }
-.platform-login-side::before { border-color: rgba(198,161,106,.18); }
 .platform-login-card { background: #fffdfa; border-color: rgba(198,161,106,.34); box-shadow: 0 18px 48px rgba(44,44,44,.11); }
 .platform-login-card h2 { color: #2c2c2c; font-size: 1.75rem; margin: 0 0 7px; text-align: center; }
 .platform-login-card .login-kicker { color: #b18445; }
@@ -1022,7 +1010,6 @@ h1, h2, h3, h4, h5 {
 .platform-login-submit:active { background: #b18445; border-color: #b18445; color: #2c2c2c; }
 
 .church-login-page .tenant-login-side { background: var(--church-secondary, #f5eee4); }
-.church-login-page .tenant-login-side::before { border-color: color-mix(in srgb, var(--church-primary, #2c2c2c) 14%, transparent); }
 .church-login-page .tenant-login-card { border-color: color-mix(in srgb, var(--church-primary, #2c2c2c) 22%, #ffffff); }
 .tenant-church-logo { background: #fff; border-radius: 10px; display: block; height: 72px; margin: 0 auto 13px; object-fit: contain; padding: 3px; width: 72px; }
 .tenant-default-logo { padding: 10px; }

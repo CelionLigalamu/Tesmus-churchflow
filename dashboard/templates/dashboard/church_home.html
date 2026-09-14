@@ -5,7 +5,7 @@
 {% block content %}
 <div class="dashboard-welcome">
     <div class="page-kicker">Today at a glance</div>
-    <h2>Good <span id="time-greeting">there</span>, plcm_admin <span class="welcome-wave" aria-hidden="true">👋</span></h2>
+    <h2>Good <span id="time-greeting">there</span>, {{ request.user.get_short_name|default:request.user.username }} <span class="welcome-wave" aria-hidden="true">👋</span></h2>
     <p class="text-secondary-custom mb-0">Here's what's happening at {{ request.user.church.name }} today.</p>
 </div>
 

@@ -1,4 +1,7 @@
+import uuid
+
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils.text import slugify
 
 
@@ -13,6 +16,13 @@ class Church(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_member_sequence = models.PositiveIntegerField(default=0)
+    # Unguessable token for the church's public self-registration link, the
+    # same approach already used for service QR check-in.
+    registration_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    self_registration_enabled = models.BooleanField(
+        default=True,
+        help_text='Allow people to register themselves using the church link.',
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -34,7 +44,15 @@ class Region(models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        unique_together = ('church', 'name')
+        # Case-insensitive so "Kasarani" and "kasarani" cannot both exist.
+        # Enforced in the database, not just in the form, because imports and
+        # the admin write here too.
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'), 'church', name='unique_region_name_per_church'
+            ),
+        ]
+        ordering = ['name']
 
     def __str__(self):
         return f"{self.church.code} - {self.name}"
@@ -46,7 +64,12 @@ class Branch(models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        unique_together = ('church', 'name')
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'), 'church', name='unique_branch_name_per_church'
+            ),
+        ]
+        ordering = ['name']
 
     def __str__(self):
         return f"{self.church.code} - {self.name}"

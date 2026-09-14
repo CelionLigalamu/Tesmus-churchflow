@@ -7,18 +7,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import SMSMessage, SMSTemplate
 from .audience import get_recipients, user_can_send_to
 from .forms import SMSTemplateForm
-from .services import send_bulk
-from .services import get_attendance_template
+from .services import delivery_report, describe_delivery, send_bulk
+from .services import SYSTEM_TEMPLATES, ensure_system_templates
 from members.models import Member
 from members.services import ensure_default_ministry_roles
 from services.models import Service
 from tenants.models import Branch, Region
-
-
-TEMPLATE_LABELS = {
-    'attendance_present': 'Attendance — Present',
-    'attendance_absent': 'Attendance — Absent',
-}
 
 
 def can_manage_templates(user):
@@ -127,8 +121,9 @@ def message_create(request):
                 flash_messages.error(request, 'No recipients match that audience.')
             else:
                 audience_label = leadership_role.name if leadership_role else dict(SMSMessage.AUDIENCE_CHOICES).get(audience_type, audience_type)
-                send_bulk(request.user.church, recipients, body, audience_type=audience_type, audience_label=audience_label)
-                flash_messages.success(request, f'Message queued for {recipients.count()} recipient(s).')
+                results = send_bulk(request.user.church, recipients, body, audience_type=audience_type, audience_label=audience_label)
+                level, text = describe_delivery(delivery_report(results), noun='recipient')
+                getattr(flash_messages, level)(request, text)
                 return redirect('message_list')
     return render(request, 'messaging/message_form.html', {
         'regions': regions,
@@ -154,13 +149,16 @@ def template_list(request):
         flash_messages.error(request, 'Only church-wide administrators can manage SMS templates.')
         return redirect('message_list')
 
-    present = get_attendance_template(request.user.church, 'present')
-    absent = get_attendance_template(request.user.church, 'absent')
-    templates = [present, absent]
-    return render(request, 'messaging/template_list.html', {
-        'templates': templates,
-        'template_labels': TEMPLATE_LABELS,
-    })
+    templates = [
+        {
+            'template': template,
+            'label': SYSTEM_TEMPLATES[template.name]['label'],
+            'description': SYSTEM_TEMPLATES[template.name]['description'],
+            'placeholders': SYSTEM_TEMPLATES[template.name]['placeholders'],
+        }
+        for template in ensure_system_templates(request.user.church)
+    ]
+    return render(request, 'messaging/template_list.html', {'templates': templates})
 
 
 @login_required
@@ -179,8 +177,11 @@ def template_edit(request, pk):
         flash_messages.success(request, 'SMS template updated successfully.')
         return redirect('sms_template_list')
 
+    spec = SYSTEM_TEMPLATES.get(sms_template.name, {})
     return render(request, 'messaging/template_form.html', {
         'form': form,
         'sms_template': sms_template,
-        'template_label': TEMPLATE_LABELS.get(sms_template.name, sms_template.name),
+        'template_label': spec.get('label', sms_template.name),
+        'template_description': spec.get('description', ''),
+        'template_placeholders': spec.get('placeholders', ()),
     })

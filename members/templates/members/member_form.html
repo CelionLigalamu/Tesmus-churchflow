@@ -20,6 +20,7 @@
                 </div>
             {% endfor %}
         </div>
+        {% include "includes/place_datalists.html" %}
         <div class="form-actions"><a href="{% if member %}{% url 'member_detail' member.pk %}{% else %}{% url 'member_list' %}{% endif %}" class="btn btn-outline-secondary">Cancel</a><button type="submit" class="btn btn-brand">{% if member %}Save changes{% else %}Register member{% endif %}</button></div>
     </form>
 </div>

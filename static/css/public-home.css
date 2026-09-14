@@ -27,3 +27,69 @@
 body.public-home a.whatsapp-float,body.public-home a.phone-float{align-items:center!important;border-radius:50%!important;display:flex!important;height:58px!important;justify-content:center!important;padding:0!important;right:24px!important;width:58px!important}.whatsapp-float{bottom:88px!important}.phone-float{bottom:22px!important}.contact-icon{height:29px!important;width:29px!important}@media(max-width:600px){body.public-home a.whatsapp-float,body.public-home a.phone-float{height:52px!important;width:52px!important}.whatsapp-float{bottom:78px!important;right:16px!important}.phone-float{bottom:14px!important;right:16px!important}.contact-icon{height:26px!important;width:26px!important}}
 body.public-home a.phone-float{background:#C6A16A!important;color:#2C2C2C!important}
 body.public-home .hero-left-rail{left:clamp(28px,8vw,128px)}body.public-home .hero-right-rail{right:clamp(30px,10vw,160px)}body.public-home .hero-arrow{align-items:center;display:flex;height:58px;justify-content:center;width:58px;font-size:34px;font-weight:300;line-height:1;padding:0}.hero-arrow:hover{background:#C6A16A!important;border-color:#FFFFFF!important}@media(max-width:600px){body.public-home .hero-left-rail{left:24px}body.public-home .hero-right-rail{right:18px}body.public-home .hero-arrow{height:48px;width:48px;font-size:29px}}
+
+/* =====================================================================
+   Impact statistics - spacing and type refinement
+   ---------------------------------------------------------------------
+   The band previously ran the full page width with four equal columns, so
+   each stat sat alone in a 332px cell holding ~145px of text (38% ink,
+   48% empty vertically). The row is now capped and centred while the cream
+   background stays full-bleed, and the number/label pair is rebalanced so
+   it reads as one object.
+   ===================================================================== */
+
+.impact-strip {
+    /* Full-bleed background, capped content row. */
+    padding: 34px max(24px, calc((100% - 1140px) / 2));
+    align-items: center;
+}
+
+.impact-stat {
+    position: relative;
+    gap: 11px;
+    padding: 0 14px;
+    border-right: 0;              /* replaced by the shorter rule below */
+}
+
+/* A separator shorter than the row reads as deliberate spacing rather
+   than four boxed-off cells. */
+.impact-stat::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 58%;
+    background: #E8E1D6;
+}
+.impact-stat:last-child::after { content: none; }
+
+.impact-stat strong {
+    font-size: clamp(30px, 2.9vw, 43px);
+    font-weight: 700;
+    letter-spacing: -.035em;
+    line-height: 1.05;
+}
+
+.impact-stat span {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    /* colour intentionally left to the existing rule - this change is
+       spacing and type only */
+}
+
+@media (max-width: 800px) {
+    .impact-strip { padding: 30px max(20px, calc((100% - 560px) / 2)); row-gap: 26px; }
+    /* Two columns: keep a rule after the first stat in each row only. */
+    .impact-stat:nth-child(2n)::after { content: none; }
+    .impact-stat:nth-child(odd)::after { content: ''; }
+}
+
+@media (max-width: 600px) {
+    .impact-strip { padding: 28px 16px; }
+    .impact-stat { padding: 0 8px; }
+    .impact-stat strong { font-size: 30px; }
+    .impact-stat span { font-size: 12px; }
+}

@@ -1,0 +1,21 @@
+{% extends "base_plain.html" %}
+{% load static %}
+{% block title %}Registered | {{ church.name }}{% endblock %}
+{% block content %}
+<main class="tenant-login-page church-login-page" style="--church-primary: {{ church.primary_color }}; --church-secondary: {{ church.secondary_color }}; --church-accent: {{ church.accent_color }};">
+    <section class="tenant-login-side" aria-label="Registration complete">
+        <div class="tenant-login-card">
+            {% include "includes/church_logo.html" with church=church css_class="tenant-church-logo" %}
+            <div class="tenant-church-name">{{ church.name }}</div>
+            <div class="tenant-church-divider"></div>
+            <h2>Welcome, {{ member.full_name }}</h2>
+            <p class="tenant-login-subtitle">You are registered at {{ church.name }}.</p>
+            <div class="template-notice">
+                <strong>Your reference number</strong>
+                <span style="font-size:1.5rem;letter-spacing:.05em;">{{ member.reference_number }}</span>
+                <span>Keep this safe &mdash; you will use it to check in at services. We have also sent it to you by text.</span>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

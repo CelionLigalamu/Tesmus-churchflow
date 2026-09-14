@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Ministry Roles | Tesmus ChurchFlow{% endblock %}
 {% block page_title %}Ministry Roles{% endblock %}
-{% block nav_members %}active{% endblock %}
+{% block nav_ministry_roles %}active{% endblock %}
 {% block content %}
 <div class="page-heading"><div><div class="page-kicker">Members</div><h1>Ministry roles</h1><p class="page-subtitle">Manage leadership groups for {{ request.user.church.name }}.</p></div><a class="btn btn-brand" href="{% url 'ministry_role_create' %}">+ Add role</a></div>
 <div class="table-card"><div class="table-responsive"><table class="table table-custom"><thead><tr><th>Role</th><th>Members assigned</th><th></th></tr></thead><tbody>

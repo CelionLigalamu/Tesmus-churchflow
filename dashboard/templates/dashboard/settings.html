@@ -24,10 +24,24 @@
     <section class="detail-card settings-card">
         <div class="settings-card-icon">✉</div>
         <div>
-            <div class="page-kicker">Attendance messages</div>
-            <h2>Messages after a service</h2>
-            <p>Change what members receive after they attend or miss a service.</p>
-            <a class="btn btn-brand settings-action" href="{% url 'sms_template_list' %}">Change attendance messages</a>
+            <div class="page-kicker">Message templates</div>
+            <h2>Messages sent automatically</h2>
+            <p>Change the wording of every message your church sends.</p>
+            <a class="btn btn-brand settings-action" href="{% url 'sms_template_list' %}">Change messages</a>
+        </div>
+    </section>
+    <section class="detail-card settings-card">
+        <div class="settings-card-icon">⊕</div>
+        <div>
+            <div class="page-kicker">Member self-registration</div>
+            <h2>Your registration link</h2>
+            {% if church.self_registration_enabled %}
+                <p>Share this link, or print it as a QR code, so members register themselves. Their reference number is texted to them automatically.</p>
+                <code class="settings-link" style="word-break:break-all;display:block;">{{ request.scheme }}://{{ request.get_host }}{% url 'member_self_register' church.registration_token %}</code>
+            {% else %}
+                <p>Self-registration is currently switched off for your church.</p>
+                <span class="status-pill status-pill-warning">Turned off</span>
+            {% endif %}
         </div>
     </section>
 </div>

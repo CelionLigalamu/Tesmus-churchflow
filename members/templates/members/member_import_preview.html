@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Review Import | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Review Import{% endblock %}
+{% block nav_members %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">People &rsaquo; Import</div>
+        <h1>Review before importing</h1>
+        <p class="page-subtitle">Nothing has been saved yet. This is what <strong>{{ filename }}</strong> will do.</p>
+    </div>
+    <a href="{% url 'member_import' %}" class="btn btn-back-dashboard">&larr; Choose another file</a>
+</div>
+
+<div class="metric-grid">
+    <div class="metric-card"><div class="metric-label">Will be added</div><div class="metric-value">{{ summary.create }}</div></div>
+    <div class="metric-card"><div class="metric-label">Already members</div><div class="metric-value">{{ summary.skip }}</div></div>
+    <div class="metric-card"><div class="metric-label">Rows with errors</div><div class="metric-value">{{ summary.error }}</div></div>
+    <div class="metric-card"><div class="metric-label">Rows in file</div><div class="metric-value">{{ summary.total }}</div></div>
+</div>
+
+{% if summary.error %}
+    <div class="template-notice">
+        <strong>{{ summary.error }} row(s) will not be imported.</strong>
+        <span>Fix them in your spreadsheet and upload again if you need them. The other rows can still be imported now.</span>
+    </div>
+{% endif %}
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead><tr><th>Row</th><th>Name</th><th>Phone</th><th>Region</th><th>Branch</th><th>What will happen</th></tr></thead>
+            <tbody>
+                {% for row in results %}
+                    <tr>
+                        <td>{{ row.line }}</td>
+                        <td>{{ row.full_name|default:"—" }}</td>
+                        <td>{{ row.phone_number|default:"—" }}</td>
+                        <td>{{ row.region|default:"—" }}</td>
+                        <td>{{ row.branch|default:"—" }}</td>
+                        <td>
+                            {% if row.action == 'create' %}
+                                <span class="status-pill status-pill-success">Will be added</span>
+                            {% elif row.action == 'skip' %}
+                                <span class="status-pill status-pill-neutral">Already a member</span>
+                            {% else %}
+                                <span class="status-pill status-pill-warning">Error</span>
+                            {% endif %}
+                            {% if row.message %}<small class="d-block text-secondary-custom">{{ row.message }}</small>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="detail-card form-page-card">
+    <form method="post" action="{% url 'member_import_confirm' %}">
+        {% csrf_token %}
+        <p class="mb-3">
+            {% if summary.create %}
+                <strong>{{ summary.create }} member(s) will be added.</strong> No text messages will be sent.
+            {% else %}
+                <strong>There is nothing to import from this file.</strong>
+            {% endif %}
+        </p>
+        <div class="form-actions">
+            <a href="{% url 'member_import' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-brand" {% if not summary.create %}disabled{% endif %}>Import {{ summary.create }} member(s)</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

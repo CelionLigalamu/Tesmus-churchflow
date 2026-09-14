@@ -1,0 +1,11 @@
+{% load static %}
+{% comment %}
+Tenant logo. Falls back to the platform mark when a church has not uploaded
+one, so onboarding a church never requires a template change.
+Usage: {% include "includes/church_logo.html" with church=request.user.church css_class="church-logo" %}
+{% endcomment %}
+{% if church.logo %}
+    <img class="{{ css_class|default:'church-logo' }}" src="{{ church.logo.url }}" alt="{{ church.name }} logo">
+{% else %}
+    <img class="{{ css_class|default:'church-logo' }} tenant-default-logo" src="{% static 'images/branding/tesmus-logo.png' %}" alt="{{ church.name|default:'Tesmus ChurchFlow' }} logo">
+{% endif %}

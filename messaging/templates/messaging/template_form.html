@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Change Attendance Message | Tesmus ChurchFlow{% endblock %}
-{% block page_title %}Attendance Messages{% endblock %}
+{% block title %}{{ template_label }} | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Message Templates{% endblock %}
 {% block nav_settings %}active{% endblock %}
 {% block content %}
 <div class="page-heading">
     <div>
         <div class="page-kicker">Communication</div>
-        <h1>{% if sms_template.name == 'attendance_present' %}Members who attended{% else %}Members who were absent{% endif %}</h1>
-        <p class="page-subtitle">Write the message for {{ request.user.church.name }}.</p>
+        <h1>{{ template_label }}</h1>
+        <p class="page-subtitle">{{ template_description }} Write the message for {{ request.user.church.name }}.</p>
     </div>
     <a class="btn btn-back-dashboard" href="{% url 'sms_template_list' %}">← Back to templates</a>
 </div>
@@ -24,7 +24,7 @@
         </div>
         <div class="template-variable-help">
             <strong>Details added automatically</strong>
-            <span><code>&#123;&#123;member_name&#125;&#125;</code> <code>&#123;&#123;church_name&#125;&#125;</code> <code>&#123;&#123;service_name&#125;&#125;</code> <code>&#123;&#123;service_date&#125;&#125;</code> <code>&#123;&#123;start_time&#125;&#125;</code> <code>&#123;&#123;end_time&#125;&#125;</code></span>
+            <span>{% for placeholder in template_placeholders %}<code>&#123;&#123;{{ placeholder }}&#125;&#125;</code> {% endfor %}</span>
         </div>
         <label class="template-active-toggle" for="id_is_active">
             {{ form.is_active }}
