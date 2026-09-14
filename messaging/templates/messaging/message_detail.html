@@ -51,8 +51,18 @@
                 <div class="info-value">{{ message.template.name|default:"No template" }}</div>
             </div>
             <div>
-                <div class="info-label">Failure Reason</div>
-                <div class="info-value">{{ message.failure_reason|linebreaksbr|default:"No failure recorded" }}</div>
+                <div class="info-label">Why it failed</div>
+                <div class="info-value">
+                    {% if message.failure_reason %}
+                        {{ message.plain_failure_reason }}
+                        <details class="failure-technical">
+                            <summary>Technical details for Tesmus support</summary>
+                            <code>{{ message.failure_reason }}</code>
+                        </details>
+                    {% else %}
+                        No failure recorded
+                    {% endif %}
+                </div>
             </div>
         </div>
     </section>

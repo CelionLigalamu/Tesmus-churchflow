@@ -44,5 +44,16 @@
             {% endif %}
         </div>
     </section>
+    {% if can_manage_templates %}
+    <section class="detail-card settings-card">
+        <div class="settings-card-icon">&#10003;</div>
+        <div>
+            <div class="page-kicker">Service check-in</div>
+            <h2>Ushers</h2>
+            <p>Give ushers their own sign-in to check members in at services. They cannot see anything else.</p>
+            <a class="btn btn-brand settings-action" href="{% url 'usher_list' %}">Manage ushers</a>
+        </div>
+    </section>
+    {% endif %}
 </div>
 {% endblock %}

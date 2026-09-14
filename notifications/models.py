@@ -63,6 +63,14 @@ class Notification(models.Model):
         return (singular if self.count == 1 else plural).format(n=self.count)
 
     @property
+    def display_detail(self):
+        """The detail as shown to people; failed texts keep the technical error for support only."""
+        if self.kind == self.SMS_FAILED and self.detail:
+            from messaging.failure_reasons import plain_failure_reason
+            return plain_failure_reason(self.detail)
+        return self.detail
+
+    @property
     def icon(self):
         return self.ICONS[self.kind]
 

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Link usher | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Link Usher{% endblock %}
+{% block nav_settings %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Church setup &rsaquo; Ushers</div>
+        <h1>Link {{ usher.first_name|default:usher.username }} to a member</h1>
+        <p class="page-subtitle">Choose the member record of the person who signs in as "{{ usher.username }}". Their name will come from the member record{% if form.church.usher_role %}, and they will get the {{ form.church.usher_role.name }} ministry role{% endif %}.</p>
+    </div>
+    <a class="btn btn-back-dashboard" href="{% url 'usher_list' %}">&larr; Back to ushers</a>
+</div>
+
+<div class="detail-card form-page-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
+        {% include "accounts/_member_picker.html" %}
+        <div class="form-actions">
+            <a href="{% url 'usher_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button class="btn btn-brand" type="submit">Link member</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

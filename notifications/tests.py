@@ -196,8 +196,18 @@ class NotificationViewTests(NotificationTestBase):
         Notification.objects.create(church=self.church, recipient=self.pastor, kind=Notification.MEMBER_SELF_REGISTERED,
                                     group_key='other', detail='Only for the pastor')
         html = self.client.get(reverse('notification_list')).content.decode()
-        self.assertIn('Insufficient balance', html)
+        self.assertIn('The church has run out of SMS credit.', html)
+        self.assertNotIn('Insufficient balance', html)
         self.assertNotIn('Only for the pastor', html)
+
+    def test_technical_connection_errors_are_shown_in_plain_words(self):
+        self.notification.detail = ("HTTPSConnectionPool(host='api.sandbox.africastalking.com', port=443): Max retries "
+                                    "exceeded with url: /version1/messaging (Caused by SSLError(SSLError(1, "
+                                    "'[SSL: WRONG_VERSION_NUMBER] wrong version number')))")
+        self.notification.save()
+        html = self.client.get(reverse('notification_list')).content.decode()
+        self.assertIn('Could not connect to the text message service.', html)
+        self.assertNotIn('HTTPSConnectionPool', html)
 
     def test_sign_in_required(self):
         self.client.logout()

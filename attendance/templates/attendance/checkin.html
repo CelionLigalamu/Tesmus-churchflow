@@ -1,14 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head><title>Check In - {{ service.name }}</title></head>
-<body>
-    <h2>{{ service.church.name }}</h2>
-    <h3>{{ service.name }}</h3>
-    {% if message %}<p><strong>{{ message }}</strong></p>{% endif %}
-    <form method="post">
-        {% csrf_token %}
-        <input type="text" name="identifier" placeholder="Member ID or Phone Number" required>
-        <button type="submit">Check In</button>
-    </form>
-</body>
-</html>
+{% extends "base_plain.html" %}
+{% load church_theme %}
+{% block title %}Check in | {{ service.name }}{% endblock %}
+{% block extra_style %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<main class="checkin-page" style="{% church_theme_style church %}">
+    <div class="join-card checkin-card">
+        <div class="join-brand">
+            {% include "includes/church_logo.html" with church=church css_class="join-logo" %}
+            <div class="join-church-name">{{ church.name }}</div>
+            <div class="join-divider" aria-hidden="true"></div>
+        </div>
+        {% if outcome.succeeded %}
+            <div class="checkin-result is-success" role="status">
+                <span class="checkin-result-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <h1 class="join-title">{% if outcome.status == 'already_checked_in' %}You&rsquo;re already checked in{% else %}You&rsquo;re checked in{% endif %}</h1>
+                <p class="join-subtitle">Welcome, {{ outcome.display_name }}</p>
+                <p class="checkin-service">Your attendance for {{ service.name }} has been recorded.</p>
+            </div>
+        {% else %}
+            <h1 class="join-title">Check in</h1>
+            <p class="join-subtitle">{{ service.name }}</p>
+            <p class="checkin-service">{{ service.date|date:"l, j M Y" }}{% if service.end_time %} &middot; Check-in closes at {{ service.end_time|time:"H:i" }}{% endif %}</p>
+            <form method="post" class="join-form" novalidate>
+                {% csrf_token %}
+                {% if outcome %}<div class="join-error-summary" role="alert">{{ outcome.message }}</div>{% endif %}
+                <div class="join-field">
+                    <label for="id_identifier">Your phone number or reference number</label>
+                    <input type="text" name="identifier" id="id_identifier" autocomplete="off" autocapitalize="characters" placeholder="e.g. 0712 345 678 or {{ church.code }}-08" maxlength="30" value="{{ identifier }}" required>
+                    <small class="join-hint">Use the phone number you registered with, or the reference number we texted you.</small>
+                </div>
+                <button class="join-button" type="submit">Check in <span aria-hidden="true">&rarr;</span></button>
+            </form>
+        {% endif %}
+    </div>
+    <footer class="join-footer">Powered by Tesmus ChurchFlow</footer>
+</main>
+{% endblock %}

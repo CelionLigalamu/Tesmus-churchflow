@@ -1,5 +1,6 @@
 from django.template import Context, Template
 
+from .failure_reasons import plain_failure_reason
 from .models import SMSMessage, SMSTemplate
 from .providers.africastalking import send_sms
 from notifications.services import notify_sms_failed
@@ -253,7 +254,6 @@ def send_bulk(church, recipients, body, template=None, audience_type='individual
 
 
 MAX_REPORTED_REASONS = 2
-MAX_REASON_LENGTH = 120
 
 
 def delivery_report(sms_messages):
@@ -273,9 +273,7 @@ def delivery_report(sms_messages):
 
     reasons = []
     for message in failed:
-        reason = (message.failure_reason or 'unknown error').strip()
-        if len(reason) > MAX_REASON_LENGTH:
-            reason = reason[:MAX_REASON_LENGTH - 3] + '...'
+        reason = plain_failure_reason(message.failure_reason)
         if reason not in reasons:
             reasons.append(reason)
 

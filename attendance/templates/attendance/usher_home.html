@@ -1,0 +1,29 @@
+{% extends "attendance/usher_base.html" %}
+{% block title %}Usher check-in | Tesmus ChurchFlow{% endblock %}
+{% block usher_content %}
+<h1 class="usher-title">Today's services</h1>
+<p class="usher-subtitle">{% now "l, j F Y" %}. Choose a service to check members in.</p>
+{% if no_church %}
+    <div class="usher-empty">Your account is not linked to a church yet. Please contact your church administrator.</div>
+{% else %}
+    <div class="usher-services">
+        {% for service in services %}
+            <article class="usher-service-card">
+                <div>
+                    <h2>{{ service.name }}</h2>
+                    <p>{% if service.start_time %}{{ service.start_time|time:"H:i" }}{% if service.end_time %} &ndash; {{ service.end_time|time:"H:i" }}{% endif %}{% else %}All day{% endif %}</p>
+                </div>
+                {% if service.status == 'open' %}
+                    <a class="join-button usher-service-button" href="{% url 'usher_service' service.pk %}">Check in members <span aria-hidden="true">&rarr;</span></a>
+                {% elif service.status == 'upcoming' %}
+                    <span class="usher-status">Opens at {{ service.start_time|time:"H:i" }}</span>
+                {% else %}
+                    <span class="usher-status">Closed</span>
+                {% endif %}
+            </article>
+        {% empty %}
+            <div class="usher-empty">There are no services today.</div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

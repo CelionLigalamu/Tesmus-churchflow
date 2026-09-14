@@ -1,0 +1,29 @@
+{% extends "base_plain.html" %}
+{% load church_theme %}
+{% block extra_style %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<div class="usher-page" style="{% church_theme_style request.user.church %}">
+    <header class="usher-bar">
+        <a class="usher-bar-brand" href="{% url 'usher_home' %}">
+            {% if request.user.church %}{% include "includes/church_logo.html" with church=request.user.church css_class="usher-logo" %}{% endif %}
+            <span><strong>{{ request.user.church.name|default:"Tesmus ChurchFlow" }}</strong><small>Usher check-in</small></span>
+        </a>
+        <div class="usher-bar-actions">
+            {% if not request.user.is_usher %}<a class="usher-link-button" href="{% url 'home' %}">Dashboard</a>{% endif %}
+            <span class="usher-user">{{ request.user.get_short_name|default:request.user.username }}</span>
+            <form method="post" action="{% url 'logout' %}" onsubmit="return confirm('Log out?');">
+                {% csrf_token %}
+                <button type="submit" class="usher-logout-button">Log out</button>
+            </form>
+        </div>
+    </header>
+    <main class="usher-main">
+        {% if messages %}
+            <div class="usher-messages" aria-live="polite">
+                {% for message in messages %}<div class="usher-message is-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}
+            </div>
+        {% endif %}
+        {% block usher_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

@@ -1,15 +1,28 @@
+import uuid
+
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .models import Service
 from .forms import ServiceForm
-from .services import send_region_summaries, sync_and_finalize_service
+from .services import finalize_service, send_region_summaries, sync_and_finalize_service
+from attendance.qr import qr_svg
 from audit.services import log_action
 from messaging.models import SMSMessage
 from messaging.services import delivery_report, describe_delivery
+
+
+def can_manage_service_checkin(user):
+    """Church-wide administrators may change a service's check-in link or close it early."""
+    return user.is_authenticated and not user.is_tesmus_staff and bool(user.church_id) and user.scope_type == 'church'
+
+
+def checkin_url_for(request, service):
+    return request.build_absolute_uri(reverse('qr_checkin', args=[service.qr_token]))
 
 
 @login_required
@@ -72,7 +85,64 @@ def service_detail(request, pk):
     )
     sync_and_finalize_service(service)
 
-    return render(request, 'services/service_detail.html', {'service': service})
+    context = {'service': service, 'can_manage_checkin': can_manage_service_checkin(request.user)}
+    if service.status in ('upcoming', 'open'):
+        checkin_url = checkin_url_for(request, service)
+        context.update(checkin_url=checkin_url, checkin_qr_svg=qr_svg(checkin_url, scale=5))
+    return render(request, 'services/service_detail.html', context)
+
+
+@login_required
+def service_checkin_poster(request, pk):
+    """A printable page with the service's check-in QR code."""
+    service = get_object_or_404(Service.objects.for_user(request.user).select_related('church'), pk=pk)
+    sync_and_finalize_service(service)
+    checkin_url = checkin_url_for(request, service)
+    return render(request, 'services/checkin_poster.html', {
+        'service': service,
+        'checkin_url': checkin_url,
+        'checkin_qr_svg': qr_svg(checkin_url, scale=10),
+        'is_closed': service.status in ('closed', 'finalized'),
+    })
+
+
+@login_required
+@require_POST
+def service_new_checkin_link(request, pk):
+    """Replace the check-in link, for example when it was shared outside church."""
+    if not can_manage_service_checkin(request.user):
+        messages.error(request, 'Only church-wide administrators can change the check-in link.')
+        return redirect('service_detail', pk=pk)
+    service = get_object_or_404(Service.objects.for_user(request.user), pk=pk)
+    service.qr_token = uuid.uuid4()
+    service.save(update_fields=['qr_token'])
+    log_action(request.user, 'checkin_link_replaced', church=service.church, details=service.name)
+    messages.success(request, 'A new check-in link was created. The old link and any printed QR posters no longer work.')
+    return redirect('service_detail', pk=pk)
+
+
+@login_required
+@require_POST
+def service_close_now(request, pk):
+    """Close an open service early: mark absentees, send attendance texts, text pastors."""
+    if not can_manage_service_checkin(request.user):
+        messages.error(request, 'Only church-wide administrators can close a service early.')
+        return redirect('service_detail', pk=pk)
+    service = get_object_or_404(Service.objects.for_user(request.user), pk=pk)
+    sync_and_finalize_service(service)
+    if service.status == 'finalized':
+        messages.info(request, 'This service has already closed.')
+    elif service.status != 'open':
+        messages.error(request, 'Only a service that is open for check-in can be closed early.')
+    else:
+        finalize_service(service)
+        log_action(request.user, 'service_closed_early', church=service.church, details=service.name)
+        messages.success(
+            request,
+            'The service is closed. Members who did not check in are marked absent, attendance texts '
+            'are being sent, and region pastors will be texted.',
+        )
+    return redirect('service_detail', pk=pk)
 
 
 @login_required

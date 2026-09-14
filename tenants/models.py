@@ -54,6 +54,16 @@ class Church(models.Model):
         related_name='+',
         help_text="Members with this ministry role receive their own region's attendance statistics by SMS.",
     )
+    # Members holding this ministry role are the church's ushers; a member
+    # given an usher sign-in receives this role automatically.
+    usher_role = models.ForeignKey(
+        'members.MinistryRole',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='+',
+        help_text="Members with this ministry role are the church's ushers. New usher sign-ins get this role automatically.",
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:

@@ -1,0 +1,27 @@
+{% extends "base_plain.html" %}
+{% load church_theme %}
+{% block title %}Check-in poster | {{ service.name }}{% endblock %}
+{% block content %}
+<main class="poster-page" style="{% church_theme_style service.church %}">
+    <div class="poster-toolbar no-print">
+        <a href="{% url 'service_detail' service.pk %}">&larr; Back to service</a>
+        <button type="button" class="join-button poster-print" onclick="window.print()">Print poster</button>
+    </div>
+    <section class="poster">
+        <div class="join-brand">
+            {% include "includes/church_logo.html" with church=service.church css_class="join-logo poster-logo" %}
+            <div class="join-church-name">{{ service.church.name }}</div>
+        </div>
+        <h1 class="poster-title">Check in to {{ service.name }}</h1>
+        <p class="poster-when">{{ service.date|date:"l, j F Y" }}{% if service.start_time %} &middot; {{ service.start_time|time:"H:i" }}{% if service.end_time %}&ndash;{{ service.end_time|time:"H:i" }}{% endif %}{% endif %}</p>
+        {% if is_closed %}<p class="poster-closed no-print">Check-in for this service has closed.</p>{% endif %}
+        <div class="poster-qr">{{ checkin_qr_svg }}</div>
+        <ol class="poster-steps">
+            <li>Open your phone camera and scan the code</li>
+            <li>Enter your phone number or reference number</li>
+            <li>Tap <strong>Check in</strong></li>
+        </ol>
+        <p class="poster-link">{{ checkin_url }}</p>
+    </section>
+</main>
+{% endblock %}

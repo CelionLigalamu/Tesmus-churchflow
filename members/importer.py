@@ -16,6 +16,7 @@ from django.db import transaction
 from tenants.services import find_region, normalize_place_name, resolve_region
 
 from .models import Member
+from .phones import phone_key
 from .services import generate_reference_number
 
 MAX_ROWS = 5000
@@ -32,20 +33,6 @@ ERROR = 'error'
 
 class ImportError_(Exception):
     """The file as a whole cannot be processed."""
-
-
-def phone_key(value):
-    """A comparison key for phone numbers, not a storage format.
-
-    Lets 0712345678, +254712345678 and 254 712 345 678 be recognised as the
-    same person without changing how numbers are stored.
-    """
-    digits = re.sub(r'\D', '', str(value or ''))
-    if digits.startswith('254'):
-        digits = digits[3:]
-    elif digits.startswith('0'):
-        digits = digits[1:]
-    return digits
 
 
 def _normalise_header(name):

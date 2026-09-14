@@ -1,0 +1,68 @@
+{% comment %}
+Searchable list for choosing one of the church's members who has no sign-in yet.
+Used by the add-usher and link-usher forms. Picking a member suggests a username
+when the form has an empty username box.
+{% endcomment %}
+<div class="form-field pastor-picker member-picker" data-member-picker>
+    <div class="pastor-picker-heading">
+        <label for="member-search">Member</label>
+        <span class="form-help" data-member-picked aria-live="polite"></span>
+    </div>
+    <input type="search" id="member-search" placeholder="Search by name, reference number or phone" autocomplete="off" data-member-search>
+    <div class="pastor-picker-list" role="radiogroup" aria-label="Members">
+        {% for option in form.member_options %}
+            <label class="pastor-option" data-search-text="{{ option.member.full_name|lower }} {{ option.member.reference_number|lower }} {{ option.member.phone_number }}">
+                <input type="radio" name="member" value="{{ option.member.pk }}" data-member-name="{{ option.member.full_name }}" {% if option.selected %}checked{% endif %}>
+                <span class="pastor-option-text">
+                    <span class="pastor-option-name">{{ option.member.full_name }}{% if option.has_usher_role %} <span class="pastor-source">({{ form.church.usher_role.name }})</span>{% endif %}</span>
+                    <span class="pastor-option-meta">{{ option.member.reference_number }} &middot; {{ option.member.phone_number }}{% if option.member.region %} &middot; {{ option.member.region.name }}{% endif %}</span>
+                </span>
+            </label>
+        {% empty %}
+            <p class="pastor-picker-empty">Every member already has a sign-in, or no members are registered yet.</p>
+        {% endfor %}
+        <p class="pastor-picker-empty" data-member-no-match hidden>No members match your search.</p>
+    </div>
+    {% for error in form.member.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+</div>
+<script>
+    (() => {
+        const picker = document.querySelector('[data-member-picker]');
+        if (!picker) return;
+        const search = picker.querySelector('[data-member-search]');
+        const options = [...picker.querySelectorAll('.pastor-option')];
+        const noMatch = picker.querySelector('[data-member-no-match]');
+        const picked = picker.querySelector('[data-member-picked]');
+
+        // "Wanjiků Muthoni" -> "wanjiku.muthoni". Accent marks are removed with an
+        // escaped range so the script reads the same in any page encoding.
+        const suggestUsername = (name) => name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s]/g, '').trim().split(/\s+/).slice(0, 2).join('.');
+        const showPicked = () => {
+            const chosen = picker.querySelector('input[name="member"]:checked');
+            picked.textContent = chosen ? `Selected: ${chosen.dataset.memberName}` : '';
+        };
+
+        search.addEventListener('input', () => {
+            const query = search.value.trim().toLowerCase();
+            let shown = 0;
+            options.forEach((option) => {
+                const match = !query || option.dataset.searchText.includes(query);
+                option.hidden = !match;
+                if (match) shown += 1;
+            });
+            noMatch.hidden = shown > 0 || !options.length;
+        });
+        // Pressing Enter while searching should not submit the form.
+        search.addEventListener('keydown', (event) => { if (event.key === 'Enter') event.preventDefault(); });
+        picker.addEventListener('change', (event) => {
+            showPicked();
+            // Looked up now, not when the script starts: the username box comes after this list.
+            const username = document.getElementById('id_username');
+            if (username && !username.value && event.target.dataset.memberName) {
+                username.value = suggestUsername(event.target.dataset.memberName);
+            }
+        });
+        showPicked();
+    })();
+</script>

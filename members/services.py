@@ -6,6 +6,8 @@ from .models import DEFAULT_MINISTRY_ROLES, MinistryRole
 # The default role whose holders are texted their region's statistics. Each
 # church can choose a different role, or none, on the Regions page.
 DEFAULT_REGION_PASTOR_ROLE = 'Pastor'
+# The default role that marks a church's ushers; each church can choose another.
+DEFAULT_USHER_ROLE = 'Ushers'
 
 
 def ensure_default_ministry_roles(church):
@@ -18,10 +20,16 @@ def ensure_default_ministry_roles(church):
             MinistryRole.objects.create(church=church, name=name, sort_order=index * 10)
             created.add(name)
     # Only when the default roles are first created, so a church that later
-    # clears this choice keeps it cleared.
+    # clears these choices keeps them cleared.
+    chosen = []
     if DEFAULT_REGION_PASTOR_ROLE in created and not church.region_pastor_role_id:
         church.region_pastor_role = MinistryRole.objects.get(church=church, name=DEFAULT_REGION_PASTOR_ROLE)
-        church.save(update_fields=['region_pastor_role'])
+        chosen.append('region_pastor_role')
+    if DEFAULT_USHER_ROLE in created and not church.usher_role_id:
+        church.usher_role = MinistryRole.objects.get(church=church, name=DEFAULT_USHER_ROLE)
+        chosen.append('usher_role')
+    if chosen:
+        church.save(update_fields=chosen)
     return MinistryRole.objects.filter(church=church).order_by('sort_order', 'name')
 
 

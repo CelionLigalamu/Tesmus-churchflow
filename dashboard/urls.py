@@ -2,7 +2,10 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
 from . import views
-from accounts.views import ChurchLoginView, ChurchLogoutView, set_theme_preference
+from accounts.views import (
+    ChurchLoginView, ChurchLogoutView, set_theme_preference,
+    usher_link, usher_list, usher_role_update, usher_toggle_active,
+)
 
 urlpatterns = [
     path('public-preview/', RedirectView.as_view(pattern_name='public_home', permanent=True)),
@@ -10,6 +13,10 @@ urlpatterns = [
     path('dashboard/', views.home, name='home'),
     path('activity/', views.activity_list, name='activity_list'),
     path('settings/', views.settings_page, name='settings_page'),
+    path('settings/ushers/', usher_list, name='usher_list'),
+    path('settings/ushers/<int:pk>/toggle/', usher_toggle_active, name='usher_toggle_active'),
+    path('settings/ushers/<int:pk>/link/', usher_link, name='usher_link'),
+    path('settings/ushers/role/', usher_role_update, name='usher_role_update'),
     path('preferences/theme/', set_theme_preference, name='set_theme_preference'),
     path('login/', auth_views.LoginView.as_view(template_name='dashboard/login.html'), name='login'),
     path('<slug:church_slug>/login/', ChurchLoginView.as_view(), name='church_login'),

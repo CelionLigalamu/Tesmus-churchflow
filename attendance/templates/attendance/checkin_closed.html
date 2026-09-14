@@ -1,8 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head><title>Check-in Closed</title></head>
-<body>
-    <h2>{{ service.name }}</h2>
-    <p>Check-in is currently closed for this service.</p>
-</body>
-</html>
+{% extends "base_plain.html" %}
+{% load church_theme %}
+{% block title %}Check in | {{ service.name }}{% endblock %}
+{% block extra_style %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<main class="checkin-page" style="{% church_theme_style church %}">
+    <div class="join-card checkin-card">
+        <div class="join-brand">
+            {% include "includes/church_logo.html" with church=church css_class="join-logo" %}
+            <div class="join-church-name">{{ church.name }}</div>
+            <div class="join-divider" aria-hidden="true"></div>
+        </div>
+        <div class="checkin-result is-closed">
+            <span class="checkin-result-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+            {% if service.status == 'upcoming' %}
+                <h1 class="join-title">Check-in opens soon</h1>
+                <p class="join-subtitle">{{ service.name }}</p>
+                <p class="checkin-service">Check-in opens {% if service.start_time %}at {{ service.start_time|time:"H:i" }} {% endif %}on {{ service.date|date:"l, j M Y" }}.</p>
+            {% else %}
+                <h1 class="join-title">Check-in has closed</h1>
+                <p class="join-subtitle">{{ service.name }} &middot; {{ service.date|date:"j M Y" }}</p>
+                <p class="checkin-service">If you attended but could not check in, please speak to an usher.</p>
+            {% endif %}
+        </div>
+    </div>
+    <footer class="join-footer">Powered by Tesmus ChurchFlow</footer>
+</main>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Ushers | Tesmus ChurchFlow{% endblock %}
+{% block page_title %}Ushers{% endblock %}
+{% block nav_settings %}active{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <div class="page-kicker">Church setup</div>
+        <h1>Ushers</h1>
+        <p class="page-subtitle">Give members an usher sign-in. Ushers can only use the check-in screen to mark members present at today's services. They cannot see anything else.</p>
+    </div>
+    <a class="btn btn-back-dashboard" href="{% url 'settings_page' %}">&larr; Back to Church setup</a>
+</div>
+
+<div class="template-notice">
+    <strong>Where ushers sign in</strong>
+    <span>Share your church sign-in page: <code class="settings-link">{{ church_login_url }}</code></span>
+</div>
+
+<section class="detail-card region-role-card">
+    <form method="post" action="{% url 'usher_role_update' %}" class="region-role-form">
+        {% csrf_token %}
+        <div class="form-field">
+            <label for="{{ role_form.usher_role.id_for_label }}">{{ role_form.usher_role.label }}</label>
+            {{ role_form.usher_role }}
+            <small class="form-help">Members with this role are your ushers. A member given an usher sign-in gets this role automatically.</small>
+        </div>
+        <button class="btn btn-brand" type="submit">Save</button>
+    </form>
+</section>
+
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-custom">
+            <thead><tr><th>Name</th><th>Member</th><th>Username</th><th>Status</th><th>Last signed in</th><th></th></tr></thead>
+            <tbody>
+                {% for usher in ushers %}
+                    <tr>
+                        <td><strong>{{ usher.first_name|default:usher.username }}</strong></td>
+                        <td>
+                            {% if usher.member %}
+                                <a class="table-link" href="{% url 'member_detail' usher.member.pk %}">{{ usher.member.reference_number }}</a>
+                            {% else %}
+                                <span class="status-pill status-pill-warning">Not linked</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usher.username }}</td>
+                        <td>{% if usher.is_active %}<span class="status-pill status-pill-success">Active</span>{% else %}<span class="status-pill status-pill-warning">Turned off</span>{% endif %}</td>
+                        <td>{{ usher.last_login|date:"j M Y, H:i"|default:"Never" }}</td>
+                        <td class="text-end usher-row-actions">
+                            {% if not usher.member %}<a class="btn btn-sm btn-brand" href="{% url 'usher_link' usher.pk %}">Link to member</a>{% endif %}
+                            <form method="post" action="{% url 'usher_toggle_active' usher.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">{% if usher.is_active %}Turn off{% else %}Turn on{% endif %}</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="empty-state">No ushers yet. Add one below.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if members_needing_sign_in %}
+<section class="detail-card usher-needing-card">
+    <h2>{{ usher_role.name }} without a sign-in</h2>
+    <p class="form-help">These members have the {{ usher_role.name }} ministry role but cannot sign in to the usher screen yet.</p>
+    <ul class="usher-needing-list">
+        {% for member in members_needing_sign_in %}
+            <li>
+                <span><strong>{{ member.full_name }}</strong> <small>{{ member.reference_number }}</small></span>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'usher_list' %}?member={{ member.pk }}#add-usher">Create sign-in</a>
+            </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+<div class="detail-card form-page-card usher-add-card" id="add-usher">
+    <h2>Add an usher</h2>
+    <p class="form-help">Choose the member who will be an usher, then give them a username and password.</p>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-error-summary">{{ form.non_field_errors }}</div>{% endif %}
+        {% include "accounts/_member_picker.html" %}
+        <div class="form-grid-two">
+            {% for field in form %}
+                {% if field.name != 'member' %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}<small class="form-help">{{ field.help_text }}</small>{% endif %}
+                        {% for error in field.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="form-actions"><button class="btn btn-brand" type="submit">Add usher</button></div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "attendance/usher_base.html" %}
+{% block title %}{{ service.name }} | Usher check-in{% endblock %}
+{% block usher_content %}
+<a class="usher-back" href="{% url 'usher_home' %}">&larr; Today's services</a>
+<h1 class="usher-title">{{ service.name }}</h1>
+{% if service.status == 'open' %}
+    <p class="usher-subtitle">{{ checked_in_count }} of {{ member_total }} members checked in{% if service.end_time %} &middot; check-in closes at {{ service.end_time|time:"H:i" }}{% endif %}</p>
+    <form method="get" class="usher-search" role="search">
+        <label for="usher-q" class="visually-hidden">Search members</label>
+        <input type="search" name="q" id="usher-q" value="{{ query }}" placeholder="Search by name, phone or reference number" autocomplete="off" autofocus>
+        <button type="submit" class="join-button">Search</button>
+    </form>
+
+    {% if searched %}
+        <ul class="usher-results">
+            {% for row in results %}
+                <li class="usher-result">
+                    <div>
+                        <strong>{{ row.member.full_name }}</strong>
+                        <small>{{ row.member.reference_number }}{% if row.member.region %} &middot; {{ row.member.region.name }}{% endif %}</small>
+                    </div>
+                    {% if row.checked_in %}
+                        <span class="usher-checked">&#10003; Checked in</span>
+                    {% else %}
+                        <form method="post" action="{% url 'usher_check_in' service.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="member" value="{{ row.member.pk }}">
+                            <input type="hidden" name="q" value="{{ query }}">
+                            <button type="submit" class="usher-check-button">Check in</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="usher-empty">No members match "{{ query }}".</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if recent %}
+        <h2 class="usher-section-title">Recently checked in</h2>
+        <ul class="usher-recent">
+            {% for attendance in recent %}
+                <li><span>{{ attendance.member.full_name }}</span><small>{{ attendance.checked_in_at|time:"H:i" }} &middot; {% if attendance.method == 'usher' %}by usher{% else %}self check-in{% endif %}</small></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% else %}
+    <p class="usher-subtitle">Check-in for this service is not open.</p>
+{% endif %}
+{% endblock %}

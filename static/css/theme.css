@@ -1511,3 +1511,99 @@ html[data-theme="dark"] .btn-outline-danger {
 .merge-usage li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--surface-muted); color: var(--text-secondary); font-size: .86rem; }
 .merge-usage li strong { color: var(--text-primary); }
 .merge-confirm { margin-top: 18px; }
+
+/* --- Member check-in page (public, church colours, phone first) --- */
+.checkin-page { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; min-height: 100vh; padding: 32px 16px; background: color-mix(in srgb, var(--brand-tint-light, #E9E9E9) 55%, #FFFFFF); color: #1E293B; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.checkin-card { max-width: 460px; }
+.checkin-service { margin: 8px 0 0; color: #64748B; font-size: .9rem; line-height: 1.5; }
+.checkin-result { display: grid; justify-items: center; gap: 6px; }
+.checkin-result-icon { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin-bottom: 8px; border-radius: 50%; background: #DCFCE7; color: #15803D; }
+.checkin-result-icon svg { width: 34px; height: 34px; }
+.checkin-result.is-closed .checkin-result-icon { background: var(--brand-tint-light, #E9E9E9); color: var(--brand-ink-light, #2C2C2C); }
+
+/* --- Service page: member check-in link and QR code --- */
+.checkin-share-card { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 24px; align-items: center; margin-top: 18px; }
+.checkin-share-text h2 { margin-bottom: 6px; }
+.checkin-share-text p { color: var(--text-secondary); font-size: .88rem; }
+.checkin-link-row { display: flex; gap: 8px; margin: 14px 0; }
+.checkin-link-input { flex: 1; min-width: 0; min-height: 40px; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-muted); color: var(--text-primary); font-size: .82rem; }
+.checkin-share-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.checkin-share-actions form { margin: 0; }
+.checkin-qr { padding: 10px; border: 1px solid var(--border-color); border-radius: 10px; background: #FFFFFF; }
+.checkin-qr svg, .poster-qr svg { display: block; width: 100%; height: auto; }
+@media (max-width: 640px) { .checkin-share-card { grid-template-columns: 1fr; } .checkin-qr { max-width: 220px; } }
+
+/* --- Printable check-in poster --- */
+.poster-page { min-height: 100vh; padding: 24px 16px 48px; background: #F1F5F9; color: #0F172A; font-family: Inter, system-ui, sans-serif; }
+.poster-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 720px; margin: 0 auto 16px; }
+.poster-toolbar a { color: var(--brand-ink-light, #2C2C2C); font-weight: 600; text-decoration: none; }
+.poster-print { width: auto; margin: 0; }
+.poster { max-width: 720px; margin: 0 auto; padding: 48px clamp(20px, 6vw, 64px); background: #FFFFFF; border-top: 8px solid var(--brand-fill-light, #2C2C2C); border-radius: 12px; text-align: center; box-shadow: 0 20px 50px rgba(15, 23, 42, .1); }
+.poster-logo { width: 96px; height: 96px; }
+.poster-title { margin: 24px 0 8px; color: var(--brand-ink-light, #2C2C2C); font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 800; line-height: 1.15; }
+.poster-when { margin: 0 0 24px; color: #334155; font-size: 1.1rem; }
+.poster-closed { margin: 0 0 16px; color: #B42318; font-weight: 600; }
+.poster-qr { width: min(360px, 80%); margin: 0 auto 24px; }
+.poster-steps { display: inline-grid; gap: 8px; margin: 0 0 22px; padding-left: 22px; color: #1E293B; font-size: 1.1rem; text-align: left; }
+.poster-link { margin: 0; color: #64748B; font-size: .8rem; overflow-wrap: anywhere; }
+@media print { .no-print { display: none !important; } .poster-page { padding: 0; background: #FFFFFF; } .poster { box-shadow: none; border-radius: 0; } }
+
+/* --- Usher check-in screen (phone first, church colours) --- */
+.usher-page { min-height: 100vh; background: color-mix(in srgb, var(--brand-tint-light, #E9E9E9) 45%, #FFFFFF); color: #1E293B; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.usher-bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: #FFFFFF; border-bottom: 3px solid var(--brand-fill-light, #2C2C2C); }
+.usher-bar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; color: #0F172A; text-decoration: none; }
+.usher-bar-brand span { display: grid; min-width: 0; }
+.usher-bar-brand strong { overflow: hidden; font-size: .92rem; text-overflow: ellipsis; white-space: nowrap; }
+.usher-bar-brand small { color: #64748B; font-size: .74rem; }
+.usher-logo { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; }
+.usher-bar-actions { display: flex; flex: none; align-items: center; gap: 10px; }
+.usher-bar-actions form { margin: 0; }
+.usher-user { color: #475569; font-size: .8rem; }
+.usher-link-button, .usher-logout-button { padding: 7px 10px; border: 1px solid #CBD5E1; border-radius: 8px; background: #FFFFFF; color: #1E293B; font-size: .8rem; font-weight: 600; text-decoration: none; cursor: pointer; }
+.usher-main { max-width: 720px; margin: 0 auto; padding: 22px 16px 48px; }
+.usher-title { margin: 0 0 4px; color: var(--brand-ink-light, #2C2C2C); font-size: 1.5rem; font-weight: 700; }
+.usher-subtitle { margin: 0 0 18px; color: #475569; font-size: .92rem; }
+.usher-back { display: inline-block; margin-bottom: 10px; color: var(--brand-ink-light, #2C2C2C); font-size: .86rem; font-weight: 600; text-decoration: none; }
+.usher-messages { display: grid; gap: 8px; margin-bottom: 14px; }
+.usher-message { padding: 10px 12px; border-radius: 8px; background: #EFF6FF; color: #1E3A8A; font-size: .88rem; }
+.usher-message.is-success { background: #DCFCE7; color: #14532D; }
+.usher-message.is-error { background: #FEF3F2; color: #912018; }
+.usher-message.is-warning { background: #FEF3C7; color: #78350F; }
+.usher-services, .usher-results, .usher-recent { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.usher-service-card, .usher-result { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; }
+.usher-service-card h2 { margin: 0 0 2px; font-size: 1rem; font-weight: 700; }
+.usher-service-card p { margin: 0; color: #64748B; font-size: .84rem; }
+.usher-service-button { width: auto; min-height: 44px; margin: 0; padding: 10px 14px; font-size: .9rem; }
+.usher-status { color: #64748B; font-size: .84rem; font-weight: 600; white-space: nowrap; }
+.usher-search { display: flex; gap: 8px; margin-bottom: 16px; }
+.usher-search input { flex: 1; min-width: 0; min-height: 48px; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 1rem; }
+.usher-search input:focus { outline: none; border-color: var(--brand-fill-light, #2C2C2C); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-fill-light, #2C2C2C) 22%, transparent); }
+.usher-search .join-button { width: auto; min-height: 48px; margin: 0; padding: 10px 16px; }
+.usher-result div { display: grid; gap: 2px; min-width: 0; }
+.usher-result strong { font-size: .96rem; overflow-wrap: anywhere; }
+.usher-result small { color: #64748B; font-size: .78rem; }
+.usher-result form { flex: none; margin: 0; }
+.usher-check-button { min-height: 44px; padding: 9px 16px; border: 1px solid var(--brand-fill-light, #2C2C2C); border-radius: 8px; background: var(--brand-fill-light, #2C2C2C); color: var(--brand-on-fill-light, #FFFFFF); font-size: .9rem; font-weight: 600; cursor: pointer; }
+.usher-checked { flex: none; color: #15803D; font-size: .86rem; font-weight: 600; }
+.usher-section-title { margin: 26px 0 10px; color: #334155; font-size: .9rem; font-weight: 700; }
+.usher-recent li { display: flex; justify-content: space-between; gap: 10px; padding: 9px 12px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; font-size: .86rem; }
+.usher-recent small { color: #64748B; white-space: nowrap; }
+.usher-empty { padding: 18px; background: #FFFFFF; border: 1px dashed #CBD5E1; border-radius: 12px; color: #64748B; font-size: .9rem; text-align: center; }
+@media (max-width: 480px) { .usher-user { display: none; } .usher-service-card { flex-wrap: wrap; } }
+
+/* --- Ushers page: members without a sign-in, add-usher member picker --- */
+.usher-row-actions form { margin: 0; }
+.usher-row-actions .btn + form { margin-left: 6px; }
+.usher-needing-card { margin-top: 18px; }
+.usher-needing-card h2 { margin-bottom: 4px; }
+.usher-needing-list { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.usher-needing-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--surface-muted); }
+.usher-needing-list small { color: var(--text-secondary); }
+.usher-add-card { margin-top: 18px; }
+.usher-add-card .member-picker { margin: 14px 0 18px; }
+
+/* Plain-language failed text messages */
+.notification-items-page .notification-item-detail { white-space: normal; }
+.failure-technical { margin-top: .5rem; font-size: .78rem; color: var(--text-secondary); }
+.failure-technical summary { cursor: pointer; }
+.failure-technical code { display: block; margin-top: .35rem; white-space: pre-wrap; word-break: break-word; color: var(--text-secondary); }

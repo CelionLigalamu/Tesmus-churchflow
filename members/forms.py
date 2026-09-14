@@ -4,6 +4,7 @@ from tenants.forms import TypedPlaceFormMixin
 from tenants.services import normalize_place_name, region_names
 
 from .models import Member, MinistryRole
+from .phones import members_with_phone, phone_key
 from .services import ensure_default_ministry_roles
 
 
@@ -94,14 +95,10 @@ class SelfRegistrationForm(forms.Form):
         return name
 
     def clean_phone_number(self):
-        from .importer import phone_key
-
         raw = self.cleaned_data['phone_number'].strip()
         if len(phone_key(raw)) < 9:
             raise forms.ValidationError('Please enter a valid phone number.')
-        if Member.objects.filter(church=self.church).filter(
-            phone_number__in=_phone_variants(raw)
-        ).exists():
+        if members_with_phone(Member.objects.filter(church=self.church), raw).exists():
             raise forms.ValidationError(
                 'This phone number is already registered at this church.'
             )
@@ -113,12 +110,3 @@ class SelfRegistrationForm(forms.Form):
             raise forms.ValidationError('Please enter the area where you live.')
         return name
 
-
-def _phone_variants(raw):
-    """Every stored spelling that would mean the same Kenyan number."""
-    from .importer import phone_key
-
-    key = phone_key(raw)
-    if not key:
-        return [raw]
-    return [raw, key, f'0{key}', f'254{key}', f'+254{key}']

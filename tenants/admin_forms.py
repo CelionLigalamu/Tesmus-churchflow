@@ -21,11 +21,12 @@ class ChurchAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.colour_warnings = []
-        if 'region_pastor_role' in self.fields:
-            # Only this church's own ministry roles can be chosen.
-            self.fields['region_pastor_role'].queryset = MinistryRole.objects.filter(
-                church_id=self.instance.pk,
-            ).order_by('sort_order', 'name')
+        for field_name in ('region_pastor_role', 'usher_role'):
+            if field_name in self.fields:
+                # Only this church's own ministry roles can be chosen.
+                self.fields[field_name].queryset = MinistryRole.objects.filter(
+                    church_id=self.instance.pk,
+                ).order_by('sort_order', 'name')
 
     def _clean_hex(self, field):
         value = normalize_hex(self.cleaned_data.get(field))

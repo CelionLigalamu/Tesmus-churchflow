@@ -23,7 +23,7 @@
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/theme.css' %}?v=region-merge-20260914" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=sms-reasons-20260915" rel="stylesheet">
     {% block extra_style %}{% endblock %}
 </head>
 <body>
@@ -56,6 +56,7 @@
             <p class="sidebar-group-label">Services</p>
             <a href="{% url 'service_list' %}" class="sidebar-link {% block nav_services %}{% endblock %}" title="Services"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="services" %}</span><span class="sidebar-link-label">Services</span></a>
             <a href="{% url 'attendance_service_list' %}" class="sidebar-link {% block nav_attendance %}{% endblock %}" title="Attendance"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="attendance" %}</span><span class="sidebar-link-label">Attendance</span></a>
+            {% if request.user.scope_type == 'church' and not request.user.is_tesmus_staff %}<a href="{% url 'usher_home' %}" class="sidebar-link" title="Usher check-in"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="members" %}</span><span class="sidebar-link-label">Usher check-in</span></a>{% endif %}
 
             <p class="sidebar-group-label">Care</p>
             <a href="{% url 'message_list' %}" class="sidebar-link {% block nav_messages %}{% endblock %}" title="Messages"><span class="sidebar-link-icon">{% include "includes/nav_icon.html" with name="messages" %}</span><span class="sidebar-link-label">Messages</span></a>

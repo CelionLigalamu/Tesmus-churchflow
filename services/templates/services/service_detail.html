@@ -11,6 +11,12 @@
         <p class="page-subtitle">See this service's details and who attended.</p>
     </div>
     <div class="page-heading-actions">
+        {% if service.status == 'open' and can_manage_checkin %}
+            <form method="post" action="{% url 'service_close_now' service.pk %}" onsubmit="return confirm('Close this service now? Members who have not checked in will be marked absent and texted.');">
+                {% csrf_token %}
+                <button class="btn btn-outline-secondary" type="submit">Close service now</button>
+            </form>
+        {% endif %}
         {% if service.status == 'finalized' and request.user.scope_type == 'church' and not request.user.is_tesmus_staff %}
             <form method="post" action="{% url 'service_send_region_summaries' service.pk %}">
                 {% csrf_token %}
@@ -68,4 +74,44 @@
         </div>
     </section>
 </div>
+
+{% if checkin_url %}
+<section class="detail-card checkin-share-card">
+    <div class="checkin-share-text">
+        <h2>Member check-in</h2>
+        <p>Members scan this code, or open the link, and enter their phone number or reference number. Check-in is open {% if service.start_time %}from {{ service.start_time|time:"H:i" }}{% else %}all day{% endif %}{% if service.end_time %} until {{ service.end_time|time:"H:i" }}{% endif %} on {{ service.date|date:"j M Y" }}.</p>
+        <div class="checkin-link-row">
+            <input type="text" id="checkin-link" class="checkin-link-input" value="{{ checkin_url }}" readonly aria-label="Check-in link">
+            <button type="button" class="btn btn-outline-secondary" data-copy-link="checkin-link">Copy</button>
+        </div>
+        <div class="checkin-share-actions">
+            <a class="btn btn-brand" href="{% url 'service_checkin_poster' service.pk %}" target="_blank" rel="noopener">Print QR poster</a>
+            {% if can_manage_checkin %}
+                <form method="post" action="{% url 'service_new_checkin_link' service.pk %}" onsubmit="return confirm('Create a new check-in link? The current link and any printed QR posters will stop working.');">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-secondary" type="submit">New link</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="checkin-qr">{{ checkin_qr_svg }}</div>
+</section>
+<script>
+    (() => {
+        const button = document.querySelector('[data-copy-link]');
+        if (!button) return;
+        const field = document.getElementById(button.dataset.copyLink);
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(field.value);
+                button.textContent = 'Copied';
+            } catch (error) {
+                field.select();
+                button.textContent = 'Press Ctrl+C';
+            }
+            window.setTimeout(() => { button.textContent = 'Copy'; }, 2500);
+        });
+    })();
+</script>
+{% endif %}
 {% endblock %}

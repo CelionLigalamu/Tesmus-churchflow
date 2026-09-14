@@ -22,6 +22,11 @@ class Attendance(models.Model):
     # The member's region when this record was made. Kept on the record so a
     # member moving house later does not rewrite past regional statistics.
     region = models.ForeignKey('tenants.Region', on_delete=models.SET_NULL, blank=True, null=True, related_name='attendances')
+    # Which browser checked this member in through the check-in link, so one
+    # phone cannot check in several members for the same service.
+    device_id = models.CharField(max_length=64, blank=True, db_index=True)
+    # The usher or administrator who checked the member in, when not self check-in.
+    checked_in_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, blank=True, null=True, related_name='checkins_recorded')
     checked_in_at = models.DateTimeField(auto_now_add=True)
 
     objects = TenantManager()

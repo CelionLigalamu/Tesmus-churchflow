@@ -16,6 +16,7 @@ from . import importer
 from django.views.decorators.csrf import csrf_protect
 from tenants.models import Church
 from tenants.services import resolve_region
+from messaging.failure_reasons import plain_failure_reason
 from messaging.services import send_reference_number_sms
 from notifications.services import notify_member_self_registered
 from audit.services import log_action
@@ -193,8 +194,8 @@ def member_send_reference(request, pk):
     if failed:
         messages.error(
             request,
-            f'Could not send the reference number to {member.full_name}: '
-            f'{sms_message.failure_reason or "the SMS provider rejected the message."}',
+            f'Could not send the reference number to {member.full_name}. '
+            f'{plain_failure_reason(sms_message.failure_reason)}',
         )
     else:
         messages.success(

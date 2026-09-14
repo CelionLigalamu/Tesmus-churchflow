@@ -64,3 +64,8 @@ class SMSMessage(models.Model):
 
     def __str__(self):
         return f"{self.recipient_phone} - {self.status}"
+
+    @property
+    def plain_failure_reason(self):
+        from .failure_reasons import plain_failure_reason
+        return plain_failure_reason(self.failure_reason)

@@ -39,6 +39,12 @@
                 <div class="info-label">Region</div>
                 <div class="info-value">{{ member.region.name|default:"No region" }}</div>
             </div>
+            {% if member.user_account.is_usher %}
+            <div>
+                <div class="info-label">Usher sign-in</div>
+                <div class="info-value">{{ member.user_account.username }} &middot; {% if member.user_account.is_active %}Active{% else %}Turned off{% endif %}</div>
+            </div>
+            {% endif %}
             <div>
                 <div class="info-label">Ministry roles</div>
                 <div class="info-value">
