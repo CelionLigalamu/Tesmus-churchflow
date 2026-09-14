@@ -1,4 +1,5 @@
 from django.template import Context, Template
+from django.utils import timezone
 
 from .failure_reasons import plain_failure_reason
 from .models import SMSMessage, SMSTemplate
@@ -231,11 +232,15 @@ def send_message(church, recipient_phone, body, template=None, dedupe_key=None, 
         if hasattr(church, 'sms_config'):
             sender_id = church.sms_config.sender_id or None
 
-        response = send_sms(recipient_phone, body, sender_id=sender_id)
+        message_id = send_sms(recipient_phone, body, sender_id=sender_id)
 
         sms_message.status = 'sent'
-        sms_message.provider_message_id = str(response)
-        sms_message.save(update_fields=['status', 'provider_message_id'])
+        # Trimmed to the column size: PostgreSQL refuses longer text, which would
+        # wrongly record a delivered message as failed.
+        id_length = SMSMessage._meta.get_field('provider_message_id').max_length
+        sms_message.provider_message_id = str(message_id or '')[:id_length]
+        sms_message.sent_at = timezone.now()
+        sms_message.save(update_fields=['status', 'provider_message_id', 'sent_at'])
     except Exception as e:
         sms_message.status = 'failed'
         sms_message.failure_reason = str(e)

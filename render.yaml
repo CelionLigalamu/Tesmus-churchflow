@@ -1,0 +1,57 @@
+# Render Blueprint: creates the database and web service together.
+# Render dashboard -> New -> Blueprint -> choose this repository.
+# To move off the free plan later, change both "plan: free" lines (e.g. to
+# "basic-256mb" for the database and "starter" for the web service).
+
+databases:
+  - name: churchflow-db
+    plan: free
+    # Frankfurt is the Render region closest to Kenya. Web service and database must match.
+    region: frankfurt
+    databaseName: churchflow
+    user: churchflow
+
+services:
+  - type: web
+    name: tesmus-churchflow
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: bash build.sh
+    startCommand: gunicorn churchflow_platform.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 2
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: churchflow-db
+          property: database
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: churchflow-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: churchflow-db
+          property: password
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: churchflow-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: churchflow-db
+          property: port
+      # Values you type into Render when creating the Blueprint (never stored in git).
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: AFRICASTALKING_USERNAME
+        sync: false
+      - key: AFRICASTALKING_API_KEY
+        sync: false

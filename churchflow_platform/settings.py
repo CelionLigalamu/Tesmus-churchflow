@@ -10,25 +10,62 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from dotenv import load_dotenv
-load_dotenv()
 import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Every setting that differs between a developer's PC and the live server is
+# read from the environment (or a .env file beside manage.py). See .env.example.
+load_dotenv(BASE_DIR / '.env')
 
-# Quick-start development settings - unsuitable for production
+
+def env_bool(name, default=False):
+    value = os.getenv(name, '').strip().lower()
+    if not value:
+        return default
+    return value in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name):
+    """A comma-separated setting, e.g. "churchflow.co.ke,www.churchflow.co.ke"."""
+    return [item.strip() for item in os.getenv(name, '').split(',') if item.strip()]
+
+
+def env_int(name, default):
+    value = os.getenv(name, '').strip()
+    try:
+        return int(value) if value else default
+    except ValueError:
+        raise ImproperlyConfigured(f'{name} must be a whole number, not "{value}".')
+
+
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# Off unless DJANGO_DEBUG=True, so a live server never shows error details by accident.
+DEBUG = env_bool('DJANGO_DEBUG')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1=*d(twfc#gbh#s56t0dlibi8j27@)k=_u_*h-a+*4*ytx_7pk'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '').strip()
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('Set DJANGO_SECRET_KEY (a long random value) before running without DJANGO_DEBUG=True.')
+    # Development only: this key is public, so it must never be used on the live server.
+    SECRET_KEY = 'django-insecure-1=*d(twfc#gbh#s56t0dlibi8j27@)k=_u_*h-a+*4*ytx_7pk'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# The domain names the site is served on. While debugging, localhost is allowed automatically.
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS')
+# Full addresses (with https://) that forms may be posted from, when behind a proxy or load balancer.
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
 
-ALLOWED_HOSTS = []
+# Render tells the app its own address (e.g. tesmus-churchflow.onrender.com), so
+# the site works there before a custom domain is added.
+RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 
 # Application definition
@@ -60,6 +97,8 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Serves the collected static files (CSS, JS, images) on the live server.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -93,12 +132,33 @@ WSGI_APPLICATION = 'churchflow_platform.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# PostgreSQL whenever POSTGRES_DB is set. A PC without it keeps using the local
+# SQLite file, which is for development only and refused on the live server.
+if os.getenv('POSTGRES_DB', '').strip():
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB').strip(),
+            'USER': os.getenv('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+            'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+            'PORT': os.getenv('POSTGRES_PORT', '5432'),
+            # Reuse connections for a minute instead of opening one per page,
+            # checking first that a reused connection is still alive.
+            'CONN_MAX_AGE': env_int('POSTGRES_CONN_MAX_AGE', 60),
+            'CONN_HEALTH_CHECKS': True,
+            'OPTIONS': {'sslmode': os.getenv('POSTGRES_SSLMODE', 'prefer')},
+        }
     }
-}
+elif DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    raise ImproperlyConfigured('Set POSTGRES_DB (and the other POSTGRES_* settings) for the live server.')
 
 
 # Shared cache that survives restarts and works across several server
@@ -149,9 +209,27 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
+# Where "python manage.py collectstatic" gathers files for the web server on the live site.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STORAGES = {
+    # Uploaded church logos and registration photos. Saved in the media folder
+    # on a PC; on the live server they go to Cloudinary (below), because
+    # Render wipes files saved on the server at every deploy.
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    # Compressed files with a fingerprint in each name, so browsers can cache
+    # them safely; plain files while developing.
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
+        else 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+# Set on the live server from the Cloudinary dashboard ("API environment variable").
+if os.getenv('CLOUDINARY_URL', '').strip():
+    STORAGES['default'] = {'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage'}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -160,6 +238,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
+
+# HTTPS protections for the live server. The site is expected to sit behind a
+# web server or proxy (e.g. Nginx) that handles the certificate and tells Django
+# the original request was HTTPS.
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', default=True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Start small; raise to 31536000 (one year) once HTTPS is confirmed working everywhere.
+    SECURE_HSTS_SECONDS = env_int('DJANGO_SECURE_HSTS_SECONDS', 3600)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS')
+
+# Warnings and errors (including crashes on the live server) are printed, so
+# they appear in Render's Logs tab instead of being lost.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['console'], 'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING')},
+}
 
 # Photo beside the public self-registration form, for churches that have not
 # uploaded their own registration image. Loaded from Unsplash (free Unsplash
