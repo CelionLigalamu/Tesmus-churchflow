@@ -67,7 +67,21 @@ def member_create(request):
         member.save()
         form.save_m2m()
         log_action(request.user, 'member_created', church=member.church, details=f'{member.reference_number} - {member.full_name}')
-        messages.success(request, f'{member.full_name} was registered successfully.')
+        # The member needs their reference number to check in, so text it to
+        # them straight away, as self-registration and imports do.
+        if reference_texts_enabled(member.church):
+            send_reference_numbers_after_commit([member.pk])
+            messages.success(
+                request,
+                f'{member.full_name} was registered successfully. Their reference number '
+                f'{member.reference_number} is being texted to {member.phone_number}.',
+            )
+        else:
+            messages.success(
+                request,
+                f'{member.full_name} was registered successfully. No text was sent because the '
+                'member reference number message is switched off in Church setup.',
+            )
         return redirect('member_detail', pk=member.pk)
     return render(request, 'members/member_form.html', {'form': form})
 

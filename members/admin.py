@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Member, MinistryRole
+from .reference_texts import reference_texts_enabled, send_reference_numbers_after_commit
 from .services import generate_reference_number
 from messaging.admin_helpers import report_delivery
 from messaging.services import send_reference_number_sms
@@ -28,6 +29,9 @@ class MemberAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
         action = 'member_updated' if change else 'member_created'
         log_action(request.user, action, church=obj.church, details=f"{obj.reference_number} - {obj.full_name}")
+        # A new member is texted their reference number once the save is committed.
+        if not change and reference_texts_enabled(obj.church):
+            send_reference_numbers_after_commit([obj.pk])
 
     def send_reference_sms(self, request, queryset):
         results = [send_reference_number_sms(member) for member in queryset]

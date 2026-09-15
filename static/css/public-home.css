@@ -396,3 +396,16 @@ body.public-home .testimonial-slide blockquote{font-size:20px}
 
 /* Top ribbon: a phone icon in place of the word "Phone" */
 body.public-home .brand-phone-icon{fill:currentColor;flex:0 0 auto;height:13px;width:13px}
+
+/* Hero text uses the full width: it starts on the same line as the logo and
+   the rest of the page, headlines run wider (two lines on large screens) and
+   the slide dots sit in a row along the bottom instead of beside the text. */
+body.public-home .hero-slide .hero-copy{box-sizing:border-box;margin-left:0;max-width:none;padding:clamp(40px,7vh,72px) var(--tm-rail) clamp(96px,14vh,124px);width:100%}
+body.public-home .hero-slide h1{max-width:min(1040px,82%)}
+body.public-home .hero-slide .hero-lede{max-width:700px}
+body.public-home .hero-left-rail{bottom:40px;flex-direction:row;gap:22px;left:var(--tm-rail);top:auto;transform:none}
+body.public-home .hero-dots{align-items:center;flex-direction:row;gap:16px}
+body.public-home .hero-right-rail{right:var(--tm-rail)}
+body.public-home .hero-scroll{right:var(--tm-rail)}
+@media(min-width:1100px){body.public-home .hero-slide h1 strong br{display:none}}
+@media(max-width:600px){body.public-home .hero-slide .hero-copy{padding-bottom:110px;padding-top:56px}}
