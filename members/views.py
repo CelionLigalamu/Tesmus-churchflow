@@ -11,7 +11,8 @@ from attendance.models import Attendance
 from .models import Member
 from .forms import MemberForm, MinistryRoleForm, SelfRegistrationForm
 from .models import DEFAULT_MINISTRY_ROLES, MinistryRole
-from .services import ensure_default_ministry_roles, generate_reference_number
+from .reference_texts import reference_texts_enabled, send_reference_numbers_after_commit
+from .services import ensure_default_ministry_roles, generate_reference_number, in_reference_number_order
 from . import importer
 from django.views.decorators.csrf import csrf_protect
 from tenants.models import Church
@@ -30,9 +31,9 @@ def can_manage_roles(user):
 def member_list(request):
     search_query = request.GET.get('q', '').strip()
 
-    members = Member.objects.for_user(request.user).select_related(
+    members = in_reference_number_order(Member.objects.for_user(request.user).select_related(
         'region',
-    ).prefetch_related('ministry_roles').order_by('full_name', 'reference_number')
+    ).prefetch_related('ministry_roles'))
 
     if search_query:
         members = members.filter(
@@ -250,6 +251,7 @@ def member_import(request):
             'results': results,
             'summary': importer.summarise(results),
             'filename': upload.name,
+            'reference_texts_on': reference_texts_enabled(church),
         })
         return render(request, 'members/member_import_preview.html', context)
 
@@ -268,22 +270,40 @@ def member_import_confirm(request):
         messages.error(request, 'That import has expired. Please upload the file again.')
         return redirect('member_import')
 
-    created = importer.commit(request.user.church, payload['results'])
+    church = request.user.church
+    created_members = importer.commit(church, payload['results'])
+    created = len(created_members)
     summary = importer.summarise(payload['results'])
+
+    texting = bool(created_members) and reference_texts_enabled(church)
+    if texting:
+        send_reference_numbers_after_commit(member.pk for member in created_members)
+        text_note = (
+            'Each new member is being texted their reference number. '
+            'You can follow the texts on the Messages page.'
+        )
+    elif created_members:
+        text_note = (
+            'No text messages were sent because the member reference number '
+            'message is switched off in Church setup.'
+        )
+    else:
+        text_note = ''
+
     log_action(
         request.user,
         'members_imported',
-        church=request.user.church,
+        church=church,
         details=(
             f"{payload['filename']}: {created} created, "
             f"{summary['skip']} skipped, {summary['error']} with errors"
+            + (', reference numbers texted' if texting else '')
         ),
     )
     messages.success(
         request,
         f'{created} member(s) imported. {summary["skip"]} already existed and '
-        f'{summary["error"]} row(s) had errors and were not imported. '
-        'No text messages were sent.',
+        f'{summary["error"]} row(s) had errors and were not imported. {text_note}'.strip(),
     )
     return redirect('member_list')
 

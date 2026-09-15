@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models.functions import Length
 from tenants.models import Church
 from .models import DEFAULT_MINISTRY_ROLES, MinistryRole
 
@@ -31,6 +32,17 @@ def ensure_default_ministry_roles(church):
     if chosen:
         church.save(update_fields=chosen)
     return MinistryRole.objects.filter(church=church).order_by('sort_order', 'name')
+
+
+def in_reference_number_order(members):
+    """Order members by reference number as people count: PLCM-2, PLCM-10, PLCM-100.
+
+    Plain text sorting would put PLCM-100 before PLCM-11. Within a church every
+    number shares the same prefix, so shorter numbers come first and equal
+    lengths sort alphabetically. Church name first keeps churches apart for
+    Tesmus staff, who see every church.
+    """
+    return members.order_by('church__name', Length('reference_number'), 'reference_number')
 
 
 def generate_reference_number(church_id):

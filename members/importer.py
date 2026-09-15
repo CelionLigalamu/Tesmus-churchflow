@@ -4,8 +4,9 @@ Deliberately two-phase: a file is parsed and validated into a preview, and
 only committed after the user confirms. The same validation runs in both
 phases, so what the preview promises is exactly what the commit performs.
 
-No SMS is ever sent by an import. Importing a thousand members must not
-trigger a thousand text messages.
+This module never sends SMS itself. After an import is confirmed, the view
+texts each new member their reference number in the background (see
+members/reference_texts.py), unless the church has switched that message off.
 """
 import csv
 import io
@@ -138,18 +139,20 @@ def summarise(results):
 
 @transaction.atomic
 def commit(church, results):
-    """Create the members the preview marked as `create`. All or nothing."""
-    created = 0
+    """Create the members the preview marked as `create`. All or nothing.
+
+    Returns the members created, in the order they appeared in the file.
+    """
+    created = []
     for entry in results:
         if entry['action'] != CREATE:
             continue
         region = resolve_region(church, entry['region'], create=True)
-        Member.objects.create(
+        created.append(Member.objects.create(
             church=church,
             region=region,
             full_name=entry['full_name'],
             phone_number=entry['phone_number'],
             reference_number=generate_reference_number(church.id),
-        )
-        created += 1
+        ))
     return created

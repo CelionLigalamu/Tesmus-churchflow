@@ -25,7 +25,8 @@ class ImportAreasTests(TestCase):
         self.assertEqual([row['action'] for row in results], [importer.CREATE] * 3)
         self.assertIn('New area "sikhendu" will be added as a region.', results[0]['message'])
 
-        self.assertEqual(importer.commit(self.church, results), 3)
+        created = importer.commit(self.church, results)
+        self.assertEqual([member.full_name for member in created], ['Mary Wanjiku', 'Peter Kamau', 'Ruth Chebet'])
         self.assertEqual(list(Region.objects.filter(church=self.church).values_list('name', flat=True)), ['Sikhendu'])
         self.assertEqual(Member.objects.filter(church=self.church, region__name='Sikhendu').count(), 2)
         self.assertIsNone(Member.objects.get(full_name='Ruth Chebet').region)

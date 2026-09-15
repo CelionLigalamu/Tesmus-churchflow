@@ -59,7 +59,12 @@
         {% csrf_token %}
         <p class="mb-3">
             {% if summary.create %}
-                <strong>{{ summary.create }} member(s) will be added.</strong> No text messages will be sent.
+                <strong>{{ summary.create }} member(s) will be added.</strong>
+                {% if reference_texts_on %}
+                    Each new member will be texted their reference number.
+                {% else %}
+                    No text messages will be sent because the member reference number message is switched off in Church setup.
+                {% endif %}
             {% else %}
                 <strong>There is nothing to import from this file.</strong>
             {% endif %}
