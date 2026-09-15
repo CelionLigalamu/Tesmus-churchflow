@@ -224,7 +224,7 @@ STORAGES = {
     # them safely; plain files while developing.
     'staticfiles': {
         'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
-        else 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        else 'churchflow_platform.storage.ForgivingManifestStaticFilesStorage',
     },
 }
 # Set on the live server from the Cloudinary dashboard ("API environment variable").
