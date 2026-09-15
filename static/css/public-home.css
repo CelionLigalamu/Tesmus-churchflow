@@ -409,3 +409,29 @@ body.public-home .hero-right-rail{right:var(--tm-rail)}
 body.public-home .hero-scroll{right:var(--tm-rail)}
 @media(min-width:1100px){body.public-home .hero-slide h1 strong br{display:none}}
 @media(max-width:600px){body.public-home .hero-slide .hero-copy{padding-bottom:110px;padding-top:56px}}
+
+/* Side navigation for tablets and phones: the three-line button opens a panel
+   that slides in from the right over a dimmed page, with a close mark at the
+   top, one row per section and the demo and sign-in buttons at the bottom. */
+body.public-home .public-nav-close,body.public-home .public-nav-drawer-actions,body.public-home .public-nav-backdrop{display:none}
+@media(max-width:950px){
+body.public-home .public-nav-links,body.public-home .public-nav-links.is-open{background:var(--tm-cream-light);border:0;border-left:1px solid var(--tm-line);bottom:0;box-shadow:-24px 0 48px rgba(31,31,31,.22);display:flex;flex-direction:column;gap:0;left:auto;margin:0;overflow-y:auto;overscroll-behavior:contain;padding:88px 28px 28px;position:fixed;right:0;top:0;width:min(82vw,380px);z-index:2}
+body.public-home .public-nav-links{opacity:1;pointer-events:none;transform:translateX(100%);transition:transform .32s cubic-bezier(.2,.7,.2,1),visibility 0s linear .32s;visibility:hidden}
+body.public-home .public-nav-links.is-open{pointer-events:auto;transform:none;transition:transform .32s cubic-bezier(.2,.7,.2,1);visibility:visible}
+body.public-home .public-nav-links>a,body.public-home .public-nav-links.is-open>a{font-size:17px;padding:19px 4px}
+body.public-home .public-nav-close{align-items:center;background:transparent;border:0;border-radius:10px;color:var(--tm-charcoal);cursor:pointer;display:inline-flex;height:46px;justify-content:center;position:absolute;right:18px;top:18px;width:46px}
+body.public-home .public-nav-close svg{fill:none;height:26px;stroke:currentColor;stroke-linecap:round;stroke-width:2;width:26px}
+body.public-home .public-nav-close:hover,body.public-home .public-nav-close:focus-visible{background:var(--tm-gold-soft);color:var(--tm-gold-deep);outline:none}
+body.public-home .public-nav-drawer-actions{display:flex;flex-direction:column;gap:12px;margin-top:auto;padding-top:32px}
+body.public-home .public-nav-links .public-nav-drawer-actions a,body.public-home .public-nav-links.is-open .public-nav-drawer-actions a{border-radius:4px;font-size:15px;justify-content:center;padding:14px 18px}
+body.public-home .public-nav-links .public-nav-drawer-actions a::after,body.public-home .public-nav-links.is-open .public-nav-drawer-actions a::after{content:none}
+body.public-home .public-nav-links .public-nav-drawer-actions a:hover{padding-left:18px}
+body.public-home .public-nav-links .public-nav-drawer-login,body.public-home .public-nav-links.is-open .public-nav-drawer-login{border:1px solid var(--tm-charcoal);color:var(--tm-charcoal);font-weight:700}
+body.public-home .public-nav-backdrop{background:rgba(20,18,16,.55);display:block;inset:0;opacity:0;pointer-events:none;position:fixed;transition:opacity .32s ease,visibility 0s linear .32s;visibility:hidden;z-index:1}
+body.public-home.menu-open{overflow:hidden}
+body.public-home.menu-open .public-nav{z-index:1000}
+body.public-home.menu-open .public-nav-backdrop{opacity:1;pointer-events:auto;transition:opacity .32s ease;visibility:visible}
+body.public-home.menu-open a.whatsapp-float,body.public-home.menu-open a.phone-float{pointer-events:none!important;visibility:hidden!important}
+}
+@media(max-width:600px){body.public-home .public-nav-links,body.public-home .public-nav-links.is-open{padding:84px 22px 24px;width:min(86vw,360px)}}
+@media(prefers-reduced-motion:reduce){body.public-home .public-nav-links,body.public-home .public-nav-links.is-open,body.public-home .public-nav-backdrop{transition:none}}

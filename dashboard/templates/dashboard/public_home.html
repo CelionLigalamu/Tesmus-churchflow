@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/public-home.css' %}?v=hero-width-20260915">
+    <link rel="stylesheet" href="{% static 'css/public-home.css' %}?v=side-nav-20260915">
 </head>
 <body class="public-home">
     <div class="brand-ribbon"><span>TESMUS TECHNOLOGIES</span><div class="brand-contact"><a class="brand-phone" href="tel:+254790486996" aria-label="Call Tesmus on 0790486996"><svg class="brand-phone-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 10.79a15.46 15.46 0 0 0 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2Z"/></svg><span>0790486996</span></a><a href="mailto:info@tesmustechnologies.co.ke">info@tesmustechnologies.co.ke</a></div></div>
@@ -19,11 +19,16 @@
             <span><strong>Tesmus</strong> ChurchFlow</span>
         </a>
         <nav class="public-nav-links" id="public-navigation" aria-label="Main navigation">
+            <button class="public-nav-close" type="button" aria-label="Close menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             <a href="#platform">Platform</a>
             <a href="#how-it-works">How It Works</a>
             <a href="#built-for-kenya">For Churches</a>
             <a href="#stories">Church Stories</a>
             <a href="#about-tesmus">About Tesmus</a>
+            <div class="public-nav-drawer-actions">
+                <a class="public-button" href="tel:+254790486996" aria-label="Book a demo: call Tesmus on 0790486996">Book a Demo</a>
+                <a class="public-nav-drawer-login" href="{% url 'login' %}">Sign In</a>
+            </div>
         </nav>
         <div class="public-nav-actions">
             <a class="public-login" href="{% url 'login' %}">Sign In</a>
@@ -32,6 +37,7 @@
         <button class="public-menu" type="button" aria-label="Open menu" aria-controls="public-navigation" aria-expanded="false">
             <span class="public-menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
         </button>
+        <div class="public-nav-backdrop" aria-hidden="true"></div>
     </header>
 
     <main>
@@ -79,28 +85,45 @@
     <script>
         const menu = document.querySelector('.public-menu');
         const nav = document.querySelector('.public-nav-links');
-        // Three-line menu button for tablets and phones: opens the navigation
-        // panel and turns into a close mark while it is open.
-        const setMenuOpen = (isOpen) => {
+        // Three-line menu button for tablets and phones: opens a side panel from
+        // the right, dims the page behind it and keeps keyboard focus inside it.
+        const closeButton = document.querySelector('.public-nav-close');
+        const backdrop = document.querySelector('.public-nav-backdrop');
+        const menuIsOpen = () => nav?.classList.contains('is-open') ?? false;
+        const setMenuOpen = (isOpen, { returnFocus = true } = {}) => {
             if (!menu || !nav) return;
             nav.classList.toggle('is-open', isOpen);
+            document.body.classList.toggle('menu-open', isOpen);
             menu.setAttribute('aria-expanded', String(isOpen));
             menu.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+            if (isOpen) closeButton?.focus({ preventScroll: true });
+            else if (returnFocus) menu.focus({ preventScroll: true });
         };
-        const menuIsOpen = () => nav?.classList.contains('is-open') ?? false;
         menu?.addEventListener('click', () => setMenuOpen(!menuIsOpen()));
-        nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setMenuOpen(false)));
+        closeButton?.addEventListener('click', () => setMenuOpen(false));
+        backdrop?.addEventListener('click', () => setMenuOpen(false));
+        // Following a link closes the panel so the page can scroll to that section.
+        nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+            if (menuIsOpen()) setMenuOpen(false, { returnFocus: false });
+        }));
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && menuIsOpen()) {
+            if (!menuIsOpen()) return;
+            if (event.key === 'Escape') {
                 setMenuOpen(false);
-                menu.focus();
+                return;
+            }
+            if (event.key === 'Tab') {
+                const focusable = [...nav.querySelectorAll('a, button')].filter(el => el.offsetParent !== null);
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
             }
         });
-        document.addEventListener('click', (event) => {
-            if (menuIsOpen() && !nav.contains(event.target) && !menu.contains(event.target)) setMenuOpen(false);
-        });
         // The full navigation shows on wide screens, so a panel left open must not reappear later.
-        window.matchMedia('(min-width: 951px)').addEventListener('change', (event) => { if (event.matches) setMenuOpen(false); });
+        window.matchMedia('(min-width: 951px)').addEventListener('change', (event) => {
+            if (event.matches && menuIsOpen()) setMenuOpen(false, { returnFocus: false });
+        });
         // Hero photos slide across to the next one, as if scrolled sideways.
         // Without JavaScript the first slide simply shows on its own.
         const heroTrack = document.querySelector('.hero-slides');
