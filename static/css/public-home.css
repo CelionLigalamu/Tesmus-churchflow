@@ -139,3 +139,204 @@ body.public-home .public-nav-links a:hover::after,body.public-home .public-nav-l
 }
 @media(max-width:600px){body.public-home .public-nav-links,body.public-home .public-nav-links.is-open{padding-left:18px;padding-right:18px}body.public-home .public-menu{height:42px;width:42px}}
 @media(prefers-reduced-motion:reduce){body.public-home .public-menu,body.public-home .public-menu-bars span,body.public-home .public-nav-links,body.public-home .public-nav-links.is-open,body.public-home .public-nav-links a,body.public-home .public-nav-links a::after{transition:none}}
+
+/* ==========================================================================
+   Tesmus brand layer. The three colours of the Tesmus logo, blended across
+   the whole home page: warm cream as the base, charcoal for strength and
+   gold as the signature accent. Loaded last so it replaces the older blue,
+   teal and grey tints above.
+   ========================================================================== */
+body.public-home{
+  --tm-charcoal:#2C2C2C;--tm-charcoal-deep:#1F1F1F;--tm-gold:#C6A16A;--tm-gold-light:#D9BC8C;
+  --tm-gold-deep:#8A6A3B;--tm-gold-soft:#EFE2CC;--tm-cream:#F5EEE4;--tm-cream-light:#FBF8F3;
+  --tm-line:#E4D6C1;--tm-muted:#6F665B;--tm-on-dark:#F5EEE4;--tm-on-dark-muted:rgba(245,238,228,.72);
+  /* Older variables still referenced by earlier rules now point at the brand. */
+  --ink:#2C2C2C;--navy:#2C2C2C;--blue:#C6A16A;--gold:#C6A16A;--gold-light:#EFE2CC;--cream:#F5EEE4;--cream-light:#FBF8F3;
+  --tesmus-blue:#2C2C2C;--tesmus-deep:#1F1F1F;--tesmus-teal:#C6A16A;--tesmus-gold:#C6A16A;
+  background:var(--tm-cream-light);color:var(--tm-charcoal)
+}
+
+/* Top ribbon and header */
+body.public-home .brand-ribbon{background:var(--tm-charcoal-deep);border-bottom:1px solid rgba(198,161,106,.45);color:var(--tm-on-dark)}
+body.public-home .brand-ribbon>span:first-child{color:var(--tm-gold)}
+body.public-home .brand-ribbon a{color:var(--tm-on-dark);transition:color .2s ease}
+body.public-home .brand-ribbon a:hover{color:var(--tm-gold)}
+body.public-home .public-nav{background:var(--tm-cream);border-bottom:1px solid var(--tm-line)}
+body.public-home .public-brand strong{color:var(--tm-charcoal)}
+body.public-home .public-brand span{color:var(--tm-gold-deep)}
+body.public-home .public-nav-links a,body.public-home .public-login{color:var(--tm-charcoal)}
+body.public-home .public-button-small{background:var(--tm-charcoal);border-color:var(--tm-charcoal);color:var(--tm-on-dark)!important}
+body.public-home .public-button-small:hover{background:var(--tm-gold);border-color:var(--tm-gold);color:var(--tm-charcoal-deep)!important}
+
+/* Buttons: gold on dark backgrounds, charcoal on light ones */
+body.public-home .hero-section .public-button,body.public-home .cta-section .public-button{background:var(--tm-gold);border-color:var(--tm-gold);color:var(--tm-charcoal-deep)!important}
+body.public-home .hero-section .public-button:hover,body.public-home .cta-section .public-button:hover{background:var(--tm-gold-light);border-color:var(--tm-gold-light);box-shadow:0 12px 26px rgba(198,161,106,.3);color:var(--tm-charcoal-deep)!important}
+body.public-home .hero-slide .text-link{border-bottom:1px solid var(--tm-gold);color:var(--tm-on-dark);padding-bottom:4px;transition:color .2s ease}
+body.public-home .hero-slide .text-link:hover{color:var(--tm-gold)}
+
+/* Hero */
+body.public-home .hero-slide::before{background:radial-gradient(circle at 14% 88%,rgba(198,161,106,.24),transparent 42%),linear-gradient(90deg,rgba(31,28,25,.92),rgba(31,28,25,.66) 45%,rgba(31,28,25,.2))}
+body.public-home .hero-slide h1 strong{color:var(--tm-gold)}
+body.public-home .hero-slide .hero-lede,body.public-home .hero-count{color:var(--tm-on-dark)}
+body.public-home .hero-arrow{border-color:rgba(245,238,228,.7)}
+
+/* Section labels: a short gold rule before every kicker */
+body.public-home .section-kicker{color:var(--tm-gold-deep)}
+body.public-home .section-kicker::before{background:var(--tm-gold);content:"";display:inline-block;height:2px;margin-right:10px;vertical-align:middle;width:26px}
+
+/* Impact numbers and the trust strip */
+body.public-home .impact-strip{background:var(--tm-cream);border-bottom:1px solid var(--tm-line)}
+body.public-home .impact-stat{border-color:var(--tm-line)}
+body.public-home .impact-stat::before{background:var(--tm-gold);border-radius:2px;content:"";display:block;height:3px;margin:0 auto 14px;width:28px}
+body.public-home .impact-stat strong{color:var(--tm-charcoal)}
+body.public-home .impact-stat span{color:var(--tm-muted)}
+body.public-home .trust-strip{background:var(--tm-charcoal);border-top:2px solid var(--tm-gold);color:var(--tm-on-dark)}
+body.public-home .trust-items span{color:var(--tm-on-dark-muted)}
+
+/* Introduction */
+body.public-home .intro-section{background:var(--tm-cream-light)}
+body.public-home .intro-section h2{color:var(--tm-charcoal)}
+body.public-home .intro-section h2 span{color:var(--tm-gold-deep)}
+body.public-home .intro-grid>p{color:var(--tm-muted)}
+
+/* Feature cards: charcoal, gold and cream, like the logo */
+body.public-home .feature-section{background:var(--tm-cream-light)}
+body.public-home .feature-card{transition:transform .25s ease,box-shadow .25s ease}
+body.public-home .feature-card:hover{box-shadow:0 22px 40px rgba(44,44,44,.14);transform:translateY(-4px)}
+body.public-home .feature-dark{background:var(--tm-charcoal);color:var(--tm-on-dark)}
+body.public-home .feature-dark .feature-number,body.public-home .feature-dark .feature-icon,body.public-home .feature-dark a{color:var(--tm-gold)}
+body.public-home .feature-gold{background:var(--tm-gold);border:0;color:var(--tm-charcoal-deep)}
+body.public-home .feature-gold p,body.public-home .feature-gold .feature-number,body.public-home .feature-gold a{color:var(--tm-charcoal-deep)}
+body.public-home .feature-gold p{opacity:.82}
+body.public-home .feature-blue{background:var(--tm-cream);border:1px solid var(--tm-line);border-top:3px solid var(--tm-gold);color:var(--tm-charcoal)}
+body.public-home .feature-blue p{color:var(--tm-muted)}
+body.public-home .feature-blue .feature-number,body.public-home .feature-blue .feature-icon,body.public-home .feature-blue a{color:var(--tm-gold-deep)}
+body.public-home .feature-card a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
+
+/* How it works, with a product preview in brand colours */
+body.public-home .dashboard-showcase{background:var(--tm-cream)}
+body.public-home .showcase-copy>p{color:var(--tm-muted)}
+body.public-home .showcase-list span{color:var(--tm-gold-deep)}
+body.public-home .showcase-list small{color:var(--tm-muted)}
+body.public-home .product-window{border:1px solid var(--tm-line);box-shadow:0 30px 60px rgba(44,44,44,.18)}
+body.public-home .window-bar{background:var(--tm-charcoal-deep);color:var(--tm-on-dark)}
+body.public-home .window-bar span{background:var(--tm-gold)}
+body.public-home .window-bar span:nth-child(2){background:var(--tm-gold-light);opacity:.6}
+body.public-home .window-bar span:nth-child(3){background:var(--tm-on-dark);opacity:.35}
+body.public-home .mock-dashboard aside{background:var(--tm-charcoal)}
+body.public-home .mock-logo{background:var(--tm-gold);color:var(--tm-charcoal-deep)}
+body.public-home .mock-dashboard aside small{color:var(--tm-gold)}
+body.public-home .mock-dashboard aside a{color:var(--tm-on-dark-muted)}
+body.public-home .mock-dashboard aside .mock-active{background:rgba(198,161,106,.22);color:var(--tm-gold-light)}
+body.public-home .mock-main{background:var(--tm-cream-light)}
+body.public-home .mock-top,body.public-home .mock-top small,body.public-home .mock-metrics small,body.public-home .chart-title small{color:var(--tm-muted)}
+body.public-home .mock-main h4,body.public-home .mock-metrics strong,body.public-home .chart-title{color:var(--tm-charcoal)}
+body.public-home .mock-metrics em{color:var(--tm-gold-deep)}
+body.public-home .mock-metrics>div,body.public-home .mock-chart{background:#FFFFFF;border-color:var(--tm-line)}
+
+/* Built for Kenya */
+body.public-home .kenya-section{background:var(--tm-cream-light)}
+body.public-home .kenya-copy>p,body.public-home .kenya-points p{color:var(--tm-charcoal)}
+body.public-home .kenya-points span{color:var(--tm-gold-deep)}
+body.public-home .kenya-badge{background:var(--tm-charcoal);border-left:3px solid var(--tm-gold);z-index:2}
+body.public-home .kenya-badge strong{color:var(--tm-gold)}
+body.public-home .kenya-badge span{color:var(--tm-on-dark-muted)}
+@media(min-width:951px){
+body.public-home .kenya-image::before{border:2px solid var(--tm-gold);content:"";inset:22px -22px -22px 22px;position:absolute;z-index:0}
+body.public-home .kenya-image img{position:relative;z-index:1}
+}
+
+/* Church stories */
+body.public-home .stories-section{background:var(--tm-cream)}
+body.public-home .stories-intro,body.public-home .testimonial-author span{color:var(--tm-muted)}
+body.public-home .testimonial-slide blockquote,body.public-home .testimonial-author strong{color:var(--tm-charcoal)}
+body.public-home .author-avatar{background:var(--tm-gold);color:var(--tm-charcoal-deep);font-weight:700}
+body.public-home .testimonial-dots button{border-color:var(--tm-gold-deep)}
+body.public-home .testimonial-dots button.is-active{background:var(--tm-gold);border-color:var(--tm-gold)}
+
+/* Call to action */
+body.public-home .cta-section{background:var(--tm-charcoal);color:var(--tm-on-dark)}
+body.public-home .cta-section h2{color:var(--tm-on-dark)}
+body.public-home .cta-section em,body.public-home .cta-section .section-kicker,body.public-home .email-link{color:var(--tm-gold)}
+body.public-home .cta-section>p,body.public-home .cta-login{color:var(--tm-on-dark-muted)}
+body.public-home .cta-login:hover,body.public-home .email-link:hover{color:var(--tm-gold-light)}
+
+/* Footer */
+body.public-home .public-footer{background:var(--tm-charcoal-deep);border-top:3px solid var(--tm-gold);color:var(--tm-on-dark)}
+body.public-home .footer-brand strong{color:var(--tm-on-dark)}
+body.public-home .footer-brand span{color:var(--tm-gold)}
+body.public-home .footer-top{border-bottom-color:rgba(198,161,106,.22)}
+body.public-home .footer-top>p,body.public-home .footer-links a,body.public-home .footer-bottom{color:var(--tm-on-dark-muted)}
+body.public-home .footer-links a{transition:color .2s ease}
+body.public-home .footer-links a:hover{color:var(--tm-gold)}
+body.public-home .public-footer .footer-bottom span:first-child{color:var(--tm-gold)}
+
+@media(prefers-reduced-motion:reduce){body.public-home .feature-card,body.public-home .feature-card:hover{transform:none;transition:none}}
+
+/* The hero is exactly as tall as its slides. A fixed 760px minimum left an
+   empty band above the numbers on screens shorter than the slides' limit. */
+body.public-home .hero-section{min-height:0}
+
+/* "Ready when you are": the gold glow sits behind the heading instead of
+   taking up 500px of empty space above it. A general ".cta-section>*" rule
+   had made it part of the normal page flow. */
+body.public-home .cta-section{padding-bottom:clamp(84px,9vw,120px);padding-top:clamp(84px,9vw,120px);position:relative}
+body.public-home .cta-section>.cta-glow{left:50%;pointer-events:none;position:absolute;top:0;transform:translate(-50%,-38%);width:min(900px,140vw);z-index:0}
+body.public-home .cta-section>:not(.cta-glow){z-index:1}
+
+/* Hero carousel: photos slide sideways from one to the next (turned on by the
+   page script with .is-carousel). The text of each slide follows just after
+   its photo arrives. */
+body.public-home .hero-slides.is-carousel .hero-slide{opacity:1;transition:none;visibility:hidden;will-change:transform}
+body.public-home .hero-slides.is-carousel .hero-slide.is-active,body.public-home .hero-slides.is-carousel .hero-slide.is-leaving{visibility:visible}
+body.public-home .hero-slides.is-carousel .hero-slide.is-moving{transition:transform .9s cubic-bezier(.77,0,.18,1)}
+body.public-home .hero-slides.is-carousel .hero-slide .hero-copy{opacity:0;transform:translateX(48px);transition:opacity .5s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+body.public-home .hero-slides.is-carousel .hero-slide.is-active .hero-copy{opacity:1;transform:none;transition-delay:.45s}
+body.public-home .hero-left-rail,body.public-home .hero-right-rail,body.public-home .hero-scroll{z-index:3}
+@media(prefers-reduced-motion:reduce){body.public-home .hero-slides.is-carousel .hero-slide.is-moving,body.public-home .hero-slides.is-carousel .hero-slide .hero-copy{transition:none}body.public-home .hero-slides.is-carousel .hero-slide .hero-copy{transform:none}}
+
+/* Phones: no slide dots or slide counter on the left of the hero. Visitors
+   swipe or use the arrows instead. Tablets and desktops keep them. */
+@media(max-width:600px){body.public-home .hero-left-rail{display:none}}
+
+/* For churches in Kenya: a wider layout that fills the page, a clear photo
+   running the full height of the text, a feature note on the photo and a
+   call to action under the points. */
+body.public-home .kenya-section{align-items:stretch;column-gap:clamp(48px,5.5vw,88px);grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);max-width:1320px;padding:clamp(80px,8vw,112px) clamp(24px,4vw,48px)}
+body.public-home .kenya-image{min-height:560px}
+body.public-home .kenya-image img{aspect-ratio:auto;border-radius:24px;height:100%;inset:0;object-fit:cover;object-position:center;position:absolute;width:100%;z-index:1}
+body.public-home .kenya-image::before{border-radius:24px}
+body.public-home .kenya-note{background:var(--tm-cream-light);border:1px solid var(--tm-line);border-top:3px solid var(--tm-gold);box-shadow:0 18px 36px rgba(31,31,31,.18);max-width:270px;padding:18px 20px;position:absolute;right:-28px;top:32px;z-index:2}
+body.public-home .kenya-note strong{color:var(--tm-charcoal);display:block;font-family:Manrope,sans-serif;font-size:15px;margin-bottom:6px}
+body.public-home .kenya-note span{color:var(--tm-muted);display:block;font-size:13px;line-height:1.55}
+body.public-home .kenya-points{margin-top:28px}
+body.public-home .kenya-actions{align-items:center;display:flex;flex-wrap:wrap;gap:14px 26px;margin-top:30px}
+body.public-home .kenya-actions .text-link{border-bottom:1px solid var(--tm-gold);color:var(--tm-charcoal);font-size:14px;padding-bottom:4px;transition:color .2s ease}
+body.public-home .kenya-actions .text-link:hover{color:var(--tm-gold-deep)}
+@media(max-width:950px){
+body.public-home .kenya-section{grid-template-columns:1fr;row-gap:48px}
+body.public-home .kenya-image{max-width:none;min-height:440px}
+body.public-home .kenya-note{right:16px;top:16px}
+body.public-home .kenya-badge{left:16px}
+}
+@media(max-width:600px){
+body.public-home .kenya-image{min-height:340px}
+body.public-home .kenya-note{max-width:210px;padding:14px 16px}
+body.public-home .kenya-note span{font-size:12px}
+}
+
+/* "A clearer way to serve": a wider layout matching the Kenya section, the
+   paragraph centred beside the heading, and three highlights filling the
+   space that used to sit empty above it. The cards below share the width. */
+body.public-home .intro-section{max-width:1320px;padding:clamp(72px,8vw,110px) clamp(24px,4vw,48px) clamp(48px,5vw,64px)}
+body.public-home .intro-grid{align-items:center;column-gap:clamp(40px,6vw,96px);grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}
+body.public-home .intro-aside>p{color:var(--tm-muted);font-size:17px;line-height:1.75;margin:0 0 22px}
+body.public-home .intro-highlights{list-style:none;margin:0;padding:0}
+body.public-home .intro-highlights li{border-top:1px solid var(--tm-line);column-gap:14px;display:grid;grid-template-columns:22px 1fr;padding:14px 0}
+body.public-home .intro-highlights li::before{background:var(--tm-gold);border-radius:50%;box-shadow:inset 0 0 0 6px var(--tm-gold-soft);content:"";grid-row:span 2;height:22px;margin-top:1px;width:22px}
+body.public-home .intro-highlights strong{color:var(--tm-charcoal);font-size:15px}
+body.public-home .intro-highlights span{color:var(--tm-muted);font-size:14px;line-height:1.55}
+body.public-home .feature-section{max-width:1320px;padding:0 clamp(24px,4vw,48px) clamp(80px,8vw,112px)}
+body.public-home .feature-card a{transition:opacity .2s ease}
+body.public-home .feature-card a:hover{opacity:.75}
+@media(max-width:950px){body.public-home .intro-grid{grid-template-columns:1fr;row-gap:28px}}

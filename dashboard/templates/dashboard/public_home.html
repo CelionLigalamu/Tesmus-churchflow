@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/public-home.css' %}?v=menu-20260915">
+    <link rel="stylesheet" href="{% static 'css/public-home.css' %}?v=intro-20260915">
 </head>
 <body class="public-home">
     <div class="brand-ribbon"><span>TESMUS TECHNOLOGIES</span><div class="brand-contact"><a class="brand-phone" href="tel:+254790486996">Phone <span>0790486996</span></a><a href="mailto:info@tesmustechnologies.co.ke">info@tesmustechnologies.co.ke</a></div></div>
@@ -27,7 +27,7 @@
         </nav>
         <div class="public-nav-actions">
             <a class="public-login" href="{% url 'login' %}">Sign In</a>
-            <a class="public-button public-button-small" href="#contact">Book a Demo</a>
+            <a class="public-button public-button-small" href="tel:+254790486996" aria-label="Book a demo: call Tesmus on 0790486996">Book a Demo</a>
         </div>
         <button class="public-menu" type="button" aria-label="Open menu" aria-controls="public-navigation" aria-expanded="false">
             <span class="public-menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -52,13 +52,13 @@
 
         <section class="intro-section" id="platform">
             <div class="section-kicker">A clearer way to serve</div>
-            <div class="intro-grid"><h2>Your church has a story.<br><span>Your systems should support it.</span></h2><p>From the first registration to the Sunday follow-up, Tesmus ChurchFlow gives your team one reliable place to know your people, coordinate your leaders and make better decisions.</p></div>
+            <div class="intro-grid"><h2>Your church has a story.<br><span>Your systems should support it.</span></h2><div class="intro-aside"><p>From the first registration to the Sunday follow-up, Tesmus ChurchFlow gives your team one reliable place to know your people, coordinate your leaders and make better decisions.</p><ul class="intro-highlights"><li><strong>Check-in by phone</strong><span>Members check in with their phone number or reference number.</span></li><li><strong>Texts that go out on time</strong><span>Thank-you and we-missed-you messages are sent when a service closes.</span></li><li><strong>Region-ready records</strong><span>Every member is linked to the area where they live.</span></li></ul></div></div>
         </section>
 
         <section class="feature-section">
-            <div class="feature-card feature-dark"><div class="feature-number">01</div><div class="feature-icon">01</div><h3>Know your people</h3><p>Keep member records organized, searchable and connected to the regions where people live.</p><a href="#contact">Explore member management</a></div>
-            <div class="feature-card feature-gold"><div class="feature-number">02</div><div class="feature-icon">02</div><h3>See what is happening</h3><p>Track attendance and services with a shared view that helps leaders respond with care, not guesswork.</p><a href="#contact">Explore attendance</a></div>
-            <div class="feature-card feature-blue"><div class="feature-number">03</div><div class="feature-icon">03</div><h3>Bring leaders together</h3><p>Assign ministry roles, keep regional pastors informed and send the right message to the right leadership group.</p><a href="#contact">Explore ministry teams</a></div>
+            <div class="feature-card feature-dark"><div class="feature-number">01</div><div class="feature-icon">01</div><h3>Know your people</h3><p>Keep member records organized, searchable and connected to the regions where people live.</p><a href="#how-it-works">See how members are registered <span aria-hidden="true">&rarr;</span></a></div>
+            <div class="feature-card feature-gold"><div class="feature-number">02</div><div class="feature-icon">02</div><h3>See what is happening</h3><p>Track attendance and services with a shared view that helps leaders respond with care, not guesswork.</p><a href="#how-it-works">See the attendance overview <span aria-hidden="true">&rarr;</span></a></div>
+            <div class="feature-card feature-blue"><div class="feature-number">03</div><div class="feature-icon">03</div><h3>Bring leaders together</h3><p>Assign ministry roles, keep regional pastors informed and send the right message to the right leadership group.</p><a href="#built-for-kenya">See how leaders stay informed <span aria-hidden="true">&rarr;</span></a></div>
         </section>
 
         <section class="dashboard-showcase" id="how-it-works">
@@ -66,7 +66,7 @@
             <div class="product-window"><div class="window-bar"><span></span><span></span><span></span><b>Tesmus ChurchFlow</b></div><div class="mock-dashboard"><aside><div class="mock-logo">T</div><small>TESMUS CHURCHFLOW</small><a class="mock-active">Dashboard</a><a>Members</a><a>Attendance</a><a>Ministry roles</a><a>Messages</a></aside><div class="mock-main"><div class="mock-top"><span>Good morning, church admin</span><small>Today · Overview</small></div><h4>A clear view of your ministry.</h4><div class="mock-metrics"><div><small>Total members</small><strong>1,248</strong><em>Growing community</em></div><div><small>Present today</small><strong>486</strong><em>Across 4 regions</em></div><div><small>Leadership groups</small><strong>7</strong><em>Ready to connect</em></div></div><div class="mock-chart"><div class="chart-title">Attendance trend <small>Last 7 services</small></div><svg viewBox="0 0 520 120" preserveAspectRatio="none" aria-label="Illustrative attendance chart"><path d="M0 92 C60 82 70 88 120 66 S190 80 245 55 S300 66 350 32 S410 49 470 22 S500 29 520 14" fill="none" stroke="#c6a16a" stroke-width="4" stroke-linecap="round"/><path d="M0 92 C60 82 70 88 120 66 S190 80 245 55 S300 66 350 32 S410 49 470 22 S500 29 520 14 L520 120 L0 120Z" fill="url(#mockFill)" opacity=".35"/><defs><linearGradient id="mockFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c6a16a"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs></svg></div></div></div></div>
         </section>
 
-        <section class="kenya-section" id="built-for-kenya"><div class="kenya-image"><img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1100&q=85" alt="People gathered together in a welcoming community" referrerpolicy="no-referrer"><div class="kenya-badge"><strong>Built close to home</strong><span>For the way Kenyan churches grow.</span></div></div><div class="kenya-copy"><div class="section-kicker">For churches in Kenya</div><h2>One church. Every region. One clear rhythm.</h2><p>Your members may live across many regions and serve in many different teams. Tesmus ChurchFlow gives every authorized leader the view they need while keeping your church’s information private.</p><div class="kenya-points"><div><span>01</span><p><strong>Region-ready</strong><br>Group members by where they live and keep regional pastors informed.</p></div><div><span>02</span><p><strong>Communication that reaches</strong><br>Send messages to members or leadership groups.</p></div><div><span>03</span><p><strong>Made for ministry teams</strong><br>Roles that reflect how your church actually serves.</p></div></div></div></section>
+        <section class="kenya-section" id="built-for-kenya"><div class="kenya-image"><img src="https://images.unsplash.com/photo-1741485745396-47004ac8c248?auto=format&fit=crop&w=1400&q=85" alt="A large congregation gathered together at a church event" loading="lazy" referrerpolicy="no-referrer"><div class="kenya-note"><strong>Pastors stay informed</strong><span>Each region's attendance is texted to its pastors when a service closes.</span></div><div class="kenya-badge"><strong>Built close to home</strong><span>For the way Kenyan churches grow.</span></div></div><div class="kenya-copy"><div class="section-kicker">For churches in Kenya</div><h2>One church. Every region. One clear rhythm.</h2><p>Your members may live across many regions and serve in many different teams. Tesmus ChurchFlow gives every authorized leader the view they need while keeping your church’s information private.</p><div class="kenya-points"><div><span>01</span><p><strong>Region-ready</strong><br>Group members by where they live and keep regional pastors informed.</p></div><div><span>02</span><p><strong>Communication that reaches</strong><br>Send messages to members or leadership groups.</p></div><div><span>03</span><p><strong>Made for ministry teams</strong><br>Roles that reflect how your church actually serves.</p></div></div><div class="kenya-actions"><a class="public-button" href="tel:+254790486996" aria-label="Book a demo: call Tesmus on 0790486996">Book a Demo</a><a class="text-link" href="#how-it-works">See how it works</a></div></div></section>
 
         <section class="stories-section" id="stories"><div class="section-kicker">Church stories</div><h2>What churches say about Tesmus ChurchFlow</h2><p class="stories-intro">Hear from the people serving behind every service.</p><div class="testimonial-carousel"><article class="testimonial-slide is-active"><blockquote>“Tesmus ChurchFlow gives our team a clearer way to organize the people, attendance and ministry communication that keep our church moving.”</blockquote><div class="testimonial-author"><div class="author-avatar">PLCM</div><div><strong>Preaching Life Change Ministry</strong><span>Sikhendu · Founding church partner</span></div></div></article><article class="testimonial-slide"><blockquote>“Tesmus ChurchFlow helps our pastoral team see what is happening across the ministry while keeping our attention on the people we serve.”</blockquote><div class="testimonial-author"><div class="author-avatar">P</div><div><strong>Pastoral leadership perspective</strong><span>For pastors and ministry leaders</span></div></div></article><article class="testimonial-slide"><blockquote>“With Tesmus ChurchFlow, our member records, attendance and communication follow one clear rhythm instead of being scattered across different places.”</blockquote><div class="testimonial-author"><div class="author-avatar">A</div><div><strong>Church administration perspective</strong><span>For church administrators</span></div></div></article><div class="testimonial-controls"><button class="testimonial-arrow testimonial-prev" type="button" aria-label="Previous testimonial">Previous</button><div class="testimonial-dots"><button class="is-active" type="button" data-testimonial="0" aria-label="Testimonial 1"></button><button type="button" data-testimonial="1" aria-label="Testimonial 2"></button><button type="button" data-testimonial="2" aria-label="Testimonial 3"></button></div><button class="testimonial-arrow testimonial-next" type="button" aria-label="Next testimonial">Next</button></div></div></section>
 
@@ -101,15 +101,89 @@
         });
         // The full navigation shows on wide screens, so a panel left open must not reappear later.
         window.matchMedia('(min-width: 951px)').addEventListener('change', (event) => { if (event.matches) setMenuOpen(false); });
+        // Hero photos slide across to the next one, as if scrolled sideways.
+        // Without JavaScript the first slide simply shows on its own.
+        const heroTrack = document.querySelector('.hero-slides');
         const slides = [...document.querySelectorAll('.hero-slide')];
         const dots = [...document.querySelectorAll('.hero-dots button')];
         const count = document.querySelector('.hero-count');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const SLIDE_MS = 900;
+        const AUTOPLAY_MS = 6500;
+        const pad = (n) => String(n).padStart(2, '0');
         let currentSlide = 0;
-        function showSlide(index) { currentSlide = (index + slides.length) % slides.length; slides.forEach((slide, i) => slide.classList.toggle('is-active', i === currentSlide)); dots.forEach((dot, i) => dot.classList.toggle('is-active', i === currentSlide)); if (count) count.textContent = `0${currentSlide + 1} / 04`; }
-        document.querySelector('.hero-prev')?.addEventListener('click', () => showSlide(currentSlide - 1));
-        document.querySelector('.hero-next')?.addEventListener('click', () => showSlide(currentSlide + 1));
-        dots.forEach((dot, i) => dot.addEventListener('click', () => showSlide(i)));
-        setInterval(() => showSlide(currentSlide + 1), 6500);
+        let sliding = false;
+        let autoplay = null;
+
+        heroTrack?.classList.add('is-carousel');
+        slides.forEach((slide, i) => { slide.style.transform = `translateX(${i === currentSlide ? 0 : 100}%)`; });
+
+        // direction: 1 moves forward (the new photo comes in from the right), -1 goes back.
+        function showSlide(index, direction) {
+            const next = (index + slides.length) % slides.length;
+            if (next === currentSlide || sliding) return;
+            const step = direction || (next > currentSlide ? 1 : -1);
+            const leaving = slides[currentSlide];
+            const arriving = slides[next];
+
+            // Park the arriving photo just off-screen on the side it enters from.
+            arriving.classList.remove('is-moving');
+            arriving.style.transform = `translateX(${step * 100}%)`;
+            void arriving.offsetWidth;
+
+            sliding = true;
+            leaving.classList.add('is-moving', 'is-leaving');
+            leaving.classList.remove('is-active');
+            arriving.classList.add('is-moving', 'is-active');
+            leaving.style.transform = `translateX(${-step * 100}%)`;
+            arriving.style.transform = 'translateX(0%)';
+
+            currentSlide = next;
+            dots.forEach((dot, i) => dot.classList.toggle('is-active', i === currentSlide));
+            if (count) count.textContent = `${pad(currentSlide + 1)} / ${pad(slides.length)}`;
+
+            const finish = () => {
+                leaving.classList.remove('is-moving', 'is-leaving');
+                arriving.classList.remove('is-moving');
+                sliding = false;
+            };
+            if (reduceMotion.matches) finish(); else setTimeout(finish, SLIDE_MS + 50);
+        }
+
+        const startAutoplay = () => {
+            clearInterval(autoplay);
+            autoplay = setInterval(() => showSlide(currentSlide + 1, 1), AUTOPLAY_MS);
+        };
+        // Any manual change restarts the timer, so a photo is never skipped straight after a click.
+        const goManually = (index, direction) => { showSlide(index, direction); startAutoplay(); };
+
+        document.querySelector('.hero-prev')?.addEventListener('click', () => goManually(currentSlide - 1, -1));
+        document.querySelector('.hero-next')?.addEventListener('click', () => goManually(currentSlide + 1, 1));
+        dots.forEach((dot, i) => dot.addEventListener('click', () => goManually(i)));
+
+        // Swipe left or right on phones and tablets.
+        let touchStartX = null;
+        let touchStartY = null;
+        heroTrack?.addEventListener('touchstart', (event) => {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+        }, { passive: true });
+        heroTrack?.addEventListener('touchend', (event) => {
+            if (touchStartX === null) return;
+            const dx = event.changedTouches[0].clientX - touchStartX;
+            const dy = event.changedTouches[0].clientY - touchStartY;
+            touchStartX = null;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+                const step = dx < 0 ? 1 : -1;
+                goManually(currentSlide + step, step);
+            }
+        });
+
+        // No sliding while the browser tab is in the background.
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) clearInterval(autoplay); else startAutoplay();
+        });
+        startAutoplay();
         const testimonials = [...document.querySelectorAll('.testimonial-slide')];
         const testimonialDots = [...document.querySelectorAll('.testimonial-dots button')];
         let currentTestimonial = 0;
