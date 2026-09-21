@@ -1625,3 +1625,13 @@ html[data-theme="dark"] .btn-outline-danger {
 .page-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .page-heading-actions form { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .status-pill-sending::before { animation: none; } }
+
+/* --- Pastoral care follow-ups --- */
+.care-notes { white-space: pre-wrap; color: var(--text-primary); font-size: .92rem; line-height: 1.7; }
+.care-pastor-list { list-style: none; margin: 0 0 12px; padding: 0; }
+.care-pastor-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+.care-pastor-list li:last-child { border-bottom: 0; }
+.care-warning { padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--color-warning) 30%, var(--border-color)); border-radius: 12px; background: color-mix(in srgb, var(--color-warning) 8%, var(--bg-surface)); color: var(--text-primary); font-size: .9rem; line-height: 1.55; }
+.care-detail-bottom { margin-top: 18px; }
+.care-alert-card input[type="number"] { max-width: 120px; }
+.care-alert-card { margin-bottom: 16px; }

@@ -6,49 +6,103 @@
 {% block content %}
 <div class="page-heading">
     <div>
-        <div class="page-kicker">{{ followup.get_status_display }}</div>
+        <div class="page-kicker">{{ followup.reason_label }}</div>
         <h1>{{ followup.member.full_name }}</h1>
-        <p class="page-subtitle">See this follow-up and its notes.</p>
+        <p class="page-subtitle">
+            {{ followup.member.reference_number }}{% if followup.member.region %} &middot; {{ followup.member.region.name }}{% endif %}
+            &middot; <a class="table-link" href="tel:{{ followup.member.phone_number }}">{{ followup.member.phone_number }}</a>
+        </p>
     </div>
-    <a class="btn btn-brand" href="{% url 'pastoral_followup_list' %}">Back to Pastoral Care</a>
+    <a class="btn btn-outline-secondary" href="{% url 'pastoral_followup_list' %}">Back to Pastoral Care</a>
 </div>
 
 <div class="detail-grid">
     <section class="detail-card">
-        <h2>Follow-Up Info</h2>
+        <h2>Follow-up</h2>
         <div class="info-list">
             <div>
-                <div class="info-label">Member</div>
-                <a class="table-link" href="{% url 'member_detail' followup.member.pk %}">{{ followup.member.full_name }}</a>
-            </div>
-            <div>
                 <div class="info-label">Status</div>
-                <span class="status-pill {% if followup.status == 'completed' %}status-pill-success{% elif followup.status == 'in_progress' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
-                    {{ followup.get_status_display }}
-                </span>
+                <span class="status-pill {{ followup.status_css }}">{{ followup.get_status_display }}</span>
             </div>
             <div>
-                <div class="info-label">Assigned Pastor</div>
-                <div class="info-value">{{ followup.assigned_to.username|default:"Unassigned" }}</div>
+                <div class="info-label">Why</div>
+                <div class="info-value">{{ followup.reason_label }}</div>
             </div>
+            {% if followup.trigger_service %}
+                <div>
+                    <div class="info-label">Latest missed service</div>
+                    <div class="info-value">{{ followup.trigger_service.name }}, {{ followup.trigger_service.date|date:"M j, Y" }}</div>
+                </div>
+            {% endif %}
             <div>
-                <div class="info-label">Follow-Up Date</div>
-                <div class="info-value">{{ followup.follow_up_date|date:"M j, Y"|default:"Not scheduled" }}</div>
-            </div>
-            <div>
-                <div class="info-label">Created</div>
+                <div class="info-label">Opened</div>
                 <div class="info-value">{{ followup.created_at|date:"M j, Y H:i" }}</div>
+            </div>
+            {% if followup.closed_at %}
+                <div>
+                    <div class="info-label">Closed</div>
+                    <div class="info-value">{{ followup.closed_at|date:"M j, Y H:i" }}</div>
+                </div>
+            {% endif %}
+            <div>
+                <div class="info-label">Member record</div>
+                <a class="table-link" href="{% url 'member_detail' followup.member.pk %}">Open {{ followup.member.full_name }}'s record</a>
             </div>
         </div>
     </section>
 
     <section class="detail-card">
-        <h2>Notes</h2>
+        <h2>Pastors</h2>
+        {% with pastors=followup.pastors.all %}
+            {% if pastors %}
+                <ul class="care-pastor-list">
+                    {% for pastor in pastors %}
+                        <li><strong>{{ pastor.full_name }}</strong><a class="table-link" href="tel:{{ pastor.phone_number }}">{{ pastor.phone_number }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% if followup.reason == 'missed_services' %}
+                    <p class="form-help mb-0">They were texted when this follow-up opened. <a class="table-link" href="{% url 'message_list' %}">See Messages</a> to check delivery.</p>
+                {% endif %}
+            {% elif followup.assigned_to %}
+                <p class="mb-0">{{ followup.assigned_to.get_full_name|default:followup.assigned_to.username }}</p>
+            {% else %}
+                <div class="care-warning">
+                    <strong>No pastor to text.</strong>
+                    {% if followup.member.region %}No pastor is set for {{ followup.member.region.name }}.{% else %}This member has no region yet.{% endif %}
+                    {% if can_manage_regions %}Choose pastors on the <a class="table-link" href="{% url 'region_list' %}">Regions</a> page.{% endif %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </section>
+</div>
+
+<div class="detail-grid care-detail-bottom">
+    <section class="detail-card">
+        <h2>Notes and history</h2>
         {% if followup.notes %}
-            <p class="mb-0">{{ followup.notes|linebreaksbr }}</p>
+            <div class="care-notes">{{ followup.notes }}</div>
         {% else %}
-            <div class="empty-state">No notes recorded.</div>
+            <div class="empty-state">No notes yet.</div>
         {% endif %}
     </section>
+
+    {% if update_form %}
+        <section class="detail-card">
+            <h2>Record progress</h2>
+            <form method="post" action="{% url 'pastoral_followup_update' followup.pk %}" novalidate>
+                {% csrf_token %}
+                <div class="form-field">
+                    <label for="{{ update_form.status.id_for_label }}">Status</label>
+                    {{ update_form.status }}
+                </div>
+                <div class="form-field">
+                    <label for="{{ update_form.note.id_for_label }}">{{ update_form.note.label }}</label>
+                    {{ update_form.note }}
+                    <small class="form-help">Saved with today's date and your name. Earlier notes are kept.</small>
+                </div>
+                <div class="form-actions"><button class="btn btn-brand" type="submit">Save update</button></div>
+            </form>
+        </section>
+    {% endif %}
 </div>
 {% endblock %}

@@ -86,6 +86,10 @@ def finalize_service(service):
 
     # Pastors are texted only once the attendance above is safely saved.
     transaction.on_commit(partial(send_region_summaries, service), robust=True)
+    # Members who came back close their follow-ups; members who have now
+    # missed several services in a row are flagged for their pastors.
+    from pastoral.absence import check_absences_after_commit
+    check_absences_after_commit(service)
 
 
 def region_attendance_breakdown(service):

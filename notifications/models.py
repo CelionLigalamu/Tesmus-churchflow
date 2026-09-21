@@ -16,23 +16,30 @@ class Notification(models.Model):
     SMS_FAILED = 'sms_failed'
     FOLLOWUP_DUE = 'followup_due'
     MEMBER_SELF_REGISTERED = 'member_self_registered'
+    FOLLOWUP_UNASSIGNED = 'followup_unassigned'
 
     KIND_CHOICES = [
         (SMS_FAILED, 'Text messages failed'),
         (FOLLOWUP_DUE, 'Pastoral follow-ups due'),
         (MEMBER_SELF_REGISTERED, 'New self-registrations'),
+        (FOLLOWUP_UNASSIGNED, 'Follow-ups without a pastor'),
     ]
-    ATTENTION_KINDS = (SMS_FAILED, FOLLOWUP_DUE)
+    ATTENTION_KINDS = (SMS_FAILED, FOLLOWUP_DUE, FOLLOWUP_UNASSIGNED)
 
     TITLES = {
         SMS_FAILED: ('{n} text message failed to send', '{n} text messages failed to send'),
         FOLLOWUP_DUE: ('{n} pastoral follow-up is due or overdue', '{n} pastoral follow-ups are due or overdue'),
         MEMBER_SELF_REGISTERED: ('{n} new member registered through your link', '{n} new members registered through your link'),
+        FOLLOWUP_UNASSIGNED: (
+            '{n} member who stopped coming has no pastor to follow up',
+            '{n} members who stopped coming have no pastor to follow up',
+        ),
     }
     ICONS = {
         SMS_FAILED: 'alert',
         FOLLOWUP_DUE: 'pastoral',
         MEMBER_SELF_REGISTERED: 'visitors',
+        FOLLOWUP_UNASSIGNED: 'pastoral',
     }
 
     church = models.ForeignKey('tenants.Church', on_delete=models.CASCADE, related_name='notifications')
@@ -88,6 +95,8 @@ class Notification(models.Model):
             return reverse('message_list') + '?status=failed'
         if self.kind == self.FOLLOWUP_DUE:
             return reverse('pastoral_followup_list')
+        if self.kind == self.FOLLOWUP_UNASSIGNED:
+            return reverse('pastoral_followup_list') + '?status=needs_pastor'
         return reverse('member_list')
 
     @property

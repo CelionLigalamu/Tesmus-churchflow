@@ -3,6 +3,7 @@ import uuid
 from django.apps import apps
 from django.db import models
 from django.db.models import Q
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models.functions import Lower
 from django.utils.text import slugify
 
@@ -63,6 +64,14 @@ class Church(models.Model):
         null=True,
         related_name='+',
         help_text="Members with this ministry role are the church's ushers. New usher sign-ins get this role automatically.",
+    )
+    # How many services in a row a member may miss before a pastoral follow-up
+    # opens and their region's pastors are texted. 0 turns the alerts off.
+    absence_alert_after = models.PositiveSmallIntegerField(
+        default=3,
+        validators=[MinValueValidator(0), MaxValueValidator(20)],
+        verbose_name='Alert pastors after this many missed services in a row',
+        help_text="Checked each time a service closes. 0 turns absence alerts off.",
     )
 
     def save(self, *args, **kwargs):

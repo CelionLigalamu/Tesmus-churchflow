@@ -75,6 +75,21 @@ def notify_member_self_registered(member):
         logger.exception('Could not record a self-registration notification')
 
 
+def notify_followup_unassigned(followup):
+    """A member stopped coming but their region has no pastor to text: tell the admins."""
+    try:
+        church = followup.church
+        member = followup.member
+        where = f'no pastor is set for {member.region.name}' if member.region_id else 'they have no region'
+        _add_to_group(
+            church_admins(church), church, Notification.FOLLOWUP_UNASSIGNED,
+            group_key=f'{Notification.FOLLOWUP_UNASSIGNED}:{church.id}:{timezone.localdate()}',
+            detail=f'Latest: {member.full_name} ({member.reference_number}) - {where}',
+        )
+    except Exception:
+        logger.exception('Could not record a follow-up without a pastor notification')
+
+
 def sync_followup_notifications(church, today=None):
     """Keep one 'due or overdue' notification per person, per day, up to date.
 

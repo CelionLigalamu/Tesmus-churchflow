@@ -45,6 +45,19 @@ SYSTEM_TEMPLATES = {
             '{{church_name}}'
         ),
     },
+    'pastor_followup_alert': {
+        'label': 'Pastor follow-up alert',
+        'description': "Sent to a region's pastors when one of their members misses several services in a row.",
+        'placeholders': (
+            'pastor_name', 'member_name', 'reference_number', 'member_phone',
+            'region_name', 'missed_count', 'church_name',
+        ),
+        'body': (
+            'Mchungaji {{pastor_name}}, {{member_name}} ({{reference_number}}, '
+            '{{member_phone}}) wa {{region_name}} amekosa ibada {{missed_count}} '
+            'mfululizo. Tafadhali mfuatilie na kumtia moyo. {{church_name}}'
+        ),
+    },
     'member_reference': {
         'label': 'Member reference number',
         'description': 'Sent to a member with their registration reference number.',

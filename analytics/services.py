@@ -113,8 +113,8 @@ def dashboard_summary(
         'pending_followups': PastoralFollowUp.objects.filter(
             church=church,
             status__in=['pending', 'in_progress'],
+            # Every open follow-up counts, however long ago it was opened.
             member__in=Member.objects.filter(**member_filter),
-            created_at__date__range=(start_date, end_date),
         ).count(),
     }
     attendance_qs = Attendance.objects.filter(

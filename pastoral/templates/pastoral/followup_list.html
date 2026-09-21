@@ -8,19 +8,43 @@
     <div>
         <div class="page-kicker">Follow Ups</div>
         <h1>Pastoral Care</h1>
-        <p class="page-subtitle">See people who need care and follow-up.</p>
-    </div>
-    <div class="metric-card">
-        <div class="metric-label">Showing</div>
-        <div class="metric-value">{{ total_followups }}</div>
+        <p class="page-subtitle">
+            {% if church.absence_alert_after %}
+                Members who miss {{ church.absence_alert_after }} services in a row are added here automatically, and their region's pastors are texted.
+            {% else %}
+                See members who need care. Automatic absence alerts are off.
+            {% endif %}
+        </p>
     </div>
 </div>
+
+<div class="metric-row">
+    <div class="metric-card"><div class="metric-label">Open</div><div class="metric-value">{{ open_count }}</div></div>
+    <div class="metric-card"><div class="metric-label">Need a pastor</div><div class="metric-value">{{ needs_pastor_count }}</div></div>
+    <div class="metric-card"><div class="metric-label">Came back</div><div class="metric-value">{{ returned_count }}</div></div>
+    <div class="metric-card"><div class="metric-label">Showing</div><div class="metric-value">{{ total_followups }}</div></div>
+</div>
+
+{% if setting_form %}
+<section class="detail-card region-role-card care-alert-card">
+    <form method="post" action="{% url 'pastoral_absence_setting' %}" class="region-role-form">
+        {% csrf_token %}
+        <div class="form-field">
+            <label for="{{ setting_form.absence_alert_after.id_for_label }}">Alert pastors after this many missed services in a row</label>
+            {{ setting_form.absence_alert_after }}
+            <small class="form-help">Checked each time a service closes. A member is flagged once and their pastors get one text. Set 0 to turn alerts off.</small>
+        </div>
+        <button class="btn btn-brand" type="submit">Save</button>
+    </form>
+</section>
+{% endif %}
 
 <form method="get" class="toolbar-card">
     <div class="row g-2 align-items-center">
         <div class="col-md-10">
             <select class="form-select form-select-custom" name="status">
-                <option value="">All statuses</option>
+                <option value="">All follow-ups</option>
+                <option value="needs_pastor" {% if status_filter == 'needs_pastor' %}selected{% endif %}>Need a pastor</option>
                 {% for value, label in status_choices %}
                     <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
@@ -38,9 +62,10 @@
             <thead>
                 <tr>
                     <th>Member</th>
+                    <th>Why</th>
+                    <th>Pastors</th>
                     <th>Status</th>
-                    <th>Assigned Pastor</th>
-                    <th>Follow-Up Date</th>
+                    <th>Opened</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,21 +73,22 @@
                     <tr>
                         <td>
                             <div class="meta-stack">
-                                <a class="table-link" href="{% url 'member_detail' followup.member.pk %}">{{ followup.member.full_name }}</a>
-                                <a class="meta-muted" href="{% url 'pastoral_followup_detail' followup.pk %}">View follow-up</a>
+                                <a class="table-link" href="{% url 'pastoral_followup_detail' followup.pk %}">{{ followup.member.full_name }}</a>
+                                <span class="meta-muted">{{ followup.member.reference_number }}{% if followup.member.region %} &middot; {{ followup.member.region.name }}{% endif %}</span>
                             </div>
                         </td>
+                        <td>{{ followup.reason_label }}</td>
                         <td>
-                            <span class="status-pill {% if followup.status == 'completed' %}status-pill-success{% elif followup.status == 'in_progress' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
-                                {{ followup.get_status_display }}
-                            </span>
+                            {% for pastor in followup.pastors.all %}{{ pastor.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}
+                                {% if followup.assigned_to %}{{ followup.assigned_to.get_full_name|default:followup.assigned_to.username }}{% else %}<span class="status-pill status-pill-warning">No pastor</span>{% endif %}
+                            {% endfor %}
                         </td>
-                        <td>{{ followup.assigned_to.username|default:"Unassigned" }}</td>
-                        <td>{{ followup.follow_up_date|date:"M j, Y"|default:"Not scheduled" }}</td>
+                        <td><span class="status-pill {{ followup.status_css }}">{{ followup.get_status_display }}</span></td>
+                        <td>{{ followup.created_at|date:"M j, Y" }}</td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="4" class="empty-state">No pastoral follow-ups match this view.</td>
+                        <td colspan="5" class="empty-state">No pastoral follow-ups match this view.</td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -68,6 +68,7 @@ class ChurchAdminFormTests(TestCase):
             'name': 'Colour Test Church', 'code': 'CTC', 'slug': 'colour-test',
             'primary_color': '#386641', 'secondary_color': '#F5EEE4', 'accent_color': '#C6A16A',
             'is_active': 'on', 'last_member_sequence': 0, 'self_registration_enabled': 'on',
+            'absence_alert_after': 3,
         }
         data.update(overrides)
         return ChurchAdminForm(data=data)
