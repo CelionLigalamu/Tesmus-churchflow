@@ -1,4 +1,8 @@
+from datetime import timedelta
+
 from django.db import models
+from django.utils import timezone
+
 from tenants.managers import TenantManager
 
 
@@ -59,11 +63,43 @@ class SMSMessage(models.Model):
     failure_reason = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(blank=True, null=True)
+    # How many times this text has been tried, and when the latest try started.
+    attempt_count = models.PositiveIntegerField(default=1)
+    last_attempt_at = models.DateTimeField(blank=True, null=True)
 
     objects = TenantManager()
 
+    # A text still "queued" this long after its latest try was interrupted
+    # (for example by a server restart) and may be tried again.
+    STALE_SENDING_AFTER = timedelta(minutes=10)
+
     def __str__(self):
         return f"{self.recipient_phone} - {self.status}"
+
+    @property
+    def is_sending(self):
+        return self.status == 'queued' and not self._send_was_interrupted()
+
+    @property
+    def can_resend(self):
+        """Only failed or interrupted texts: a sent text is never sent twice."""
+        return self.status == 'failed' or (self.status == 'queued' and self._send_was_interrupted())
+
+    def _send_was_interrupted(self):
+        started = self.last_attempt_at or self.created_at
+        return started is not None and timezone.now() - started > self.STALE_SENDING_AFTER
+
+    @property
+    def status_label(self):
+        return 'Sending…' if self.is_sending else self.get_status_display()
+
+    @property
+    def status_css(self):
+        if self.status in ('sent', 'delivered'):
+            return 'status-pill-success'
+        if self.status == 'failed':
+            return 'status-pill-warning'
+        return 'status-pill-sending' if self.is_sending else 'status-pill-neutral'
 
     @property
     def plain_failure_reason(self):

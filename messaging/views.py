@@ -2,11 +2,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages as flash_messages
 from django.db.models import Count
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 
+from audit.services import log_action
 from .models import SMSMessage, SMSTemplate
 from .audience import get_recipients, user_can_send_to
+from .failure_reasons import plain_failure_reason
 from .forms import SMSTemplateForm
+from .resend import MAX_RESEND_BATCH, can_resend_messages, resend_in_background, resend_now
 from .services import delivery_report, describe_delivery, send_bulk
 from .services import SYSTEM_TEMPLATES, ensure_system_templates
 from members.models import Member
@@ -31,11 +38,7 @@ def message_list(request):
     all_messages = SMSMessage.objects.for_user(request.user).select_related(
         'template',
     ).order_by('-created_at')
-    status_totals = {status: 0 for status, _ in SMSMessage.STATUS_CHOICES}
-    # order_by() clears the date ordering: left in place, Django groups by
-    # status *and* send time, so each message becomes its own group of one.
-    for row in all_messages.order_by().values('status').annotate(total=Count('id')):
-        status_totals[row['status']] = row['total']
+    status_totals = count_by_status(all_messages)
 
     sent_messages = all_messages
 
@@ -61,8 +64,115 @@ def message_list(request):
             'sent_count': status_totals['sent'],
             'delivered_count': status_totals['delivered'],
             'failed_count': status_totals['failed'],
+            'can_resend': can_resend_messages(request.user),
         },
     )
+
+
+def count_by_status(messages):
+    totals = {status: 0 for status, _ in SMSMessage.STATUS_CHOICES}
+    # order_by() clears the date ordering: left in place, Django groups by
+    # status *and* send time, so each message becomes its own group of one.
+    for row in messages.order_by().values('status').annotate(total=Count('id')):
+        totals[row['status']] = row['total']
+    return totals
+
+
+def _return_to(request, fallback):
+    """Where to go after a resend: the page it was started from, if it is ours."""
+    next_url = request.POST.get('next', '')
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
+    ):
+        return next_url
+    return fallback
+
+
+@login_required
+@require_POST
+def message_resend(request, pk):
+    """Resend one failed text now and report straight away whether it went."""
+    message = get_object_or_404(SMSMessage.objects.for_user(request.user), pk=pk)
+    return_to = _return_to(request, reverse('message_detail', args=[pk]))
+    if not can_resend_messages(request.user):
+        flash_messages.error(request, 'Only church-wide administrators can resend text messages.')
+        return redirect(return_to)
+    if not message.can_resend:
+        if message.status in ('sent', 'delivered'):
+            flash_messages.info(request, f'The text to {message.recipient_phone} was already sent, so it was not sent again.')
+        else:
+            flash_messages.info(request, f'The text to {message.recipient_phone} is already being sent. Its status will update shortly.')
+        return redirect(return_to)
+
+    result = resend_now(message)
+    if result is None:
+        flash_messages.info(request, f'The text to {message.recipient_phone} is already being sent. Its status will update shortly.')
+        return redirect(return_to)
+    log_action(request.user, 'sms_resent', church=result.church,
+               details=f'{result.recipient_phone} - {result.get_status_display()} (attempt {result.attempt_count})')
+    if result.status == 'sent':
+        flash_messages.success(request, f'Text resent to {result.recipient_phone}.')
+    else:
+        flash_messages.error(
+            request,
+            f'The text to {result.recipient_phone} failed again. {plain_failure_reason(result.failure_reason)}',
+        )
+    return redirect(return_to)
+
+
+@login_required
+@require_POST
+def message_resend_many(request):
+    """Resend the ticked failed texts, or every failed text, in the background."""
+    return_to = _return_to(request, reverse('message_list'))
+    if not can_resend_messages(request.user):
+        flash_messages.error(request, 'Only church-wide administrators can resend text messages.')
+        return redirect(return_to)
+
+    church_messages = SMSMessage.objects.for_user(request.user)
+    if request.POST.get('scope') == 'all_failed':
+        chosen = church_messages
+    else:
+        ids = [int(value) for value in request.POST.getlist('message') if value.isdigit()]
+        if not ids:
+            flash_messages.error(request, 'Tick the failed texts you want to resend.')
+            return redirect(return_to)
+        chosen = church_messages.filter(pk__in=ids)
+
+    claimed = resend_in_background(chosen)
+    if not claimed:
+        flash_messages.info(request, 'There were no failed texts to resend.')
+        return redirect(return_to)
+
+    count = len(claimed)
+    log_action(request.user, 'sms_resent', church=request.user.church, details=f'{count} failed text(s) queued to resend')
+    note = f'{count} text{"s are" if count != 1 else " is"} being resent. Each status updates on this page as it is sent.'
+    if count == MAX_RESEND_BATCH:
+        note += ' Resend again for any that are left.'
+    flash_messages.success(request, note)
+    return redirect(return_to)
+
+
+@login_required
+def message_status(request):
+    """Live status of the listed texts, so the page can switch Sending… to Sent or Failed."""
+    ids = [int(value) for value in request.GET.get('ids', '').split(',') if value.strip().isdigit()][:100]
+    church_messages = SMSMessage.objects.for_user(request.user)
+    rows = church_messages.filter(pk__in=ids)
+    totals = count_by_status(church_messages)
+    return JsonResponse({
+        'messages': {
+            str(message.pk): {
+                'status': message.status,
+                'label': message.status_label,
+                'css': message.status_css,
+                'sending': message.is_sending,
+                'can_resend': message.can_resend,
+            }
+            for message in rows
+        },
+        'totals': {'recipients': sum(totals.values()), **totals},
+    })
 
 
 @login_required
@@ -131,7 +241,10 @@ def message_detail(request, pk):
         pk=pk,
     )
 
-    return render(request, 'messaging/message_detail.html', {'message': message})
+    return render(request, 'messaging/message_detail.html', {
+        'message': message,
+        'can_resend': can_resend_messages(request.user),
+    })
 
 
 @login_required

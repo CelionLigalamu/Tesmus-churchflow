@@ -225,22 +225,33 @@ def send_message(church, recipient_phone, body, template=None, dedupe_key=None, 
         template=template,
         dedupe_key=dedupe_key,
         status='queued',
+        last_attempt_at=timezone.now(),
     )
+    return deliver(sms_message)
 
+
+def deliver(sms_message):
+    """Send one recorded text through the provider and record the outcome.
+
+    Used for first sends and for resends alike, so a resent text updates its
+    own record and its status switches to sent or failed accordingly.
+    """
+    church = sms_message.church
     try:
         sender_id = None
         if hasattr(church, 'sms_config'):
             sender_id = church.sms_config.sender_id or None
 
-        message_id = send_sms(recipient_phone, body, sender_id=sender_id)
+        message_id = send_sms(sms_message.recipient_phone, sms_message.body, sender_id=sender_id)
 
         sms_message.status = 'sent'
         # Trimmed to the column size: PostgreSQL refuses longer text, which would
         # wrongly record a delivered message as failed.
         id_length = SMSMessage._meta.get_field('provider_message_id').max_length
         sms_message.provider_message_id = str(message_id or '')[:id_length]
+        sms_message.failure_reason = ''
         sms_message.sent_at = timezone.now()
-        sms_message.save(update_fields=['status', 'provider_message_id', 'sent_at'])
+        sms_message.save(update_fields=['status', 'provider_message_id', 'failure_reason', 'sent_at'])
     except Exception as e:
         sms_message.status = 'failed'
         sms_message.failure_reason = str(e)

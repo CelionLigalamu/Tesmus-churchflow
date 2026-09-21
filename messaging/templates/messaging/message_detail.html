@@ -10,7 +10,16 @@
         <h1>Message Detail</h1>
         <p class="page-subtitle">See this text message and its delivery status.</p>
     </div>
-    <a class="btn btn-brand" href="{% url 'message_list' %}">Back to Messages</a>
+    <div class="page-heading-actions">
+        {% if can_resend and message.can_resend %}
+            <form method="post" action="{% url 'message_resend' message.pk %}" data-confirm="Resend this text to {{ message.recipient_phone }}? This uses SMS credit.">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button class="btn btn-brand" type="submit">Resend text</button>
+            </form>
+        {% endif %}
+        <a class="btn btn-outline-secondary" href="{% url 'message_list' %}">Back to Messages</a>
+    </div>
 </div>
 
 <div class="detail-grid">
@@ -27,9 +36,11 @@
             </div>
             <div>
                 <div class="info-label">Status</div>
-                <span class="status-pill {% if message.status == 'sent' or message.status == 'delivered' %}status-pill-success{% elif message.status == 'failed' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
-                    {{ message.get_status_display }}
-                </span>
+                <span class="status-pill {{ message.status_css }}" data-status-pill data-message-id="{{ message.pk }}" data-sending="{{ message.is_sending|yesno:'true,false' }}">{{ message.status_label }}</span>
+            </div>
+            <div>
+                <div class="info-label">Attempts</div>
+                <div class="info-value">{{ message.attempt_count }}{% if message.last_attempt_at %} &middot; last tried {{ message.last_attempt_at|date:"M j, Y H:i" }}{% endif %}</div>
             </div>
             <div>
                 <div class="info-label">Created</div>
@@ -67,4 +78,30 @@
         </div>
     </section>
 </div>
+
+<script>
+    (() => {
+        document.querySelectorAll('form[data-confirm]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+                if (!window.confirm(form.dataset.confirm)) event.preventDefault();
+            });
+        });
+        // A text being sent in the background: reload once it has been sent or has failed.
+        const pill = document.querySelector('[data-status-pill][data-sending="true"]');
+        if (!pill) return;
+        let checks = 0;
+        const poll = async () => {
+            checks += 1;
+            try {
+                const response = await fetch(`{% url 'message_status' %}?ids=${pill.dataset.messageId}`, { headers: { Accept: 'application/json' } });
+                const info = response.ok ? (await response.json()).messages[pill.dataset.messageId] : null;
+                if (info && !info.sending) { window.location.reload(); return; }
+            } catch (error) {
+                // Try again on the next check.
+            }
+            if (checks < 100) setTimeout(poll, 3000);
+        };
+        setTimeout(poll, 1500);
+    })();
+</script>
 {% endblock %}

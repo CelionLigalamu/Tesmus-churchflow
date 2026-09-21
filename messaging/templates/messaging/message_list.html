@@ -42,39 +42,157 @@
     </div>
 </form>
 
-<div class="table-card">
-    <div class="table-responsive">
-        <table class="table table-custom">
-            <thead>
-                <tr>
-                    <th>Recipient</th>
-                    <th>Message</th>
-                    <th>Audience</th>
-                    <th>Status</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for message in sent_messages %}
-                    <tr>
-                        <td><a class="table-link" href="{% url 'message_detail' message.pk %}">{{ message.recipient_phone }}</a></td>
-                        <td>{{ message.body|truncatechars:96 }}</td>
-                        <td>{% if message.audience_label %}{{ message.audience_label }}{% else %}{{ message.get_audience_type_display }}{% endif %}</td>
-                        <td>
-                            <span class="status-pill {% if message.status == 'sent' or message.status == 'delivered' %}status-pill-success{% elif message.status == 'failed' %}status-pill-warning{% else %}status-pill-neutral{% endif %}">
-                                {{ message.get_status_display }}
-                            </span>
-                        </td>
-                        <td>{{ message.created_at|date:"M j, Y H:i" }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5" class="empty-state">No messages match this view.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% if can_resend and failed_count %}
+<div class="resend-bar" data-resend-bar>
+    <div class="resend-bar-text">
+        <strong>{{ failed_count }} failed text{{ failed_count|pluralize }}</strong>
+        <span>Tick the ones to send again, or resend them all. A text that was already sent is never sent twice.</span>
+    </div>
+    <div class="resend-bar-actions">
+        <button class="btn btn-outline-secondary" type="submit" form="resend-selected-form" data-resend-selected disabled>Resend selected <span data-selected-count></span></button>
+        <form method="post" action="{% url 'message_resend_many' %}" data-confirm="Resend all {{ failed_count }} failed text{{ failed_count|pluralize }}? This uses SMS credit.">
+            {% csrf_token %}
+            <input type="hidden" name="scope" value="all_failed">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="btn btn-brand" type="submit">Resend all failed</button>
+        </form>
     </div>
 </div>
+{% endif %}
+
+<form method="post" action="{% url 'message_resend_many' %}" id="resend-selected-form" data-confirm="Resend the ticked texts? This uses SMS credit.">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        {% if can_resend %}<th class="resend-col"><input type="checkbox" class="resend-check" data-select-all aria-label="Select every failed text on this page"></th>{% endif %}
+                        <th>Recipient</th>
+                        <th>Message</th>
+                        <th>Audience</th>
+                        <th>Status</th>
+                        <th>Timestamp</th>
+                        {% if can_resend %}<th class="text-end"><span class="visually-hidden">Resend</span></th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in sent_messages %}
+                        <tr data-message-id="{{ message.pk }}" data-sending="{{ message.is_sending|yesno:'true,false' }}">
+                            {% if can_resend %}
+                                <td class="resend-col"><input type="checkbox" class="resend-check" name="message" value="{{ message.pk }}" aria-label="Select the text to {{ message.recipient_phone }}" data-resend-control {% if not message.can_resend %}hidden disabled{% endif %}></td>
+                            {% endif %}
+                            <td><a class="table-link" href="{% url 'message_detail' message.pk %}">{{ message.recipient_phone }}</a></td>
+                            <td>{{ message.body|truncatechars:96 }}</td>
+                            <td>{% if message.audience_label %}{{ message.audience_label }}{% else %}{{ message.get_audience_type_display }}{% endif %}</td>
+                            <td><span class="status-pill {{ message.status_css }}" data-status-pill>{{ message.status_label }}</span></td>
+                            <td>{{ message.created_at|date:"M j, Y H:i" }}</td>
+                            {% if can_resend %}
+                                <td class="text-end">
+                                    <button class="btn-resend" type="submit" formaction="{% url 'message_resend' message.pk %}" data-resend-control data-resend-one {% if not message.can_resend %}hidden disabled{% endif %}>Resend</button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{% if can_resend %}7{% else %}5{% endif %}" class="empty-state">No messages match this view.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+<p class="resend-live-note" data-live-note hidden aria-live="polite"></p>
 {% include "includes/pagination.html" %}
+
+<script>
+    (() => {
+        const selectedForm = document.getElementById('resend-selected-form');
+        const selectedButton = document.querySelector('[data-resend-selected]');
+        const selectedCount = document.querySelector('[data-selected-count]');
+        const selectAll = document.querySelector('[data-select-all]');
+        const boxes = () => [...document.querySelectorAll('input[name="message"]:not([disabled])')];
+
+        const refreshSelection = () => {
+            const ticked = boxes().filter((box) => box.checked).length;
+            if (selectedButton) selectedButton.disabled = ticked === 0;
+            if (selectedCount) selectedCount.textContent = ticked ? `(${ticked})` : '';
+            if (selectAll) {
+                const all = boxes();
+                selectAll.checked = all.length > 0 && ticked === all.length;
+                selectAll.disabled = all.length === 0;
+            }
+        };
+        selectAll?.addEventListener('change', () => {
+            boxes().forEach((box) => { box.checked = selectAll.checked; });
+            refreshSelection();
+        });
+        document.addEventListener('change', (event) => {
+            if (event.target.matches('input[name="message"]')) refreshSelection();
+        });
+        refreshSelection();
+
+        // Resending uses SMS credit: ask first. A single "Resend" button skips the
+        // question for the ticked list but still confirms for its own text.
+        document.querySelectorAll('form[data-confirm]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+                const single = event.submitter && event.submitter.hasAttribute('data-resend-one');
+                const question = single ? 'Resend this text? This uses SMS credit.' : form.dataset.confirm;
+                if (!window.confirm(question)) event.preventDefault();
+            });
+        });
+
+        // Texts being sent switch to Sent or Failed on their own, without reloading.
+        const statusUrl = "{% url 'message_status' %}";
+        const note = document.querySelector('[data-live-note]');
+        const metricValues = {};
+        document.querySelectorAll('.metric-row .metric-card').forEach((card) => {
+            const label = card.querySelector('.metric-label')?.textContent.trim().toLowerCase();
+            metricValues[label] = card.querySelector('.metric-value');
+        });
+        let checks = 0;
+        const poll = async () => {
+            const sendingRows = [...document.querySelectorAll('tr[data-sending="true"]')];
+            if (!sendingRows.length || checks > 100) return;
+            checks += 1;
+            if (note) { note.hidden = false; note.textContent = `Sending ${sendingRows.length} text${sendingRows.length === 1 ? '' : 's'}… this page updates by itself.`; }
+            try {
+                const ids = sendingRows.map((row) => row.dataset.messageId).join(',');
+                const response = await fetch(`${statusUrl}?ids=${ids}`, { headers: { Accept: 'application/json' } });
+                if (response.ok) {
+                    const data = await response.json();
+                    sendingRows.forEach((row) => {
+                        const info = data.messages[row.dataset.messageId];
+                        if (!info) return;
+                        const pill = row.querySelector('[data-status-pill]');
+                        pill.className = `status-pill ${info.css}`;
+                        pill.textContent = info.label;
+                        row.dataset.sending = info.sending ? 'true' : 'false';
+                        row.querySelectorAll('[data-resend-control]').forEach((control) => {
+                            control.hidden = !info.can_resend;
+                            control.disabled = !info.can_resend;
+                            if (!info.can_resend && control.type === 'checkbox') control.checked = false;
+                        });
+                    });
+                    const totals = data.totals;
+                    if (metricValues['total recipients']) metricValues['total recipients'].textContent = totals.recipients;
+                    if (metricValues['sent']) metricValues['sent'].textContent = totals.sent;
+                    if (metricValues['delivered']) metricValues['delivered'].textContent = totals.delivered;
+                    if (metricValues['failed']) metricValues['failed'].textContent = totals.failed;
+                    refreshSelection();
+                }
+            } catch (error) {
+                // A dropped connection only pauses the updates; the next check tries again.
+            }
+            if (document.querySelector('tr[data-sending="true"]')) {
+                setTimeout(poll, 3000);
+            } else if (note) {
+                note.textContent = 'All resends have finished.';
+            }
+        };
+        setTimeout(poll, 1500);
+    })();
+</script>
 {% endblock %}

@@ -1607,3 +1607,21 @@ html[data-theme="dark"] .btn-outline-danger {
 .failure-technical { margin-top: .5rem; font-size: .78rem; color: var(--text-secondary); }
 .failure-technical summary { cursor: pointer; }
 .failure-technical code { display: block; margin-top: .35rem; white-space: pre-wrap; word-break: break-word; color: var(--text-secondary); }
+
+/* --- Resending failed text messages (uses each church's own colours) --- */
+.resend-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin-bottom: 16px; padding: 14px 18px; background: color-mix(in srgb, var(--color-warning) 8%, var(--bg-surface)); border: 1px solid color-mix(in srgb, var(--color-warning) 30%, var(--border-color)); border-radius: 14px; }
+.resend-bar-text strong { display: block; color: var(--text-primary); font-size: .95rem; }
+.resend-bar-text span { color: var(--text-secondary); font-size: .84rem; }
+.resend-bar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.resend-bar-actions form { margin: 0; }
+.resend-col { width: 44px; }
+.resend-check { width: 18px; height: 18px; cursor: pointer; accent-color: var(--brand-primary); vertical-align: middle; }
+.btn-resend { padding: 5px 14px; border: 1px solid var(--brand-primary); border-radius: 999px; background: transparent; color: var(--brand-ink); font-size: .78rem; font-weight: 650; cursor: pointer; transition: background-color .15s ease, color .15s ease; }
+.btn-resend:hover, .btn-resend:focus-visible { background: var(--brand-primary); color: var(--brand-on-fill); outline: none; }
+.status-pill-sending { gap: 6px; background-color: var(--brand-tint); border-color: color-mix(in srgb, var(--brand-primary) 35%, var(--border-color)); color: var(--brand-ink); text-transform: none; }
+.status-pill-sending::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brand-primary); animation: resendPulse 1.1s ease-in-out infinite; }
+@keyframes resendPulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+.resend-live-note { margin: -4px 0 16px; color: var(--text-secondary); font-size: .85rem; }
+.page-heading-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.page-heading-actions form { margin: 0; }
+@media (prefers-reduced-motion: reduce) { .status-pill-sending::before { animation: none; } }
