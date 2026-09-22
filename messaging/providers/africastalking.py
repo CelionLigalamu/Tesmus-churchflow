@@ -11,9 +11,20 @@ def normalize_phone(phone):
         return '+' + phone
     return phone
 
+def clean_setting(value):
+    """Settings pasted into a server often carry a stray space or line break.
+
+    The API key travels as a request header, and a header holding a line break
+    is refused before the text is even sent, so everything is trimmed here.
+    """
+    return (value or '').strip()
+
+
 def send_sms(recipient_phone, message, sender_id=None):
-    username = os.getenv('AFRICASTALKING_USERNAME')
-    api_key = os.getenv('AFRICASTALKING_API_KEY')
+    username = clean_setting(os.getenv('AFRICASTALKING_USERNAME'))
+    api_key = clean_setting(os.getenv('AFRICASTALKING_API_KEY'))
+    if not username or not api_key:
+        raise RuntimeError('The Africa\'s Talking username or API key is missing from this server.')
 
     africastalking.initialize(username, api_key)
     sms = africastalking.SMS
@@ -21,6 +32,7 @@ def send_sms(recipient_phone, message, sender_id=None):
     recipient_phone = normalize_phone(recipient_phone)
 
     kwargs = {}
+    sender_id = clean_setting(sender_id)
     if sender_id:
         kwargs['sender_id'] = sender_id
 

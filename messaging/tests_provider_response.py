@@ -1,9 +1,11 @@
+import os
 from unittest import mock
 
 from django.test import SimpleTestCase, TestCase
 
 from messaging import failure_reasons as reasons
-from messaging.models import SMSMessage
+from messaging.failure_reasons import plain_failure_reason
+from messaging.models import SMSConfiguration, SMSMessage
 from messaging.providers.africastalking import SMSRejected, message_id_from_response, send_sms
 from messaging.services import send_message
 from tenants.models import Church
@@ -69,6 +71,31 @@ class SendMessageRecordTests(TestCase):
         message.refresh_from_db()
         self.assertEqual(message.status, 'sent')
         self.assertEqual(len(message.provider_message_id), SMSMessage._meta.get_field('provider_message_id').max_length)
+
+    def test_settings_with_a_stray_line_break_still_send(self):
+        """A key copied into a server usually carries a line break, which a header refuses."""
+        env = {'AFRICASTALKING_USERNAME': 'TesmusTechnologiesLimited\n', 'AFRICASTALKING_API_KEY': ' atsk_livekey \n'}
+        with mock.patch.dict(os.environ, env), mock.patch('messaging.providers.africastalking.africastalking') as provider:
+            provider.SMS.send.return_value = at_response()
+            message = send_message(self.church, '0712345678', 'Hello')
+        provider.initialize.assert_called_once_with('TesmusTechnologiesLimited', 'atsk_livekey')
+        self.assertEqual(message.status, 'sent')
+
+    def test_a_stray_line_break_in_the_church_sender_name_is_trimmed(self):
+        SMSConfiguration.objects.create(church=self.church, sender_id=' PLCM\n')
+        self.church.refresh_from_db()
+        env = {'AFRICASTALKING_USERNAME': 'TesmusTechnologiesLimited', 'AFRICASTALKING_API_KEY': 'atsk_livekey'}
+        with mock.patch.dict(os.environ, env), mock.patch('messaging.providers.africastalking.africastalking') as provider:
+            provider.SMS.send.return_value = at_response()
+            send_message(self.church, '0712345678', 'Hello')
+        provider.SMS.send.assert_called_once_with('Hello', ['+254712345678'], sender_id='PLCM')
+
+    def test_missing_settings_are_reported_in_plain_words(self):
+        env = {'AFRICASTALKING_USERNAME': '', 'AFRICASTALKING_API_KEY': ''}
+        with mock.patch.dict(os.environ, env):
+            message = send_message(self.church, '0712345678', 'Hello')
+        self.assertEqual(message.status, 'failed')
+        self.assertEqual(plain_failure_reason(message.failure_reason), reasons.ACCOUNT_SETTINGS)
 
     def test_a_refused_recipient_is_recorded_as_failed_in_plain_words(self):
         with mock.patch('messaging.providers.africastalking.africastalking') as provider:
